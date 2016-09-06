@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="top"
+        >
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="0.1"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            style="@style/LV_TextTitleStyle"
+            android:text="K"
+            android:background="@drawable/listview_title_border"/>
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="0.4"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            style="@style/LV_TextTitleStyle"
+            android:text="@string/Enable"
+            android:background="@drawable/listview_title_border"/>
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="0.5"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            style="@style/LV_TextTitleStyle"
+            android:text="@string/Address"
+            android:background="@drawable/listview_title_border"/>
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            style="@style/LV_TextTitleStyle"
+            android:text="@string/ValueNoColon"
+            android:background="@drawable/listview_title_border"/>
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="0.4"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            style="@style/LV_TextTitleStyle"
+            android:text="@string/Mode"
+            android:background="@drawable/listview_title_border"/>
+    </LinearLayout>
+
+    <ListView
+        android:id="@+id/LV_KeyData"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        />
+
+</LinearLayout>

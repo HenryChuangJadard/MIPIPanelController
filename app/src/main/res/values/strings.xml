@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">JPVR</string>
+    <string name="Key">Key</string>
+    <string name="Submit">Submit</string>
+    <string name="Mode">Mode</string>
+    <string name="Read">Read</string>
+    <string name="Add">Add:</string>
+    <string name="Address">Address</string>
+    <string name="Value">Value:</string>
+    <string name="ValueNoColon">Value:</string>
+    <string name="ReadCommand">Read command</string>
+    <string name="WriteCommand">Write command</string>
+    <string name="Length">Byte(s):</string>
+    <string name="DefaultReadByte">1</string>
+    <string name="R">R</string>
+    <string name="Enable">Enable</string>
+    <string name="W">W</string>
+
+    <string name="title_activity_fullscreen">FullscreenActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="NewKey">Key</string>
+</resources>
