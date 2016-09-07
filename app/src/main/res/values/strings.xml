@@ -5,17 +5,23 @@
     <string name="Mode">Mode</string>
     <string name="Read">Read</string>
     <string name="Add">Add:</string>
+    <string name="LoadFile">Load File</string>
+    <string name="SaveFile">Save</string>
+    <string name="SaveFileAs">Save As</string>
+    <string name="AddKey">Add Key</string>
     <string name="Address">Address</string>
     <string name="Value">Value:</string>
     <string name="ValueNoColon">Value:</string>
     <string name="ReadCommand">Read command</string>
     <string name="WriteCommand">Write command</string>
+    <string name="SelectFile2Load">Select File To Load </string>
     <string name="Length">Byte(s):</string>
     <string name="DefaultReadByte">1</string>
     <string name="R">R</string>
     <string name="Enable">Enable</string>
     <string name="W">W</string>
 
+    <string name="SaveAsDialogTitle">Input filename to save</string>
     <string name="title_activity_fullscreen">FullscreenActivity</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>

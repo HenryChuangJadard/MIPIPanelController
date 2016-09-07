@@ -18,6 +18,7 @@ public class KeyData {
     private String Value = "";
     private boolean bEnable = false;
     public boolean bNeedUpdate = false;
+    public boolean vCreated = false;
     final String TAG = "KeyData";
 
     public TextView TV_Key;
@@ -31,6 +32,9 @@ public class KeyData {
         intiBaseParameters(keycode, address, value);
         this.bReadMode = bReadMode;
         this.bEnable = enable;
+        this.vCreated = false;
+
+        Log.d(TAG,toString());
     }
 
     public KeyData(String keycode, String address, String value, boolean enable){
@@ -85,7 +89,19 @@ public class KeyData {
 
     public boolean getReadMode(){return bReadMode;}
 
+    public String toString(){
+        StringBuilder sb = new StringBuilder();
+        sb.append("Key: "+strKeyCode).append("\n");
+        sb.append("bEnable: "+bEnable).append("\n");
+        sb.append("Address: "+Address).append("\n");
+        sb.append("Value: "+Value).append("\n");
+        sb.append("bReadMode: "+bReadMode).append("\n");
+
+
+        return sb.toString();
+    }
     public void updateView(){
+        Log.d(TAG,"updateView: ");
         if(TV_Key!=null){
 //            BT_Key.setEnabled(this.bEnable);
             TV_Key.setText(strKeyCode);
@@ -110,14 +126,15 @@ public class KeyData {
     }
 
     public void updateParameters(){
-        bEnable = SW_Key.isChecked();
-        bReadMode = RB_ReadMode.isChecked();
-        Value=ET_Value.getText().toString().trim();
-        Address = ET_Address.getText().toString().trim();
-        Log.d(TAG,"bEnable: "+bEnable);
-        Log.d(TAG,"bReadMode: "+bReadMode);
-        Log.d(TAG,"Address: "+Address);
-        Log.d(TAG,"Value: "+Value);
+        if(SW_Key!=null)
+            bEnable = SW_Key.isChecked();
+        if(RB_ReadMode!=null)
+            bReadMode = RB_ReadMode.isChecked();
+        if(ET_Value!=null)
+            Value=ET_Value.getText().toString().trim();
+        if(ET_Address!=null)
+            Address = ET_Address.getText().toString().trim();
+        Log.d(TAG,"updateParameters key: "+strKeyCode);
     }
 
 

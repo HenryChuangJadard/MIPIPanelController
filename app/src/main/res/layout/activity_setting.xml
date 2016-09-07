@@ -4,7 +4,8 @@
     android:layout_height="wrap_content">
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="0.1"
         android:orientation="horizontal"
         android:layout_gravity="top"
         >
@@ -53,7 +54,107 @@
     <ListView
         android:id="@+id/LV_KeyData"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.1"
+        android:orientation="horizontal"
+        android:layout_gravity="top"
+        >
+        <Button
+            android:id="@+id/BT_AddKey"
+            android:text="@string/AddKey"
+            android:layout_marginLeft="5dp"
+            android:layout_marginStart="5dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:textColor="@color/colorBlack"
+            android:background="@drawable/read_rb_background"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.1"
+        android:orientation="horizontal"
+        android:layout_gravity="top"
+        >
+        <EditText
+            android:layout_width="0dp"
+            android:layout_weight="0.15"
+            android:id="@+id/ET_KeyIn"
+            android:maxLength="1"
+            android:inputType="text"
+            style="@style/TextTitleStyle"
+            android:layout_height="match_parent" />
+        <Switch
+            android:layout_height="match_parent"
+            android:layout_width="0dp"
+            android:layout_weight="0.4"
+            android:id="@+id/SW_EnableIn" />
+        <EditText
+            android:id="@+id/ET_AddressIn"
+            android:layout_width="0dp"
+            android:layout_weight="0.5"
+            android:layout_height="match_parent"
+            android:digits="0123456789ABCDEF"
+            android:maxLength="4"
+            style="@style/TextTitleStyle"
+            android:inputType="textCapCharacters"
+            />
+        <EditText
+            android:id="@+id/ET_ValueIn"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:digits="0123456789ABCDEF"
+            android:maxLength="16"
+            android:layout_marginLeft="3dp"
+            style="@style/TextTitleStyle"
+            android:inputType="textCapCharacters"
+            />
+        <Switch
+            android:id="@+id/SW_ModeIn"
+            android:layout_width="0dp"
+            android:layout_weight="0.4"
+            android:textOff="@string/W"
+            android:textOn="@string/R"
+            android:layout_height="match_parent"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.1"
+        android:orientation="horizontal"
+        android:layout_gravity="top"
+        >
+        <Button
+            android:id="@+id/BT_Load"
+            android:text="@string/LoadFile"
+            android:layout_width="0dp"
+            android:layout_weight="0.5"
+            android:background="@drawable/read_rb_background"
+            android:textColor="@color/colorBlack"
+            android:layout_height="match_parent" />
+        <Button
+            android:id="@+id/BT_Save"
+            android:text="@string/SaveFile"
+            android:layout_width="0dp"
+            android:layout_weight="0.5"
+            android:background="@drawable/read_rb_background"
+            android:textColor="@color/colorBlack"
+            android:layout_height="match_parent" />
+        <Button
+            android:id="@+id/BT_SaveAs"
+            android:text="@string/SaveFileAs"
+            android:layout_width="0dp"
+            android:layout_weight="0.5"
+            android:background="@drawable/read_rb_background"
+            android:textColor="@color/colorBlack"
+            android:layout_height="match_parent" />
+    </LinearLayout>
 
 </LinearLayout>

@@ -32,8 +32,21 @@ public class KeyDataAdapter extends BaseAdapter{
         this.keyDatas = kdatas;
     }
 
+//    public void updateKeyDatas(ArrayList<KeyData> kdatas){
+//        keyDatas= kdatas;
+//        notifyDataSetChanged();
+//    }
+//
+//    public void addKeyData(KeyData kd){
+//        if(kd!=null) {
+//            keyDatas.add(kd);
+//            notifyDataSetChanged();
+//        }
+//    }
+
     @Override
     public int getCount() {
+        Log.v(TAG, "keyDatas.size():"+keyDatas.size());
         return keyDatas.size();
     }
 
@@ -53,7 +66,7 @@ public class KeyDataAdapter extends BaseAdapter{
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        KeyData kd;
+        KeyData kd = null;
         Log.v(TAG, "In position:"+position);
         if(convertView==null){
             Log.v(TAG, "position:"+position);
@@ -64,12 +77,12 @@ public class KeyDataAdapter extends BaseAdapter{
             kd.ET_Value =(EditText) convertView.findViewById(R.id.ET_Value);
             kd.SW_Key = (Switch) convertView.findViewById(R.id.SW_Key);
             kd.TV_Key = (TextView) convertView.findViewById(R.id.TV_Key);
-            Log.v(TAG, "kd.BT_Key.getId():"+kd.SW_Key.getId());
-            Log.v(TAG, "kd.BT_Key:"+kd.SW_Key);
-            Log.v(TAG, "kd.RB_ReadMode.getId():"+kd.RB_ReadMode.getId());
-            Log.v(TAG, "kd.RB_ReadMode:"+kd.RB_ReadMode);
-            Log.v(TAG, "kd.ET_Address.getId():"+kd.ET_Address.getId());
-            Log.v(TAG, "kd.ET_Address:"+kd.ET_Address);
+//            Log.v(TAG, "kd.BT_Key.getId():"+kd.SW_Key.getId());
+//            Log.v(TAG, "kd.BT_Key:"+kd.SW_Key);
+//            Log.v(TAG, "kd.RB_ReadMode.getId():"+kd.RB_ReadMode.getId());
+//            Log.v(TAG, "kd.RB_ReadMode:"+kd.RB_ReadMode);
+//            Log.v(TAG, "kd.ET_Address.getId():"+kd.ET_Address.getId());
+//            Log.v(TAG, "kd.ET_Address:"+kd.ET_Address);
 
             kd.SW_Key.setOnCheckedChangeListener(KeySwitchListener);
             kd.RB_ReadMode.setOnCheckedChangeListener(KeySwitchListener);
@@ -82,7 +95,7 @@ public class KeyDataAdapter extends BaseAdapter{
         else{
             kd=(KeyData)convertView.getTag();
         }
-        if(kd.bNeedUpdate) {
+        if(kd!=null && kd.bNeedUpdate) {
             Log.v(TAG, "bNeedUpdate set for updating views");
             kd.updateView();
         }

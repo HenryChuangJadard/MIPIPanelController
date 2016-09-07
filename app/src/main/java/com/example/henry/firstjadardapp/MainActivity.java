@@ -22,6 +22,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.example.henry.firstjadardapp.UtilsSharedPref.UtilsSharedPref;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
@@ -218,6 +220,8 @@ final String imageFiles[]={"005_boarder.bmp","005_boarder.bmp","005_boarder.bmp"
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
         Log.d("JPVR", "Display width in px is " + metrics.widthPixels);
         Log.d("JPVR", "Display height in px is " + metrics.heightPixels);
+
+        UtilsSharedPref.getInstance().Initialize(MainActivity.this);
 
         op = new BitmapFactory.Options();
         op.inPreferredConfig = Bitmap.Config.ARGB_8888;
