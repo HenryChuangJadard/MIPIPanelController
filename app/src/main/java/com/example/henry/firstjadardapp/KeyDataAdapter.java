@@ -1,7 +1,10 @@
 package com.example.henry.firstjadardapp;
 
 import android.content.Context;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -14,6 +17,7 @@ import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -71,26 +75,42 @@ public class KeyDataAdapter extends BaseAdapter{
         if(convertView==null){
             Log.v(TAG, "position:"+position);
             kd =keyDatas.get(position);
-            convertView = mInflater.inflate(R.layout.key_data_view, null);
-            kd.RB_ReadMode=(Switch) convertView.findViewById(R.id.SW_bRead);
-            kd.ET_Address =(EditText) convertView.findViewById(R.id.ET_Address);
-            kd.ET_Value =(EditText) convertView.findViewById(R.id.ET_Value);
-            kd.SW_Key = (Switch) convertView.findViewById(R.id.SW_Key);
-            kd.TV_Key = (TextView) convertView.findViewById(R.id.TV_Key);
-//            Log.v(TAG, "kd.BT_Key.getId():"+kd.SW_Key.getId());
-//            Log.v(TAG, "kd.BT_Key:"+kd.SW_Key);
-//            Log.v(TAG, "kd.RB_ReadMode.getId():"+kd.RB_ReadMode.getId());
-//            Log.v(TAG, "kd.RB_ReadMode:"+kd.RB_ReadMode);
-//            Log.v(TAG, "kd.ET_Address.getId():"+kd.ET_Address.getId());
-//            Log.v(TAG, "kd.ET_Address:"+kd.ET_Address);
+            if(parent.getChildAt(position)==null){
+                convertView = mInflater.inflate(R.layout.key_data_view, null);
 
-            kd.SW_Key.setOnCheckedChangeListener(KeySwitchListener);
-            kd.RB_ReadMode.setOnCheckedChangeListener(KeySwitchListener);
-//            kd.RB_ReadMode.setOnClickListener(KeySwitchListener);
-//            kd.RB_ReadMode.setClickable(true);
-//            kd.RB_ReadMode.setChecked(true);
-            kd.updateView();
-            convertView.setTag(kd);
+                kd.RB_ReadMode = (Switch) convertView.findViewById(R.id.SW_bRead);
+                kd.ET_Address = (EditText) convertView.findViewById(R.id.ET_Address);
+                kd.ET_Value = (EditText) convertView.findViewById(R.id.ET_Value);
+                kd.ET_Length = (EditText) convertView.findViewById(R.id.ET_Length);
+                kd.SW_Key = (Switch) convertView.findViewById(R.id.SW_Key);
+                kd.TV_Key = (TextView) convertView.findViewById(R.id.TV_Key);
+                kd.CB_delete = (CheckBox) convertView.findViewById(R.id.CB_Del);
+    //            Log.v(TAG, "kd.BT_Key.getId():"+kd.SW_Key.getId());
+    //            Log.v(TAG, "kd.BT_Key:"+kd.SW_Key);
+    //            Log.v(TAG, "kd.RB_ReadMode.getId():"+kd.RB_ReadMode.getId());
+    //            Log.v(TAG, "kd.RB_ReadMode:"+kd.RB_ReadMode);
+    //            Log.v(TAG, "kd.ET_Address.getId():"+kd.ET_Address.getId());
+    //            Log.v(TAG, "kd.ET_Address:"+kd.ET_Address);
+
+                kd.SW_Key.setClickable(false);
+                kd.RB_ReadMode.setClickable(false);
+
+
+                kd.SW_Key.setOnCheckedChangeListener(KeySwitchListener);
+                kd.RB_ReadMode.setOnCheckedChangeListener(KeySwitchListener);
+                kd.ET_Address.setOnKeyListener(ET_keyListener);
+                kd.ET_Value.setOnKeyListener(ET_keyListener);
+                kd.ET_Length.setOnKeyListener(ET_keyListener);
+                kd.ET_Address.setOnFocusChangeListener(ET_focusListener);
+                kd.ET_Value.setOnFocusChangeListener(ET_focusListener);
+                kd.ET_Length.setOnFocusChangeListener(ET_focusListener);
+                convertView.setTag(kd);
+                kd.updateView();
+                kd.SW_Key.setClickable(true);
+                kd.RB_ReadMode.setClickable(true);
+            }else{
+                convertView= parent.getChildAt(position);
+            }
         }
         else{
             kd=(KeyData)convertView.getTag();
@@ -98,38 +118,75 @@ public class KeyDataAdapter extends BaseAdapter{
         if(kd!=null && kd.bNeedUpdate) {
             Log.v(TAG, "bNeedUpdate set for updating views");
             kd.updateView();
+            kd.updateToPrefDB();
         }
 
         return convertView;
     }
 
+    View.OnFocusChangeListener ET_focusListener =  new View.OnFocusChangeListener() {
+        @Override
+        public void onFocusChange(View v, boolean hasFocus) {
+
+            if(!hasFocus) {
+                KeyData kd = findKeyData(v, v.getId());
+                if(kd==null){
+                    kd = keyDatas.get(0);
+                }
+                if(kd.bNeedUpdate) {
+                    Log.d(TAG, "ET_focusListener text:" + ((EditText) v).getText());
+                    kd.updateParameters();
+                    kd.bNeedUpdate = false;
+                }
+            }
+        }
+    };
 
 
-//    @Override
-//    public boolean onTouch(View v, MotionEvent event) {
+    View.OnKeyListener ET_keyListener= new View.OnKeyListener() {
+        @Override
+        public boolean onKey(View v, int keyCode, KeyEvent event) {
+
+            if(event.getAction() == KeyEvent.ACTION_UP) {
+                Log.d(TAG, "ET_keyListener text:"+((EditText)v).getText());
+                KeyData kd = findKeyData(v,v.getId());
+                if(kd==null){
+                    Log.d(TAG, "ET_keyListener kd==null key:" + keyDatas.get(0).getStrKeyCode());
+                    kd = keyDatas.get(0);
+                }
+                if((keyCode == KeyEvent.KEYCODE_ESCAPE)||(keyCode == KeyEvent.KEYCODE_ALT_LEFT)){
+//                    v.onWindowFocusChanged(false);
+//                    kd.TV_Key.onWindowFocusChanged(true);
+                    v.clearFocus();
+                    return true;
+                }
+
+                kd.bNeedUpdate = true;
+            }
+            return false;
+        }
+    };
+//    TextWatcher etWatcher = new TextWatcher() {
 //
-//        switch (event.getAction() & MotionEvent.ACTION_MASK) {
 //
-//            case MotionEvent.ACTION_DOWN:
-//                v.setPressed(true);
-//                // Start action ...
-//                break;
-//            case MotionEvent.ACTION_UP:
-//            case MotionEvent.ACTION_OUTSIDE:
-//            case MotionEvent.ACTION_CANCEL:
-//                v.setPressed(false);
-//                // Stop action ...
-//                break;
-//            case MotionEvent.ACTION_POINTER_DOWN:
-//                break;
-//            case MotionEvent.ACTION_POINTER_UP:
-//                break;
-//            case MotionEvent.ACTION_MOVE:
-//                break;
+//        @Override
+//        public void afterTextChanged(Editable s) {
+//            // TODO Auto-generated method stub
+//            Log.d(TAG, "class:"+ s.getClass());
 //        }
 //
-//        return true;
-//    }
+//        @Override
+//        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+//            // TODO Auto-generated method stub
+//
+//        }
+//
+//        @Override
+//        public void onTextChanged(CharSequence s, int start, int before, int count) {
+//
+//        }
+//
+//    };
 
     CompoundButton.OnCheckedChangeListener KeySwitchListener =  new CompoundButton.OnCheckedChangeListener() {
 
@@ -137,108 +194,25 @@ public class KeyDataAdapter extends BaseAdapter{
         public void onCheckedChanged(CompoundButton buttonView,
         boolean isChecked) {
             KeyData kd = findKeyData(buttonView,buttonView.getId());
-            Log.v(TAG,"buttonView:"+buttonView);
-            Log.v(TAG,"isChecked:"+isChecked);
+            if(kd==null){
+                kd = keyDatas.get(0);
+            }
+            Log.v(TAG,"KeySwitchListener "+kd.getStrKeyCode()+" isChecked:"+isChecked);
+            if(buttonView.getId()==R.id.SW_Key){
+                Log.e(TAG,"KeySwitchListener SW_Key");
+                kd.SW_Key.setChecked(isChecked);
+                kd.setEnable(isChecked);
+            }else if(buttonView.getId()==R.id.SW_bRead){
+                Log.e(TAG,"KeySwitchListener SW_bRead");
+                kd.RB_ReadMode.setChecked(isChecked);
+                kd.setReadMode(isChecked);
+            }
 
-            if (isChecked) {
-                Log.v(TAG,"isChecked set:"+buttonView.isChecked());
-            } else {
-                Log.v(TAG,"isChecked unset:"+buttonView.isChecked());
-            }
-            if(kd!=null) {
-                kd.updateParameters();
-            }
-            else {
-//                this is a trick while kd not found that indicates index 0.
-                keyDatas.get(0).updateParameters();
-            }
 
         }
     };
 
-//    View.OnClickListener KeyViewOnClickListerner = new View.OnClickListener() {
-//
-//            @Override
-//            public void onClick(View v) {
-//                KeyData kd;
-//                Log.v(TAG,"KeyViewOnClickListerner ID:"+v.getId());
-//                Log.v(TAG,"View:"+v);
-//                Log.v(TAG,"isPressed:"+v.isPressed());
-////                Log.v(TAG, "kd.BT_Key.getId():"+kd.BT_Key.getId());
-////                Log.v(TAG, "kd.BT_Key:"+kd.BT_Key);
-////                Log.v(TAG, "kd.RB_ReadMode:"+kd.RB_ReadMode);
-////                Log.v(TAG, "kd.ET_Address:"+kd.ET_Address);
-//
-//                switch(v.getId()){
-//                    case R.id.BT_Key:
-//                        kd = findKeyData(v,R.id.BT_Key);
-//                        if(kd!=null) {
-//                            kd.setEnable(kd.BT_Key.isSelected());
-//                        }
-//                        break;
-//                    case R.id.RB_bRead:
-//                        kd = findKeyData(v,R.id.RB_bRead);
-//                        if(kd!=null) {
-//                            Log.v(TAG,"kd.RB_ReadMode.isChecked():"+kd.RB_ReadMode.isChecked());
-//                            if(kd.RB_ReadMode.isChecked())
-//                                kd.RB_ReadMode.setChecked(false);
-//                            else
-//                                kd.RB_ReadMode.setChecked(true);
-//                            kd.setEnable(kd.RB_ReadMode.isChecked());
-//                        }
-//                        break;
-//                }
-//                notifyDataSetChanged();
-//            }
-//        };
 
-//    View.OnClickListener RBOnClickListerner = new View.OnClickListener() {
-//
-//        @Override
-//        public void onClick(View v) {
-//            KeyData kd;
-//            Log.v(TAG,"RBOnClickListerner ID:"+v.getId());
-//            Log.v(TAG,"isPressed:"+v.isPressed());
-//
-//            switch(v.getId()){
-//                case R.id.BT_Key:
-//                    kd = findKeyData(v,R.id.BT_Key);
-//                    if(kd!=null) {
-//                        kd.setEnable(kd.BT_Key.isSelected());
-//                    }
-//                    break;
-//                case R.id.RB_bRead:
-////                    kd = findKeyData(v,R.id.RB_bRead);
-////                    if(kd!=null) {
-////                        kd.RB_ReadMode.setEnabled(true);
-////                        Log.v(TAG,"kd.RB_ReadMode.isChecked():"+kd.RB_ReadMode.isChecked());
-////                        if(kd.RB_ReadMode.isChecked()) {
-////                            kd.RB_ReadMode.setChecked(false);
-////                            Log.v(TAG, "kd.RB_ReadMode.setChecked(false):" + kd.RB_ReadMode.isChecked());
-////                        }
-////                        else {
-////                            kd.RB_ReadMode.setChecked(true);
-////                            Log.v(TAG, "kd.RB_ReadMode.setChecked(false):" + kd.RB_ReadMode.isChecked());
-////                        }
-////                        kd.setEnable(kd.RB_ReadMode.isChecked());
-////                    }
-//
-//                    {
-//                        Log.v(TAG,"v.isChecked():"+((CheckBox)v).isChecked());
-//                        if(((CheckBox)v).isChecked()) {
-//                            ((CheckBox)v).setChecked(false);
-//                            Log.v(TAG, "((CheckBox)v).setChecked(false):" + ((CheckBox)v).isChecked());
-//                        }
-//                        else {
-//                            ((CheckBox)v).setChecked(true);
-//                            Log.v(TAG, "((CheckBox)v).setChecked(false):" + ((CheckBox)v).isChecked());
-//                        }
-//                    }
-//                    break;
-//            }
-//            notifyDataSetChanged();
-//        }
-//    };
 
     private KeyData findKeyData(View v, int typeID){
 
@@ -259,7 +233,13 @@ public class KeyDataAdapter extends BaseAdapter{
                 if (v == keyDatas.get(i).ET_Value)
                     return keyDatas.get(i);
             }
-        }else if(typeID == R.id.SW_bRead) {
+        }else if(typeID == R.id.ET_Length) {
+            for (int i = 0; i < keyDatas.size(); i++) {
+                if (v == keyDatas.get(i).ET_Length)
+                    return keyDatas.get(i);
+            }
+        }
+        else if(typeID == R.id.SW_bRead) {
             for (int i = 0; i < keyDatas.size(); i++) {
                 if (v == keyDatas.get(i).RB_ReadMode)
                     return keyDatas.get(i);

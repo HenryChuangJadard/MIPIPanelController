@@ -46,6 +46,19 @@
         style="@style/TextTitleStyle"
         android:inputType="textCapCharacters"
         />
+    <EditText
+        android:id="@+id/ET_Length"
+        android:layout_width="0dp"
+        android:layout_weight="0.2"
+        android:layout_height="match_parent"
+        android:gravity="center_horizontal"
+        android:digits="0123456789"
+        android:maxLength="2"
+        android:layout_marginLeft="3dp"
+        android:layout_marginStart="3dp"
+        style="@style/TextTitleStyle"
+        android:inputType="numberDecimal"
+        />
     <Switch
         android:id="@+id/SW_bRead"
         android:layout_width="0dp"
@@ -53,4 +66,10 @@
         android:textOff="@string/W"
         android:textOn="@string/R"
         android:layout_height="match_parent"/>
+    <CheckBox
+        android:id="@+id/CB_Del"
+        android:gravity="center_horizontal"
+        android:layout_width="0dp"
+        android:layout_weight="0.2"
+        android:layout_height="match_parent" />
 </LinearLayout>

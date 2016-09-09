@@ -2,9 +2,12 @@ package com.example.henry.firstjadardapp;
 
 import android.util.Log;
 import android.view.KeyEvent;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.TextView;
+
+import com.example.henry.firstjadardapp.UtilsSharedPref.UtilsSharedPref;
 
 
 /**
@@ -16,6 +19,7 @@ public class KeyData {
     private boolean bReadMode = false;
     private String Address = "";
     private String Value = "";
+    private int Length = 1;
     private boolean bEnable = false;
     public boolean bNeedUpdate = false;
     public boolean vCreated = false;
@@ -23,10 +27,20 @@ public class KeyData {
 
     public TextView TV_Key;
     public Switch SW_Key;
-    public EditText ET_Address, ET_Value;
+    public EditText ET_Address, ET_Value, ET_Length;
     public Switch RB_ReadMode;
+    public CheckBox CB_delete;
 
     public static final String KEYCODE_PREFIX = "KEYCODE_";
+
+    public KeyData(boolean bReadMode,String keycode, String address, String value, boolean enable, int length){
+        intiBaseParameters(keycode, address, value);
+        this.bReadMode = bReadMode;
+        this.bEnable = enable;
+        this.vCreated = false;
+        this.Length = length;
+        Log.d(TAG,toString());
+    }
 
     public KeyData(boolean bReadMode,String keycode, String address, String value, boolean enable){
         intiBaseParameters(keycode, address, value);
@@ -44,6 +58,13 @@ public class KeyData {
 
     public KeyData(String keycode, String address, String value){
         intiBaseParameters(keycode, address, value);
+    }
+
+    public boolean isDeleteSelected(){
+        if(CB_delete!=null)
+            return CB_delete.isChecked();
+
+        return false;
     }
 
     public void setKeyCode(String keyCode)
@@ -89,6 +110,13 @@ public class KeyData {
 
     public boolean getReadMode(){return bReadMode;}
 
+    public int getLength(){return Length;}
+
+    public void setLength(int length){
+        Length = length;
+        bNeedUpdate = true;
+    }
+
     public String toString(){
         StringBuilder sb = new StringBuilder();
         sb.append("Key: "+strKeyCode).append("\n");
@@ -96,12 +124,14 @@ public class KeyData {
         sb.append("Address: "+Address).append("\n");
         sb.append("Value: "+Value).append("\n");
         sb.append("bReadMode: "+bReadMode).append("\n");
+        sb.append("Length:"+Length).append("\n");
 
 
         return sb.toString();
     }
     public void updateView(){
         Log.d(TAG,"updateView: ");
+        Log.e(TAG,toString());
         if(TV_Key!=null){
 //            BT_Key.setEnabled(this.bEnable);
             TV_Key.setText(strKeyCode);
@@ -121,20 +151,51 @@ public class KeyData {
 
         if(SW_Key!=null){
             SW_Key.setChecked(bEnable);
+            Log.e(TAG,"updateView SW_Key.isChecked:"+SW_Key.isChecked());
         }
+
+        if(ET_Length!=null){
+            Log.e(TAG,"updateView Length:"+Length);
+            ET_Length.setText(String.valueOf(Length));
+        }
+
         bNeedUpdate = false;
     }
 
     public void updateParameters(){
-        if(SW_Key!=null)
+        Log.d(TAG,"updateParameters: "+strKeyCode);
+        Log.e(TAG,toString());
+        if(SW_Key!=null) {
             bEnable = SW_Key.isChecked();
+            Log.e(TAG,"updateParameters SW_Key.isChecked:"+SW_Key.isChecked());
+        }
         if(RB_ReadMode!=null)
             bReadMode = RB_ReadMode.isChecked();
         if(ET_Value!=null)
             Value=ET_Value.getText().toString().trim();
         if(ET_Address!=null)
             Address = ET_Address.getText().toString().trim();
-        Log.d(TAG,"updateParameters key: "+strKeyCode);
+
+
+        if(ET_Length!=null && !ET_Length.getText().toString().trim().equals("")){
+            try {
+                Length = Integer.parseInt(ET_Length.getText().toString().trim());
+            }catch(NumberFormatException  e){
+                Log.e(TAG,ET_Length.getText().toString());
+                Length = UtilsSharedPref.KEY_LENGTH_DEFAULT;
+            }
+        }
+
+        updateToPrefDB();
+        Log.i(TAG,"end of updateParameters:"+ toString());
+    }
+
+    public void updateToPrefDB(){
+        UtilsSharedPref.setPrefSetting(this);
+    }
+
+    public void removeFromPrefDB(){
+        UtilsSharedPref.removePrefSetting(this);
     }
 
 

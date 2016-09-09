@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -92,6 +93,22 @@ public class SelectfileActivity extends AppCompatActivity implements UtilsShared
 
         }
     };
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        if(event.getAction() == KeyEvent.ACTION_DOWN){
+            return true;
+        }
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_ESCAPE:
+                Intent i = new Intent(getBaseContext(), SettingActivity.class);
+                startActivity(i);
+                return true;
+            default:
+//                return super.onKeyUp(keyCode, event);
+                return true;
+        }
+    }
 
 //    void selectFile(){
 //        File dir = new File(dirKeydata);

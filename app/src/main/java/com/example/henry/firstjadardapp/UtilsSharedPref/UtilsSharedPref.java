@@ -5,13 +5,16 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.example.henry.firstjadardapp.KeyData;
+import com.example.henry.firstjadardapp.MainActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -26,6 +29,7 @@ import java.util.HashMap;
  */
 public class  UtilsSharedPref {
     static public SharedPreferences settings;
+    static public SharedPreferences dispSettings;
     static final String TAG ="UtilsSharedPref";
 
     final static public String PREF_KEY_ARRAY="keyarray";
@@ -36,14 +40,22 @@ public class  UtilsSharedPref {
     final static public String PREF_KEY_ISNAME = ".isname";
     final static public String PREF_KEY_ENABLE = ".enable";
     final static public String PREF_KEY_MODE = ".mode";
+    final static public String PREF_KEY_LENGTH = ".length";
     final static public String PREF_VERSION = "version";
     final static public String PREF_CURRENT_FILENAME = "currentfilename";
+    final static public String PREF_DISPLAY_CTRL = "displayctrl";
+
+    final static public String GenWrite = "/sys/devices/platform/mipi_jadard.2049/genW";
+    final static public String DsiWrite = "/sys/devices/platform/mipi_jadard.2049/wdsi";
+    final static public String RegLength = "/sys/devices/platform/mipi_jadard.2049/reglen";
+    final static public String RegRead = "/sys/devices/platform/mipi_jadard.2049/rreg";
 
     final static public boolean KEY_MODE_WRITE = false;
     final static public boolean KEY_MODE_READ = true;
 
     final static public boolean KEY_ENABLE_ON = true;
     final static public boolean KEY_ENABLE_OFF = false;
+    final static public int KEY_LENGTH_DEFAULT = 1;
     static final int READ_BLOCK_SIZE = 1024;
 
     final static public String PrefVersion = "0.0.1";
@@ -61,12 +73,13 @@ public class  UtilsSharedPref {
     @SuppressLint("CommitPrefEdits")
     public static void Initialize(Context context){
         settings = context.getSharedPreferences("jadard",0);
+        dispSettings = context.getSharedPreferences("dispJadard",0);
         mContext = context;
         if(!settings.getString(PREF_VERSION,"").equals(PrefVersion)){
             ArrayList<KeyData> keyDatas = new ArrayList<KeyData>();
             keyDatas.add(new KeyData("A","E0","1",true));
-            keyDatas.add(new KeyData(true,"B","E1","0",true));
-            keyDatas.add(new KeyData(true,"C","E2","0",true));
+            keyDatas.add(new KeyData(true,"B","E1","0",true,1));
+            keyDatas.add(new KeyData(true,"C","E2","0",true,1));
             setPrefSettings(keyDatas);
         }
     }
@@ -89,6 +102,16 @@ public class  UtilsSharedPref {
         return false;
     }
 
+    static public boolean getDisplayCtrl(){
+        Log.e(TAG,"getDisplayCtrl key:"+PREF_DISPLAY_CTRL);
+        return dispSettings.getBoolean(PREF_DISPLAY_CTRL,true);
+    }
+
+    static public void setDisplayCtrl(boolean ctrl){
+        Log.e(TAG,"setDisplayCtrl key:"+PREF_DISPLAY_CTRL + "ctrl:"+ctrl);
+        dispSettings.edit().putBoolean(PREF_DISPLAY_CTRL,ctrl).apply();
+    }
+
     static public String getAddress(String key){
         return settings.getString(key+PREF_KEY_ADDRESS,"");
     }
@@ -109,13 +132,11 @@ public class  UtilsSharedPref {
 
 
     static public boolean isKey(String key){
-        Log.d(TAG,"isKey check for "+key+PREF_KEY_ISNAME);
         return settings.getBoolean(key+PREF_KEY_ISNAME,false);
     }
 
     @SuppressLint("CommitPrefEdits")
     static public void setKey(String key,boolean on){
-        Log.d(TAG,"setKey for "+key+PREF_KEY_ISNAME);
         settings.edit().putBoolean(key+PREF_KEY_ISNAME,on).commit();
     }
 
@@ -136,6 +157,18 @@ public class  UtilsSharedPref {
         settings.edit().putBoolean(key+PREF_KEY_ENABLE,enable).commit();
     }
 
+    static public int getLength(String key){
+        Log.d(TAG,"getLength for "+key+PREF_KEY_LENGTH);
+        return settings.getInt(key+PREF_KEY_LENGTH,1);
+    }
+
+    @SuppressLint("CommitPrefEdits")
+    static public void setLength(String key, int length){
+        Log.d(TAG,"setLength for "+key+PREF_KEY_LENGTH);
+        Log.d(TAG,"setLength length: "+length);
+        settings.edit().putInt(key+PREF_KEY_LENGTH,length).commit();
+    }
+
     static public Boolean getMode(String key){
         return settings.getBoolean(key+PREF_KEY_MODE,KEY_MODE_WRITE);
     }
@@ -153,6 +186,29 @@ public class  UtilsSharedPref {
         return settings.getString(PREF_CURRENT_FILENAME,"");
     }
 
+    static public void removePrefSetting(KeyData kd){
+        String key = kd.getStrKeyCode();
+        settings.edit().remove(key+PREF_KEY_MODE)
+                .remove(key+PREF_KEY_ENABLE)
+                .remove(key+PREF_KEY_ISNAME)
+                .remove(key+PREF_KEY_VALUE)
+                .remove(key+PREF_KEY_ADDRESS)
+                .remove(key+PREF_KEY_NAME)
+                .remove(key+PREF_KEY_LENGTH)
+                .apply();
+    }
+
+    static public void setPrefSetting(KeyData kd){
+        String key = kd.getStrKeyCode();
+        setKey(key, true);
+        setName(key,key);
+        setAddress(key, kd.getAddress());
+        setValue(key, kd.getValue());
+        setEnable(key, kd.getEnabled());
+        setMode(key, kd.getReadMode());
+        setLength(key, kd.getLength());
+
+    }
 
     static public void setPrefSettings(ArrayList<KeyData> kds){
         if(kds!=null && kds.size()>0) {
@@ -161,15 +217,8 @@ public class  UtilsSharedPref {
             for (KeyData kd : kds) {
                 String key = kd.getStrKeyCode();
                 keylist.append(key);
-
+                setPrefSetting(kd);
                 Log.d(TAG,kds.indexOf(kd)+"th key:"+key);
-                setKey(key, true);
-                Log.d(TAG,"isKey:"+ isKey(key));
-                setName(key,key);
-                setAddress(key, kd.getAddress());
-                setValue(key, kd.getValue());
-                setEnable(key, kd.getEnabled());
-                setMode(key, kd.getReadMode());
             }
 
             settings.edit().putInt(PREF_KEY_NUMBER, kds.size()).putString(PREF_KEY_ARRAY, keylist.toString()).commit();
@@ -193,11 +242,23 @@ public class  UtilsSharedPref {
                 Log.d(TAG, "key:"+k);
                 if (isKey(k)) {
 //                    public KeyData(boolean bReadMode,String keycode, String address, String value, boolean enable)
-                    kds.add(new KeyData(getMode(k), k, getAddress(k), getValue(k), getEnable(k)));
+                    kds.add(new KeyData(getMode(k), k, getAddress(k), getValue(k), getEnable(k), getLength(k)));
                 }
             }
         }
         return kds;
+    }
+
+    static public KeyData searchKeyData(int keycode){
+        ArrayList<KeyData> kds = getKeyDatas();
+
+        for(KeyData kd : kds){
+            if(kd.getKeyCode() == keycode){
+                return kd;
+            }
+        }
+
+        return null;
     }
 
     static private String readFromFile(String path){
@@ -254,6 +315,7 @@ public class  UtilsSharedPref {
                     String value = "";
                     Boolean mode = KEY_ENABLE_OFF;
                     Boolean enable = KEY_MODE_WRITE;
+                    int length = 1;
 
                     if(c.has(PREF_KEY_ADDRESS))
                             address = c.getString(PREF_KEY_ADDRESS);
@@ -267,8 +329,11 @@ public class  UtilsSharedPref {
                     if(c.has(PREF_KEY_ENABLE))
                         enable = c.getBoolean(PREF_KEY_ENABLE);
 
+                    if(c.has(PREF_KEY_LENGTH))
+                        length = c.getInt(PREF_KEY_LENGTH);
+                    Log.d(TAG,"json length:"+length);
                     if(!isKeyDataExisted(kds,name))
-                        kds.add(new KeyData(mode, name, address, value, enable));
+                        kds.add(new KeyData(mode, name, address, value, enable, length));
                 }
 
             }
@@ -308,6 +373,7 @@ public class  UtilsSharedPref {
                     jsonObj.put(PREF_KEY_VALUE,kd.getValue());
                     jsonObj.put(PREF_KEY_MODE,kd.getReadMode());
                     jsonObj.put(PREF_KEY_ENABLE,kd.getEnabled());
+                    jsonObj.put(PREF_KEY_LENGTH,kd.getLength());
                     jsonArray.put(jsonObj);
                 } catch (JSONException e) {
                     Log.e(TAG,"JSON put error at :"+ kds.indexOf(kd));
@@ -386,12 +452,173 @@ public class  UtilsSharedPref {
         }
     }
 
+
+    static boolean echoShellCommand(String cmd, String file){
+        boolean result = false;
+        try{
+            FileWriter fw = new FileWriter(new File(file));
+            fw.write(cmd);
+            fw.close();
+            result = true;
+        }catch(IOException e){
+            Log.e(TAG, "ERROR at echoShellCommand "+ cmd +" > "+ file);
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public static String catExecutor(String command) {
+
+        StringBuffer output = new StringBuffer();
+
+        Process p;
+        try {
+            p = Runtime.getRuntime().exec(command);
+            p.waitFor();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+
+            String line = "";
+            while ((line = reader.readLine())!= null) {
+                output.append(line);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e(TAG,"Error at catExecutor for cmd:"+command);
+        }
+        return output.toString();
+
+    }
+
+    static public String ReadRegShellCommand(String reg){
+        String value = "";
+        String retValue;
+
+        /*This command will make DSI controller enable its Command Mode, which is a work-around to address blocking-read issue.*/
+        echoShellCommand("0 1f7",DsiWrite);
+        echoShellCommand("38 10000000",DsiWrite);
+        /*This command will make DSI controller enable its Command Mode, which is a work-around to address blocking-read issue.*/
+
+        echoShellCommand(reg,RegRead);
+        retValue = catExecutor("cat "+RegRead);
+
+        try {
+            String valueStr =  retValue.substring(retValue.indexOf("value:")+ "value:".length());
+            Log.d(TAG, "valueStr="+valueStr.trim()+"!!");
+            value = valueStr.trim();
+        } catch (NumberFormatException e) {
+            Log.e(TAG,"Wrong number");
+            value = "failed to parse value.";
+        }
+
+        /*After reg read, we should disable its command to prevent from any unexpected issue.*/
+        echoShellCommand("0 1f3",DsiWrite);
+        echoShellCommand("38 14000000",DsiWrite);
+        /*After reg read, we should disable its command to prevent from any unexpected issue.*/
+
+        return value;
+    }
+
+    static String doRead(String addr, int length){
+
+        boolean result;
+        String readData;
+
+        if(addr.equals(""))
+        {
+            return "";
+        }
+
+        try {
+            result = echoShellCommand(String.valueOf(length),RegLength);
+            if(!result){
+                Log.e(TAG,"Failed to command "+String.valueOf(length)+" > "+RegLength);
+                return "";
+            }
+        } catch (NumberFormatException e) {
+            Log.e(TAG,"Wrong input length:"+length);
+            return "";
+        }
+
+
+        readData = ReadRegShellCommand(addr);
+
+        return readData;
+    }
+
+    static boolean executeKey(KeyData kd){
+
+        boolean result = false;
+        if(kd.getReadMode() == KEY_MODE_READ){
+            /*Clear read value column.*/
+            kd.setValue("");
+            String readdata = doRead(kd.getAddress(),kd.getLength());
+            if(readdata.equals("")){
+                result = false;
+                kd.setValue("");
+            }else{
+                result = true;
+                kd.setValue(readdata);
+                kd.updateToPrefDB();
+            }
+        }else{
+            String writecmd;
+            writecmd =kd.getAddress();
+            if(writecmd.equals("")){
+                result = false;
+            }else {
+                if(!kd.getValue().equals("")){
+                    writecmd = writecmd + " " + kd.getValue();
+                }
+
+                result = echoShellCommand(writecmd, GenWrite);
+            }
+        }
+
+        return result;
+
+    }
+
+    public static class doKeyActionTask extends AsyncTask<Integer, Void, Boolean>{
+
+        AsyncDoKeyDataResponse CB;
+        KeyData KD;
+
+        public void setAsyncDoKeyDataResponse(AsyncDoKeyDataResponse cb){CB = cb;}
+
+        @Override
+        protected Boolean doInBackground(Integer... keycodes) {
+            KD = searchKeyData(keycodes[0]);
+            boolean result = false;
+
+            if(KD!=null){
+                result = executeKey(KD);
+            }
+
+
+            return result;
+        }
+
+
+
+        @Override
+        protected void onPostExecute(Boolean result){
+            if(CB!=null){
+                CB.processDoKeyDataFinish(result, KD);
+            }
+        }
+    }
+
     public interface AsyncResponse {
         void processFinish(ArrayList<KeyData> result);
     }
 
     public interface AsyncSaveResponse {
         void processSaveFinish(Boolean result, String filename);
+    }
+
+    public interface AsyncDoKeyDataResponse{
+        void processDoKeyDataFinish(Boolean result, KeyData kd);
     }
 
 }

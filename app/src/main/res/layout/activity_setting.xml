@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:keepScreenOn="true"
+    android:focusable="true"
+    android:layout_marginTop="5dp">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="0.1"
+        android:layout_weight="0.2"
         android:orientation="horizontal"
         android:layout_gravity="top"
         >
@@ -43,12 +47,27 @@
             android:background="@drawable/listview_title_border"/>
         <TextView
             android:layout_width="0dp"
+            android:layout_weight="0.2"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            style="@style/LV_TextTitleStyle"
+            android:text="@string/Len"
+            android:background="@drawable/listview_title_border"/>
+        <TextView
+            android:layout_width="0dp"
             android:layout_weight="0.4"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             style="@style/LV_TextTitleStyle"
             android:text="@string/Mode"
             android:background="@drawable/listview_title_border"/>
+        <Button
+            android:id="@+id/BT_Delete"
+            android:layout_width="0dp"
+            android:layout_weight="0.2"
+            android:gravity="center_horizontal"
+            android:background="@drawable/btn_delete_selector"
+            android:layout_height="match_parent" />
     </LinearLayout>
 
     <ListView
@@ -57,23 +76,26 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@android:color/holo_blue_dark"/>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="0.1"
+        android:gravity="center_horizontal"
         android:orientation="horizontal"
         android:layout_gravity="top"
+        android:layout_marginTop="2dp"
         >
-        <Button
-            android:id="@+id/BT_AddKey"
-            android:text="@string/AddKey"
-            android:layout_marginLeft="5dp"
-            android:layout_marginStart="5dp"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:textColor="@color/colorBlack"
-            android:background="@drawable/read_rb_background"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        style="@style/TextTitleStyle"
+        android:gravity="center_horizontal"
+        android:text="@string/Add"/>
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
@@ -116,6 +138,19 @@
             style="@style/TextTitleStyle"
             android:inputType="textCapCharacters"
             />
+        <EditText
+            android:id="@+id/ET_LengthIn"
+            android:layout_width="0dp"
+            android:layout_weight="0.2"
+            android:layout_height="match_parent"
+            android:digits="0123456789"
+            android:maxLength="2"
+            android:layout_marginLeft="3dp"
+            android:layout_marginStart="3dp"
+            android:text="1"
+            style="@style/TextTitleStyle"
+            android:inputType="numberDecimal"
+            />
         <Switch
             android:id="@+id/SW_ModeIn"
             android:layout_width="0dp"
@@ -123,7 +158,19 @@
             android:textOff="@string/W"
             android:textOn="@string/R"
             android:layout_height="match_parent"/>
+        <Button
+            android:id="@+id/BT_AddKey"
+            android:layout_width="0dp"
+            android:layout_weight="0.2"
+            android:layout_height="match_parent"
+            android:textColor="@color/colorBlack"
+            android:background="@drawable/btn_add_selector"/>
     </LinearLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_marginTop="2dp"
+        android:background="@color/black_overlay"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -155,6 +202,34 @@
             android:background="@drawable/read_rb_background"
             android:textColor="@color/colorBlack"
             android:layout_height="match_parent" />
+    </LinearLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_marginTop="4dp"
+        android:background="@android:color/holo_blue_dark"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.1"
+        android:orientation="horizontal"
+        android:layout_marginTop="5dp"
+        android:layout_gravity="top"
+        >
+        <Switch
+            android:id="@+id/SW_InfoCtrl"
+            android:layout_marginRight="10dp"
+            android:paddingLeft="1dp"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent" />
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="4"
+            android:layout_height="match_parent"
+            android:text="@string/InfoControl"
+            style="@style/TextTitleStyle"
+            android:paddingRight="1dp"/>
     </LinearLayout>
 
 </LinearLayout>

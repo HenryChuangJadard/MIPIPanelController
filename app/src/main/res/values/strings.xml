@@ -5,6 +5,8 @@
     <string name="Mode">Mode</string>
     <string name="Read">Read</string>
     <string name="Add">Add:</string>
+    <string name="ToRead">to read:</string>
+    <string name="ToWrite">to write:</string>
     <string name="LoadFile">Load File</string>
     <string name="SaveFile">Save</string>
     <string name="SaveFileAs">Save As</string>
@@ -20,7 +22,15 @@
     <string name="R">R</string>
     <string name="Enable">Enable</string>
     <string name="W">W</string>
+    <string name="Len">Len</string>
+    <string name="Ok">Ok</string>
+    <string name="Cancel">Cancel</string>
 
+    <string name="ErrorRead">Failed to read.</string>
+    <string name="ErrorWrite">Failed to write.</string>
+    <string name="DeleteAlert">Do you want to delete the selected key(s)?</string>
+    <string name="NoKeyDataWarning">No Key Data to Save</string>
+    <string name="InfoControl">Main page information display</string>
     <string name="SaveAsDialogTitle">Input filename to save</string>
     <string name="title_activity_fullscreen">FullscreenActivity</string>
     <string name="dummy_button">Dummy Button</string>

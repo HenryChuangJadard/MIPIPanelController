@@ -2,13 +2,15 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:keepScreenOn="true"
     android:orientation="vertical" >
 
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="fill_horizontal"
+        android:gravity="center_horizontal"
         style="@style/TextAppearance.AppCompat.Title"
+        android:textColor="@android:color/holo_blue_light"
         android:text="@string/SelectFile2Load" />
     <ListView
         android:id="@+id/listview"

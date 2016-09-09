@@ -21,22 +21,22 @@
         android:layout_marginTop="10dp"
         android:layout_marginRight="5dp">
         <TextView
+            android:id="@+id/TV_WriteAddress"
             android:layout_width="0dp"
-            android:layout_weight="1"
+            android:layout_weight="0.5"
             android:layout_height="wrap_content"
             android:layout_marginRight="5dp"
             android:gravity="center_horizontal"
             style="@style/TextTitleStyle"
-            android:text="@string/Submit"
             android:background="@drawable/textview_border"  />
         <TextView
+            android:id="@+id/TV_WriteValue"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:gravity="center_horizontal"
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
             style="@style/TextTitleStyle"
-            android:text="@string/Submit"
             android:background="@drawable/textview_border"  />
     </LinearLayout>
     <LinearLayout
@@ -48,22 +48,22 @@
         android:layout_alignParentBottom="true"
         android:id="@+id/LL_Bottom">
         <TextView
+            android:id="@+id/TV_ReadAddress"
             android:layout_width="0dp"
-            android:layout_weight="1"
+            android:layout_weight="0.5"
             android:layout_height="wrap_content"
             android:layout_marginRight="5dp"
             android:gravity="center_horizontal"
             style="@style/TextTitleStyle"
-            android:text="@string/ReadCommand"
             android:background="@drawable/textview_border"  />
         <TextView
+            android:id="@+id/TV_ReadValue"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:gravity="center_horizontal"
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
             style="@style/TextTitleStyle"
-            android:text="@string/ReadCommand"
             android:background="@drawable/textview_border"  />
     </LinearLayout>
 </RelativeLayout >

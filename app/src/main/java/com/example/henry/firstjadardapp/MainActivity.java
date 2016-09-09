@@ -20,6 +20,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.henry.firstjadardapp.UtilsSharedPref.UtilsSharedPref;
@@ -30,14 +31,21 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Queue;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 
-
-public class MainActivity extends AppCompatActivity implements DialogInterface.OnKeyListener,  KeyEvent.Callback{
+public class MainActivity extends AppCompatActivity implements DialogInterface.OnKeyListener,  KeyEvent.Callback, UtilsSharedPref.AsyncDoKeyDataResponse{
 
     private ImageView imageView,IV_Pic;
     private LinearLayout LL_Top, LL_Bottom;
+    private TextView TV_WriteAddress, TV_WriteValue, TV_ReadAddress, TV_ReadValue;
     final static String TAG = "MainActivity";
+    BlockingQueue<Runnable> kdQueue;
+    ThreadPoolExecutor kdExecutor;
 
     boolean isImageFitToScreen;
     final String imageLocation ="/sdcard/Pictures/005_boarder.bmp";
@@ -189,9 +197,32 @@ final String imageFiles[]={"005_boarder.bmp","005_boarder.bmp","005_boarder.bmp"
 
     }
 
+    private void setDisplayInfo(boolean on){
+        Log.d(TAG, "setDisplayInfo on : "+ on);
+        if(LL_Top!=null)
+            LL_Top.setVisibility(on?View.VISIBLE:View.INVISIBLE);
+        if(LL_Bottom!=null)
+            LL_Bottom.setVisibility(on?View.VISIBLE:View.INVISIBLE);
+    }
+
+    @Override
+    protected void onResume(){
+        super.onResume();
+        setDisplayInfo(UtilsSharedPref.getDisplayCtrl());
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        kdQueue = new ArrayBlockingQueue<Runnable>(100, true);
+        kdExecutor = new ThreadPoolExecutor(
+                10, // core size
+                20, // max size
+                1, // keep alive time
+                TimeUnit.MINUTES, // keep alive time units
+                kdQueue // the queue to use
+        );
 
 
         setContentView(R.layout.activity_main);
@@ -236,6 +267,12 @@ final String imageFiles[]={"005_boarder.bmp","005_boarder.bmp","005_boarder.bmp"
         IV_Pic = (ImageView) findViewById(R.id.IV_Pic);
         LL_Top = (LinearLayout) findViewById(R.id.LL_Top);
         LL_Bottom = (LinearLayout) findViewById(R.id.LL_Bottom);
+        TV_WriteAddress = (TextView)  findViewById(R.id.TV_WriteAddress);
+        TV_WriteValue = (TextView)  findViewById(R.id.TV_WriteValue);
+        TV_ReadAddress = (TextView)  findViewById(R.id.TV_ReadAddress);
+        TV_ReadValue = (TextView)  findViewById(R.id.TV_ReadValue);
+
+        setDisplayInfo(UtilsSharedPref.getDisplayCtrl());
 
         fileIndex ++;
         if(fileIndex>=filelist.length)
@@ -298,93 +335,100 @@ final String imageFiles[]={"005_boarder.bmp","005_boarder.bmp","005_boarder.bmp"
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
 //        runGenW(Page1);
+        if(event.getAction() == KeyEvent.ACTION_DOWN){
+            Log.d(TAG,"keyAction=ACTION_DOWN ");
+            return true;
+        }
         Log.d(TAG,"keyCode="+keyCode);
         setGenWriteJava(Page1);
         switch (keyCode) {
-            case KeyEvent.KEYCODE_1:
-//                runGenW("4A 11");
-                setGenWriteJava("4A 11");
-                Log.d("JPVR", "KEYCODE_1 ");
-                return true;
-            case KeyEvent.KEYCODE_2:
-                setGenWriteJava("4A 12");
-                Log.d("JPVR", "KEYCODE_2 ");
-                return true;
-            case KeyEvent.KEYCODE_3:
-                setGenWriteJava("4A 13");
-                Log.d("JPVR", "KEYCODE_3 ");
-                return true;
-            case KeyEvent.KEYCODE_4:
-                setGenWriteJava("4A 14");
-                Log.d("JPVR", "KEYCODE_4 ");
-                return true;
-            case KeyEvent.KEYCODE_5:
-                setGenWriteJava("4A 15");
-                Log.d("JPVR", "KEYCODE_5 ");
-                return true;
-            case KeyEvent.KEYCODE_6:
-                setGenWriteJava("4A 16");
-                Log.d("JPVR", "KEYCODE_6 ");
-                return true;
-            case KeyEvent.KEYCODE_7:
-                setGenWriteJava("4A 17");
-                Log.d("JPVR", "KEYCODE_7 ");
-                return true;
-            case KeyEvent.KEYCODE_8:
-                setGenWriteJava("4A 18");
-                Log.d("JPVR", "KEYCODE_8 ");
-                return true;
-            case KeyEvent.KEYCODE_9:
-                setGenWriteJava("4A 19");
-                Log.d("JPVR", "KEYCODE_9 ");
-                return true;
-            case KeyEvent.KEYCODE_0:
-                setGenWriteJava("4A 10");
-                Log.d("JPVR", "KEYCODE_0 ");
-                return true;
-            case KeyEvent.KEYCODE_S:
-                setGenWriteJava("E0 0");
-                setGenWriteJava("10");
-                Log.d("JPVR", "KEYCODE_S ");
-                return true;
-            case KeyEvent.KEYCODE_W:
-                setGenWriteJava("E0 0");
-                setGenWriteJava("11");
-                Log.d("JPVR", "KEYCODE_W ");
-                return true;
-            case KeyEvent.KEYCODE_D :
-                setGenWriteJava("E0 0");
-                setGenWriteJava("29");
-                Log.d("JPVR", "KEYCODE_D ");
-                return true;
-            case KeyEvent.KEYCODE_C :
-                setGenWriteJava("E0 0");
-                setGenWriteJava("28");
-                Log.d("JPVR", "KEYCODE_C ");
-                return true;
+//            case KeyEvent.KEYCODE_1:
+////                runGenW("4A 11");
+//                setGenWriteJava("4A 11");
+//                Log.d("JPVR", "KEYCODE_1 ");
+//                return true;
+//            case KeyEvent.KEYCODE_2:
+//                setGenWriteJava("4A 12");
+//                Log.d("JPVR", "KEYCODE_2 ");
+//                return true;
+//            case KeyEvent.KEYCODE_3:
+//                setGenWriteJava("4A 13");
+//                Log.d("JPVR", "KEYCODE_3 ");
+//                return true;
+//            case KeyEvent.KEYCODE_4:
+//                setGenWriteJava("4A 14");
+//                Log.d("JPVR", "KEYCODE_4 ");
+//                return true;
+//            case KeyEvent.KEYCODE_5:
+//                setGenWriteJava("4A 15");
+//                Log.d("JPVR", "KEYCODE_5 ");
+//                return true;
+//            case KeyEvent.KEYCODE_6:
+//                setGenWriteJava("4A 16");
+//                Log.d("JPVR", "KEYCODE_6 ");
+//                return true;
+//            case KeyEvent.KEYCODE_7:
+//                setGenWriteJava("4A 17");
+//                Log.d("JPVR", "KEYCODE_7 ");
+//                return true;
+//            case KeyEvent.KEYCODE_8:
+//                setGenWriteJava("4A 18");
+//                Log.d("JPVR", "KEYCODE_8 ");
+//                return true;
+//            case KeyEvent.KEYCODE_9:
+//                setGenWriteJava("4A 19");
+//                Log.d("JPVR", "KEYCODE_9 ");
+//                return true;
+//            case KeyEvent.KEYCODE_0:
+//                setGenWriteJava("4A 10");
+//                Log.d("JPVR", "KEYCODE_0 ");
+//                return true;
+//            case KeyEvent.KEYCODE_S:
+//                setGenWriteJava("E0 0");
+//                setGenWriteJava("10");
+//                Log.d("JPVR", "KEYCODE_S ");
+//                return true;
+//            case KeyEvent.KEYCODE_W:
+//                setGenWriteJava("E0 0");
+//                setGenWriteJava("11");
+//                Log.d("JPVR", "KEYCODE_W ");
+//                return true;
+//            case KeyEvent.KEYCODE_D :
+//                setGenWriteJava("E0 0");
+//                setGenWriteJava("29");
+//                Log.d("JPVR", "KEYCODE_D ");
+//                return true;
+//            case KeyEvent.KEYCODE_C :
+//                setGenWriteJava("E0 0");
+//                setGenWriteJava("28");
+//                Log.d("JPVR", "KEYCODE_C ");
+//                return true;
+//            case KeyEvent.KEYCODE_ESCAPE:
+////                runGenW("4A 0");
+//                setGenWriteJava("4A 0");
+//                Log.d("JPVR", "KEYCODE_ESCAPE ");
+//                return true;
+//            case KeyEvent.KEYCODE_T:
+////                runGenW("4A 0");
+////                runGenW("4A 11");
+////                Executer("cat "+ GenWrite);
+//                ReadRegShellCommand(0xE1);
+//                Log.d("JPVR", "KEYCODE_T ");
+//                return true;
+//            case KeyEvent.KEYCODE_M:
+//                Log.d(TAG, "KEYCODE_M ");
+//                Intent i = new Intent(this, FullscreenActivity.class);
+//                startActivity(i);
+//                return true;
             case KeyEvent.KEYCODE_ESCAPE:
-//                runGenW("4A 0");
                 setGenWriteJava("4A 0");
                 Log.d("JPVR", "KEYCODE_ESCAPE ");
                 return true;
-            case KeyEvent.KEYCODE_T:
-//                runGenW("4A 0");
-//                runGenW("4A 11");
-//                Executer("cat "+ GenWrite);
-                ReadRegShellCommand(0xE1);
-                Log.d("JPVR", "KEYCODE_T ");
-                return true;
-            case KeyEvent.KEYCODE_M:
-                Log.d(TAG, "KEYCODE_M ");
-                Intent i = new Intent(this, FullscreenActivity.class);
-                startActivity(i);
-                return true;
-            case KeyEvent.KEYCODE_P:
-                Log.d(TAG, "KEYCODE_P ");
+            case KeyEvent.KEYCODE_ALT_LEFT:
                 Intent it= new Intent(getBaseContext(), SettingActivity.class);
                 startActivity(it);
                 return true;
-            case KeyEvent.KEYCODE_F:
+            case KeyEvent.KEYCODE_F1:
                 if((IV_Pic.getSystemUiVisibility() & View.SYSTEM_UI_FLAG_HIDE_NAVIGATION) ==View.SYSTEM_UI_FLAG_HIDE_NAVIGATION)
                     IV_Pic.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
                 else
@@ -406,12 +450,50 @@ final String imageFiles[]={"005_boarder.bmp","005_boarder.bmp","005_boarder.bmp"
                 Log.d("JPVR", "file name: " + filePath+filelist[fileIndex].getName());
                 IV_Pic.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN);
                 return true;
-            case KeyEvent.KEYCODE_ALT_LEFT:
-                switchTexts();
-                return true;
             default:
+
+                UtilsSharedPref.doKeyActionTask task = new UtilsSharedPref.doKeyActionTask();
+                task.setAsyncDoKeyDataResponse(this);
+                task.executeOnExecutor(kdExecutor,keyCode);
+
 //                return super.onKeyUp(keyCode, event);
                 return true;
         }
+    }
+
+    @Override
+    public void processDoKeyDataFinish(Boolean result, KeyData kd) {
+        Log.i(TAG, "processDoKeyDataFinish result:"+result);
+        if(kd!=null){
+            Log.i(TAG,kd.toString());
+            if(kd.getReadMode()==UtilsSharedPref.KEY_MODE_READ){
+                if (TV_ReadAddress != null) {
+                    String displayr = kd.getStrKeyCode()+" "+getResources().getString(R.string.ToRead) + kd.getAddress();
+                    TV_ReadAddress.setText(displayr);
+                }
+                if (TV_ReadValue != null) {
+                    if (result)
+                        TV_ReadValue.setText(kd.getValue());
+                    else
+                        TV_ReadValue.setText(getResources().getString(R.string.ErrorRead));
+                }
+
+            }else {
+                if (TV_WriteAddress != null) {
+                    String displayw = kd.getStrKeyCode()+" "+getResources().getString(R.string.ToWrite) + kd.getAddress();
+                    TV_WriteAddress.setText(displayw);
+                }
+                if (TV_WriteValue != null) {
+                    if (result)
+                        TV_WriteValue.setText(kd.getValue());
+                    else
+                        TV_WriteValue.setText(getResources().getString(R.string.ErrorRead));
+                }
+            }
+        }else{
+            Log.e(TAG,"KD==null");
+
+        }
+
     }
 }
