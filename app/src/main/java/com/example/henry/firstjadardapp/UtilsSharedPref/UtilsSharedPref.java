@@ -45,10 +45,10 @@ public class  UtilsSharedPref {
     final static public String PREF_CURRENT_FILENAME = "currentfilename";
     final static public String PREF_DISPLAY_CTRL = "displayctrl";
 
-    final static public String GenWrite = "/sys/devices/platform/mipi_jadard.2049/genW";
-    final static public String DsiWrite = "/sys/devices/platform/mipi_jadard.2049/wdsi";
-    final static public String RegLength = "/sys/devices/platform/mipi_jadard.2049/reglen";
-    final static public String RegRead = "/sys/devices/platform/mipi_jadard.2049/rreg";
+    final static public String GenWrite = "/sys/devices/platform/mipi_jadard.2305/genW";
+    final static public String DsiWrite = "/sys/devices/platform/mipi_jadard.2305/wdsi";
+    final static public String RegLength = "/sys/devices/platform/mipi_jadard.2305/reglen";
+    final static public String RegRead = "/sys/devices/platform/mipi_jadard.2305/rreg";
 
     final static public boolean KEY_MODE_WRITE = false;
     final static public boolean KEY_MODE_READ = true;
@@ -179,6 +179,7 @@ public class  UtilsSharedPref {
     }
 
     static public void saveCurrentFileName(String filenamepath){
+        Log.d(TAG,"saveCurrentFileName filenamepath: "+filenamepath);
         settings.edit().putString(PREF_CURRENT_FILENAME,filenamepath).commit();
     }
 
@@ -392,7 +393,11 @@ public class  UtilsSharedPref {
             Log.e(TAG,"jsonArray:"+ jsonArray.toString());
             try {
                 FileWriter file = new FileWriter(filename);
-                file.write(jsonArray.toString());
+                try {
+                    file.write(jsonArray.toString(1));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
                 file.flush();
                 file.close();
             } catch (IOException e) {

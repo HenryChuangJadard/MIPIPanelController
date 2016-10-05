@@ -27,7 +27,7 @@
             android:layout_height="wrap_content"
             android:layout_marginRight="5dp"
             android:gravity="center_horizontal"
-            style="@style/TextTitleStyle"
+            style="@style/TextTitleStyleWrite"
             android:background="@drawable/textview_border"  />
         <TextView
             android:id="@+id/TV_WriteValue"
@@ -36,7 +36,7 @@
             android:gravity="center_horizontal"
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
-            style="@style/TextTitleStyle"
+            style="@style/TextTitleStyleWrite"
             android:background="@drawable/textview_border"  />
     </LinearLayout>
     <LinearLayout
@@ -54,7 +54,7 @@
             android:layout_height="wrap_content"
             android:layout_marginRight="5dp"
             android:gravity="center_horizontal"
-            style="@style/TextTitleStyle"
+            style="@style/TextTitleStyleRead"
             android:background="@drawable/textview_border"  />
         <TextView
             android:id="@+id/TV_ReadValue"
@@ -63,7 +63,7 @@
             android:gravity="center_horizontal"
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
-            style="@style/TextTitleStyle"
+            style="@style/TextTitleStyleRead"
             android:background="@drawable/textview_border"  />
     </LinearLayout>
 </RelativeLayout >

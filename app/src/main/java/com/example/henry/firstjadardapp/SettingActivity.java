@@ -382,6 +382,7 @@ public class SettingActivity extends AppCompatActivity implements UtilsSharedPre
         String message = "";
         if (result) {
             message = "Successfully save " + filename + "!";
+            UtilsSharedPref.saveCurrentFileName(filename);
         } else {
             message = "Failed to save " + filename + "!";
         }

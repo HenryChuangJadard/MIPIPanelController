@@ -4,9 +4,10 @@
     <string name="Submit">Submit</string>
     <string name="Mode">Mode</string>
     <string name="Read">Read</string>
+    <string name="AddCommand">Add Command:</string>
     <string name="Add">Add:</string>
-    <string name="ToRead">to read:</string>
-    <string name="ToWrite">to write:</string>
+    <string name="ToRead">Pressed To Read:\ </string>
+    <string name="ToWrite">Pressed To Write:\ </string>
     <string name="LoadFile">Load File</string>
     <string name="SaveFile">Save</string>
     <string name="SaveFileAs">Save As</string>

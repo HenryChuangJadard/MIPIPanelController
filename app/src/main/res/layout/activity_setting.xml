@@ -95,7 +95,7 @@
         android:layout_height="match_parent"
         style="@style/TextTitleStyle"
         android:gravity="center_horizontal"
-        android:text="@string/Add"/>
+        android:text="@string/AddCommand"/>
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
@@ -132,7 +132,7 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="match_parent"
-            android:digits="0123456789ABCDEF"
+            android:digits="0123456789ABCDEF "
             android:maxLength="16"
             android:layout_marginLeft="3dp"
             style="@style/TextTitleStyle"
