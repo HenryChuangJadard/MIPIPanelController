@@ -44,11 +44,30 @@ public class  UtilsSharedPref {
     final static public String PREF_VERSION = "version";
     final static public String PREF_CURRENT_FILENAME = "currentfilename";
     final static public String PREF_DISPLAY_CTRL = "displayctrl";
+    final static public String PREF_DISPLAY_IMG_INDEX = "imgindex";
+    final static public String PREF_DISPLAY_CUR_SLR = "cur_slr";
+    final static public String PREF_DISPLAY_ALS_ENABLE = "als_enable";
 
-    final static public String GenWrite = "/sys/devices/platform/mipi_jadard.2305/genW";
-    final static public String DsiWrite = "/sys/devices/platform/mipi_jadard.2305/wdsi";
-    final static public String RegLength = "/sys/devices/platform/mipi_jadard.2305/reglen";
-    final static public String RegRead = "/sys/devices/platform/mipi_jadard.2305/rreg";
+    final static public String GenWrite_KitKat = "/sys/devices/platform/mipi_jadard.2305/genW";
+    final static public String DsiWrite_KitKat = "/sys/devices/platform/mipi_jadard.2305/wdsi";
+    final static public String RegLength_KitKat = "/sys/devices/platform/mipi_jadard.2305/reglen";
+    final static public String RegRead_KitKat = "/sys/devices/platform/mipi_jadard.2305/rreg";
+
+    final static public String GenWrite_Lollipop = "/sys/kernel/debug/mdp/panel_reg";
+    final static public String DsiWrite_Lollipop = "/sys/kernel/debug/mdp/dsi0_ctrl_reg";
+    final static public String RegLength_Lollipop = "/sys/kernel/debug/mdp/panel_off";
+    final static public String RegRead_Lollipop = "/sys/kernel/debug/mdp/panel_reg";
+
+    final static public int MAX_SLR = 65536;
+    final static public int MIN_SLR = 0;
+    final static public int STEP_SLR[] = {0,1,2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768,65536};
+
+
+    static public String GenWrite = "";
+    static public String DsiWrite = "";
+    static public String RegLength = "";
+    static public String RegRead = "";
+    static public boolean isLollipop = false;
 
     final static public boolean KEY_MODE_WRITE = false;
     final static public boolean KEY_MODE_READ = true;
@@ -112,6 +131,22 @@ public class  UtilsSharedPref {
         dispSettings.edit().putBoolean(PREF_DISPLAY_CTRL,ctrl).apply();
     }
 
+    static public int getDisplayImgIndex(){
+        return dispSettings.getInt(PREF_DISPLAY_IMG_INDEX,0);
+    }
+
+    static public void setDisplayImgIndex(int index){
+        dispSettings.edit().putInt(PREF_DISPLAY_IMG_INDEX,index).apply();
+    }
+
+    static public int getDisplayCurSLR(){
+        return dispSettings.getInt(PREF_DISPLAY_CUR_SLR,0);
+    }
+
+    static public void setPrefDisplayCurSlr(int index){
+        dispSettings.edit().putInt(PREF_DISPLAY_CUR_SLR,index).apply();
+    }
+
     static public String getAddress(String key){
         return settings.getString(key+PREF_KEY_ADDRESS,"");
     }
@@ -150,6 +185,13 @@ public class  UtilsSharedPref {
 
     static public boolean getEnable(String key){
         return settings.getBoolean(key+PREF_KEY_ENABLE,KEY_ENABLE_OFF);
+    }
+
+    static public boolean isALSEnabled(){
+        return dispSettings.getBoolean(PREF_DISPLAY_ALS_ENABLE,false);
+    }
+    static public void setALSEnabled(boolean enable){
+        dispSettings.edit().putBoolean(PREF_DISPLAY_ALS_ENABLE,enable).commit();
     }
 
     @SuppressLint("CommitPrefEdits")
@@ -458,13 +500,22 @@ public class  UtilsSharedPref {
     }
 
 
-    static boolean echoShellCommand(String cmd, String file){
+    static public boolean echoShellCommand(String cmd, String file){
         boolean result = false;
         try{
+            Log.e(TAG, "cmd.getBytes().length ="+ cmd.getBytes().length );
+            if(cmd.getBytes().length>60 && !isLollipop)
+            {
+                echoShellCommand("38 10000000",DsiWrite);
+            }
             FileWriter fw = new FileWriter(new File(file));
             fw.write(cmd);
             fw.close();
             result = true;
+            if(cmd.getBytes().length>60 && !isLollipop)
+            {
+                echoShellCommand("38 14000000",DsiWrite);
+            }
         }catch(IOException e){
             Log.e(TAG, "ERROR at echoShellCommand "+ cmd +" > "+ file);
             e.printStackTrace();
@@ -499,16 +550,26 @@ public class  UtilsSharedPref {
         String value = "";
         String retValue;
 
+        if(!isLollipop) {
         /*This command will make DSI controller enable its Command Mode, which is a work-around to address blocking-read issue.*/
-        echoShellCommand("0 1f7",DsiWrite);
-        echoShellCommand("38 10000000",DsiWrite);
+            echoShellCommand("0 1f7", DsiWrite);
+            echoShellCommand("38 10000000", DsiWrite);
         /*This command will make DSI controller enable its Command Mode, which is a work-around to address blocking-read issue.*/
+            echoShellCommand(reg,RegRead);
+        }
 
-        echoShellCommand(reg,RegRead);
         retValue = catExecutor("cat "+RegRead);
 
         try {
-            String valueStr =  retValue.substring(retValue.indexOf("value:")+ "value:".length());
+            String valueStr;
+            if(isLollipop) {
+                String addr;
+                addr = reg+":";
+                retValue = retValue.replace("0x", "");
+                valueStr =  retValue.substring(retValue.indexOf(addr)+ addr.length());
+            }else{
+                valueStr =  retValue.substring(retValue.indexOf("value:")+ "value:".length());
+            }
             Log.d(TAG, "valueStr="+valueStr.trim()+"!!");
             value = valueStr.trim();
         } catch (NumberFormatException e) {
@@ -516,10 +577,12 @@ public class  UtilsSharedPref {
             value = "failed to parse value.";
         }
 
+        if(!isLollipop) {
         /*After reg read, we should disable its command to prevent from any unexpected issue.*/
-        echoShellCommand("0 1f3",DsiWrite);
-        echoShellCommand("38 14000000",DsiWrite);
+            echoShellCommand("0 1f3", DsiWrite);
+            echoShellCommand("38 14000000", DsiWrite);
         /*After reg read, we should disable its command to prevent from any unexpected issue.*/
+        }
 
         return value;
     }
@@ -535,9 +598,11 @@ public class  UtilsSharedPref {
         }
 
         try {
-            result = echoShellCommand(String.valueOf(length),RegLength);
+
+            result = echoShellCommand((isLollipop?(addr+" "+String.valueOf(length)):(String.valueOf(length))) ,RegLength);
+
             if(!result){
-                Log.e(TAG,"Failed to command "+String.valueOf(length)+" > "+RegLength);
+                Log.e(TAG,"Failed to command "+ (isLollipop?(addr+" "+String.valueOf(length)):(String.valueOf(length))) +" > "+RegLength);
                 return "";
             }
         } catch (NumberFormatException e) {
@@ -596,7 +661,7 @@ public class  UtilsSharedPref {
             KD = searchKeyData(keycodes[0]);
             boolean result = false;
 
-            if(KD!=null){
+            if(KD!=null && KD.getEnabled()){
                 result = executeKey(KD);
             }
 

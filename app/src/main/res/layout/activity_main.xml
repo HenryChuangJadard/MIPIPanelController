@@ -14,11 +14,18 @@
         android:scaleType = "centerCrop"
         android:contentDescription="@string/Read" />
     <LinearLayout
+        android:id="@+id/LL_ALL"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="5dp">
+    <LinearLayout
         android:id="@+id/LL_Top"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="5dp"
-        android:layout_marginTop="10dp"
         android:layout_marginRight="5dp">
         <TextView
             android:id="@+id/TV_WriteAddress"
@@ -43,9 +50,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="5dp"
-        android:layout_marginBottom="10dp"
         android:layout_marginRight="5dp"
-        android:layout_alignParentBottom="true"
+        android:layout_marginTop="5dp"
         android:id="@+id/LL_Bottom">
         <TextView
             android:id="@+id/TV_ReadAddress"
@@ -65,5 +71,55 @@
             android:layout_marginLeft="5dp"
             style="@style/TextTitleStyleRead"
             android:background="@drawable/textview_border"  />
+    </LinearLayout>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginRight="5dp"
+        android:layout_alignParentBottom="true"
+        android:id="@+id/LL_FileInfo">
+        <TextView
+            android:id="@+id/TV_Filename"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="5dp"
+            android:gravity="center_horizontal"
+            style="@style/TextTitleStyleRead"
+            android:background="@drawable/textview_border"  />
+        <TextView
+            android:id="@+id/TV_ImgInfo"
+            android:layout_width="0dp"
+            android:layout_weight="0.5"
+            android:gravity="center_horizontal"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            style="@style/TextTitleStyleRead"
+            android:background="@drawable/textview_border"  />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="30dp"
+        android:paddingRight="30dp"
+        android:paddingBottom="30dp"
+        android:layout_above="@+id/LL_FileInfo"
+        android:orientation="horizontal"
+        android:id="@+id/LL_ALS">
+        <Switch
+            android:id="@+id/SW_ALS"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"/>
+    <SeekBar
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="10"
+        android:id="@+id/SB_SLR"
+        android:layout_centerHorizontal="true" />
     </LinearLayout>
 </RelativeLayout >

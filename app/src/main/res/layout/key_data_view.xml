@@ -39,11 +39,12 @@
         android:layout_weight="1"
         android:layout_height="match_parent"
         android:digits="0123456789ABCDEF "
-        android:maxLength="16"
+        android:maxLength="192"
         android:layout_marginLeft="3dp"
         android:layout_marginStart="3dp"
         android:text="@string/Value"
         style="@style/TextTitleStyle"
+        android:singleLine="true"
         android:inputType="textCapCharacters"
         />
     <EditText
