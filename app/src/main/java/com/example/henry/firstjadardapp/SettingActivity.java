@@ -14,6 +14,7 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.Toast;
 
@@ -35,6 +36,10 @@ public class SettingActivity extends AppCompatActivity implements UtilsSharedPre
     private EditText ET_KeyIn, ET_AddressIn, ET_ValueIn, ET_LengthIn;
     private Switch SW_ModeIn, SW_EnableIn, SW_InfoCtrl;
 
+    //project selection
+    private Spinner SP_Project;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +51,26 @@ public class SettingActivity extends AppCompatActivity implements UtilsSharedPre
 
         keyDataAdapter = new KeyDataAdapter(this, keyDatas);
         LV_Keydata.setAdapter(keyDataAdapter);
+
+        if(SP_Project!=null){
+            ArrayAdapter<String> projectlist = new ArrayAdapter<>(SettingActivity.this,
+                    android.R.layout.simple_spinner_dropdown_item,
+                    UtilsSharedPref.STR_PROJECTS);
+
+            SP_Project.setAdapter(projectlist);
+            SP_Project.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    UtilsSharedPref.setProject(position);
+                    Toast.makeText(SettingActivity.this, UtilsSharedPref.STR_PROJECTS[position], Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+
+                }
+            });
+        }
         setListeners();
 
     }
@@ -65,6 +90,9 @@ public class SettingActivity extends AppCompatActivity implements UtilsSharedPre
         SW_ModeIn = (Switch) findViewById(R.id.SW_ModeIn);
         SW_InfoCtrl = (Switch) findViewById(R.id.SW_InfoCtrl);
         SW_InfoCtrl.setChecked(UtilsSharedPref.getDisplayCtrl());
+
+        SP_Project = (Spinner) findViewById(R.id.SP_Project);
+
 
     }
 
@@ -280,12 +308,18 @@ public class SettingActivity extends AppCompatActivity implements UtilsSharedPre
 
     void delSelectedKeyDatas() {
         int length = keyDatas.size();
-        for (KeyData kd : keyDatas) {
-            if (kd.isDeleteSelected()) {
-                kd.removeFromPrefDB();
-                keyDatas.remove(kd);
+        for(int i = 0; i<keyDatas.size();i++){
+            if(keyDatas.get(i).isDeleteSelected()){
+                keyDatas.get(i).removeFromPrefDB();
+                keyDatas.remove(i);
             }
         }
+//        for (KeyData kd : keyDatas) {
+//            if (kd.isDeleteSelected()) {
+//                kd.removeFromPrefDB();
+//                keyDatas.remove(kd);
+//            }
+//        }
 
         if (length != keyDatas.size()) {
             keyDataAdapter = new KeyDataAdapter(this, keyDatas);

@@ -70,12 +70,21 @@
             android:layout_height="match_parent" />
     </LinearLayout>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:paddingRight="5dp"
+        android:layout_height="0dp"
+        android:layout_weight="10"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:layout_gravity="top"
+        >
     <ListView
         android:id="@+id/LV_KeyData"
-        android:layout_width="fill_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         />
+    </LinearLayout>
     <View
         android:layout_width="match_parent"
         android:layout_height="2dp"
@@ -94,6 +103,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         style="@style/TextTitleStyle"
+        android:visibility="gone"
         android:gravity="center_horizontal"
         android:text="@string/AddCommand"/>
     </LinearLayout>
@@ -232,5 +242,34 @@
             style="@style/TextTitleStyle"
             android:paddingRight="1dp"/>
     </LinearLayout>
-
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_marginTop="4dp"
+        android:background="@android:color/holo_blue_dark"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.1"
+        android:orientation="horizontal"
+        android:layout_marginTop="5dp"
+        android:layout_gravity="top"
+        >
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:text="@string/Project"
+            style="@style/TextTitleStyle" />
+        <Spinner
+            android:id="@+id/SP_Project"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent" />
+    </LinearLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_marginTop="4dp"
+        android:background="@android:color/holo_blue_dark"/>
 </LinearLayout>

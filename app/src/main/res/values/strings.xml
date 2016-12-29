@@ -27,14 +27,23 @@
     <string name="Ok">Ok</string>
     <string name="Cancel">Cancel</string>
 
+    <string name="ALS">ALS</string>
+    <string name="CABC">CABC</string>
+
     <string name="ErrorRead">Failed to read.</string>
     <string name="ErrorWrite">Failed to write.</string>
     <string name="DeleteAlert">Do you want to delete the selected key(s)?</string>
     <string name="NoKeyDataWarning">No Key Data to Save</string>
     <string name="InfoControl">Main page information display</string>
+    <string name="Project">Project:</string>
     <string name="SaveAsDialogTitle">Input filename to save</string>
     <string name="title_activity_fullscreen">FullscreenActivity</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
     <string name="NewKey">Key</string>
+
+    <string-array name="projects">
+        <item>9522</item>
+        <item>others</item>
+    </string-array>
 </resources>

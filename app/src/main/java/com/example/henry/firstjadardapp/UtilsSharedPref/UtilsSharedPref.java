@@ -43,10 +43,14 @@ public class  UtilsSharedPref {
     final static public String PREF_KEY_LENGTH = ".length";
     final static public String PREF_VERSION = "version";
     final static public String PREF_CURRENT_FILENAME = "currentfilename";
+    final static public String PREF_DISPLAY_PROJECT = "keyproject";
     final static public String PREF_DISPLAY_CTRL = "displayctrl";
     final static public String PREF_DISPLAY_IMG_INDEX = "imgindex";
     final static public String PREF_DISPLAY_CUR_SLR = "cur_slr";
     final static public String PREF_DISPLAY_ALS_ENABLE = "als_enable";
+    final static public String PREF_DISPLAY_CUR_LUMEN = "cur_lumen";
+    final static public String PREF_DISPLAY_CABC_ENABLE = "cabc_enable";
+
 
     final static public String GenWrite_KitKat = "/sys/devices/platform/mipi_jadard.2305/genW";
     final static public String DsiWrite_KitKat = "/sys/devices/platform/mipi_jadard.2305/wdsi";
@@ -58,9 +62,15 @@ public class  UtilsSharedPref {
     final static public String RegLength_Lollipop = "/sys/kernel/debug/mdp/panel_off";
     final static public String RegRead_Lollipop = "/sys/kernel/debug/mdp/panel_reg";
 
+    final static public String[] STR_PROJECTS = {"9522","9541","others"};
+    final static public int PJ_9522 = 0;
+    final static public int PJ_9541 = 1;
+    final static public int PJ_OTHER = 100;
+
     final static public int MAX_SLR = 65536;
     final static public int MIN_SLR = 0;
     final static public int STEP_SLR[] = {0,1,2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768,65536};
+    static private int MAX_LUMEN = 4095;
 
 
     static public String GenWrite = "";
@@ -147,6 +157,35 @@ public class  UtilsSharedPref {
         dispSettings.edit().putInt(PREF_DISPLAY_CUR_SLR,index).apply();
     }
 
+    static public int getMaxLumen(){
+        return MAX_LUMEN;
+    }
+
+    static public int getDisplayCurLUMEN(){
+        return dispSettings.getInt(PREF_DISPLAY_CUR_LUMEN,MAX_LUMEN/2);
+    }
+
+    static public void setPrefDisplayCurLUMEN(int index){
+        dispSettings.edit().putInt(PREF_DISPLAY_CUR_LUMEN,index).apply();
+    }
+
+    static public int getProject(){
+        return dispSettings.getInt(PREF_DISPLAY_PROJECT,PJ_9522);
+    }
+
+    static public void setProject(int index){
+        if(index==PJ_9522 || index ==PJ_9541){
+            //12bits
+            MAX_LUMEN = 4095;
+        }else{
+            MAX_LUMEN = 255;
+        }
+        if(getDisplayCurLUMEN()>MAX_LUMEN){
+            setPrefDisplayCurLUMEN(MAX_LUMEN);
+        }
+        dispSettings.edit().putInt(PREF_DISPLAY_PROJECT,index).apply();
+    }
+
     static public String getAddress(String key){
         return settings.getString(key+PREF_KEY_ADDRESS,"");
     }
@@ -192,6 +231,13 @@ public class  UtilsSharedPref {
     }
     static public void setALSEnabled(boolean enable){
         dispSettings.edit().putBoolean(PREF_DISPLAY_ALS_ENABLE,enable).commit();
+    }
+
+    static public boolean isCABCEnabled(){
+        return dispSettings.getBoolean(PREF_DISPLAY_CABC_ENABLE,false);
+    }
+    static public void setCABCEnabled(boolean enable){
+        dispSettings.edit().putBoolean(PREF_DISPLAY_CABC_ENABLE,enable).commit();
     }
 
     @SuppressLint("CommitPrefEdits")
@@ -504,17 +550,23 @@ public class  UtilsSharedPref {
         boolean result = false;
         try{
             Log.e(TAG, "cmd.getBytes().length ="+ cmd.getBytes().length );
-            if(cmd.getBytes().length>60 && !isLollipop)
+            if(cmd.getBytes().length>60)
             {
-                echoShellCommand("38 10000000",DsiWrite);
+                if(isLollipop)
+                    echoShellCommand("3C 10000000",DsiWrite);
+                else
+                    echoShellCommand("38 10000000",DsiWrite);
             }
             FileWriter fw = new FileWriter(new File(file));
             fw.write(cmd);
             fw.close();
             result = true;
-            if(cmd.getBytes().length>60 && !isLollipop)
+            if(cmd.getBytes().length>60)
             {
-                echoShellCommand("38 14000000",DsiWrite);
+                if(isLollipop)
+                    echoShellCommand("3C 14000000",DsiWrite);
+                else
+                    echoShellCommand("38 14000000",DsiWrite);
             }
         }catch(IOException e){
             Log.e(TAG, "ERROR at echoShellCommand "+ cmd +" > "+ file);

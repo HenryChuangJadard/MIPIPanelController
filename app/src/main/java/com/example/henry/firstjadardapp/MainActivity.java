@@ -47,11 +47,12 @@ import java.util.concurrent.TimeUnit;
 public class MainActivity extends AppCompatActivity implements DialogInterface.OnKeyListener, KeyEvent.Callback, UtilsSharedPref.AsyncDoKeyDataResponse {
 
     private ImageView imageView, IV_Pic;
-    private LinearLayout LL_Top, LL_Bottom,LL_FileInfo,LL_ALL,LL_ALS;
-    private TextView TV_WriteAddress, TV_WriteValue, TV_ReadAddress, TV_ReadValue,TV_Filename,TV_ImgInfo;
-    private SeekBar SB_SLR = null;
-    private Switch SW_ALS;
+    private LinearLayout LL_Top, LL_Bottom,LL_FileInfo,LL_ALL,LL_ALS,LL_CABC;
+    private TextView TV_WriteAddress, TV_WriteValue, TV_ReadAddress, TV_ReadValue,TV_Filename,TV_ImgInfo,TV_PanelSize;
+    private SeekBar SB_SLR = null, SB_LUMEN;
+    private Switch SW_ALS,SW_CABC;
     private int progressSLR;
+    private int progressLUMEN;
 
     final static String TAG = "MainActivity";
     BlockingQueue<Runnable> kdQueue;
@@ -77,7 +78,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
 
     final static public String Page1 = "E0 1";
     //    final String filePath ="/sdcard/Pictures/";
-    final String filePath = Environment.getExternalStorageDirectory().getAbsolutePath() + APP_PATH + "/img/";
+    String filePath = Environment.getExternalStorageDirectory().getAbsolutePath() + APP_PATH + "/img/";
 
 
     // Storage Permissions
@@ -131,6 +132,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         verifyStoragePermissions(this);
         String APPpath = Environment.getExternalStorageDirectory().getAbsolutePath() + APP_PATH;
         String imagePath = APPpath + "/005_boarder.bmp";
+        String PanelSize = "";
         Log.v("JPVR", "imagePath=" + imagePath);
         try {
             File dir = new File(APPpath);
@@ -148,6 +150,18 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         display.getSize(size);
         Log.v("JPVR", "resolution x =" + size.x);
         Log.v("JPVR", "resolution y =" + size.y);
+        if(size.x==720){
+            filePath = Environment.getExternalStorageDirectory().getAbsolutePath() + APP_PATH + "/img_HD/";
+            PanelSize = "HD";
+        }else if(size.x==1080){
+            filePath = Environment.getExternalStorageDirectory().getAbsolutePath() + APP_PATH + "/img_FHD/";
+            PanelSize = "FHD";
+        }else{
+            filePath = Environment.getExternalStorageDirectory().getAbsolutePath() + APP_PATH + "/img/";
+        }
+        Log.v("JPVR", "filePath =" + filePath);
+
+
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
         Log.d("JPVR", "Display width in px is " + metrics.widthPixels);
@@ -177,11 +191,18 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         LL_FileInfo = (LinearLayout) findViewById(R.id.LL_FileInfo);
         LL_ALL = (LinearLayout) findViewById(R.id.LL_ALL);
         LL_ALS = (LinearLayout) findViewById(R.id.LL_ALS);
+        LL_CABC = (LinearLayout) findViewById(R.id.LL_CABC);
 
         SW_ALS = (Switch) findViewById(R.id.SW_ALS);
         if(SW_ALS!=null){
             SW_ALS.setOnCheckedChangeListener(KeySwitchListener);
             SW_ALS.setChecked(UtilsSharedPref.isALSEnabled());
+        }
+
+        SW_CABC = (Switch) findViewById(R.id.SW_CABC);
+        if(SW_CABC!=null){
+            SW_CABC.setOnCheckedChangeListener(KeySwitchListener);
+            SW_CABC.setChecked(UtilsSharedPref.isCABCEnabled());
         }
 
         TV_WriteAddress = (TextView) findViewById(R.id.TV_WriteAddress);
@@ -190,6 +211,22 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         TV_ReadValue = (TextView) findViewById(R.id.TV_ReadValue);
         TV_Filename = (TextView) findViewById(R.id.TV_Filename);
         TV_ImgInfo = (TextView) findViewById(R.id.TV_ImgInfo);
+        TV_PanelSize = (TextView) findViewById(R.id.TV_PanelSize);
+
+        TV_PanelSize.setText(PanelSize);
+
+        SB_LUMEN = (SeekBar)findViewById(R.id.SB_LUMEN);
+        if(SB_LUMEN!=null){
+            SB_LUMEN.setOnSeekBarChangeListener(SB_LUMEN_ChangeListener);
+            SB_LUMEN.setMax(UtilsSharedPref.getMaxLumen());
+            progressLUMEN = UtilsSharedPref.getDisplayCurLUMEN();
+            //in case the lumen is too dark to see.
+            if(progressLUMEN<40){
+                progressLUMEN = UtilsSharedPref.getMaxLumen()/2;
+            }
+            setLUMEN();
+            SB_LUMEN.setProgress(progressLUMEN);
+        }
 
         SB_SLR = (SeekBar)findViewById(R.id.SB_SLR);
         if(SB_SLR!=null) {
@@ -402,9 +439,10 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
     private void setALSEnable( boolean enable){
         if(enable){
             echoShellCommand("DE 1",GenWrite);
+            echoShellCommand("D3 00 04",GenWrite);
             echoShellCommand("B8 00",GenWrite);
             echoShellCommand("55 70",GenWrite);
-            echoShellCommand("B2 00",GenWrite);
+//            echoShellCommand("B2 00",GenWrite);
             echoShellCommand("BD 00",GenWrite);
             echoShellCommand("BA 00",GenWrite);
         }else{
@@ -416,6 +454,17 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
 //            echoShellCommand("B2 00",GenWrite);
 //            echoShellCommand("BD 01",GenWrite);
 //            echoShellCommand("BA 01",GenWrite);
+        }
+    }
+
+    private void setCABCEnable( boolean enable){
+        if(enable){
+            echoShellCommand("51 3F FF",GenWrite);
+            echoShellCommand("55 24",GenWrite);
+            echoShellCommand("55 02",GenWrite);
+        }else{
+            echoShellCommand("55 27",GenWrite);
+            echoShellCommand("55 00",GenWrite);
         }
     }
 
@@ -431,6 +480,10 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
                 UtilsSharedPref.setALSEnabled(isChecked);
                 setALSEnable( isChecked);
                 Toast.makeText(getBaseContext(),"Set ALS " + (isChecked?"ON":"OFF"),Toast.LENGTH_SHORT).show();
+            }else if(buttonView.getId() == R.id.SW_CABC){
+                UtilsSharedPref.setCABCEnabled(isChecked);
+                setCABCEnable(isChecked);
+                Toast.makeText(getBaseContext(),"Set CABC " + (isChecked?"ON":"OFF"),Toast.LENGTH_SHORT).show();
             }
 
         }
@@ -449,6 +502,8 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
             LL_ALL.setVisibility(on ? View.VISIBLE : View.INVISIBLE);
         if(LL_ALS!=null)
             LL_ALS.setVisibility(on ? View.VISIBLE : View.INVISIBLE);
+        if(LL_CABC!=null)
+            LL_CABC.setVisibility(on ? View.VISIBLE : View.INVISIBLE);
 
     }
 
@@ -498,6 +553,48 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         }
 
     };
+
+    SeekBar.OnSeekBarChangeListener SB_LUMEN_ChangeListener = new SeekBar.OnSeekBarChangeListener() {
+
+        Toast toast = null;
+        //Toast.makeText(this,progressLUMEN,Toast.LENGTH_SHORT).show();
+        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser){
+            progressLUMEN=progress;
+            if(toast==null)
+                toast = Toast.makeText(MainActivity.this, String.valueOf(progressLUMEN), Toast.LENGTH_SHORT);
+            else
+                toast.setText(String.valueOf(progressLUMEN));
+            toast.show();
+            Log.d("OnSeekBarChangeListener","onProgressChanged progressLUMEN = " + progressLUMEN);
+        }
+
+        public void onStartTrackingTouch(SeekBar seekBar) {
+            toast = Toast.makeText(MainActivity.this, "", Toast.LENGTH_SHORT);
+            toast.show();
+            Log.d("OnSeekBarChangeListener","onStartTrackingTouch progressLUMEN = " + progressLUMEN);
+        }
+
+        public void onStopTrackingTouch(SeekBar seekBar) {
+            Log.d("OnSeekBarChangeListener","onStopTrackingTouch progressSLR = " + progressLUMEN);
+            setLUMEN();
+            toast = null;
+        }
+
+    };
+
+    public void setLUMEN(){
+        String str_lumen = "";
+        if(UtilsSharedPref.getMaxLumen()<256){
+            str_lumen = "51 " + String.format("%02X ", progressLUMEN & 0xff);
+        }else if(UtilsSharedPref.getMaxLumen()<65536) {
+            str_lumen = "51 " + String.format("%02X %02X ", progressLUMEN >> 8 & 0xff, progressLUMEN & 0xff);
+        }
+        Log.d("setLUMEN","lumen cmd:"+str_lumen);
+        if(UtilsSharedPref.echoShellCommand(str_lumen, GenWrite))
+            UtilsSharedPref.setPrefDisplayCurLUMEN(progressLUMEN);
+        else
+            progressLUMEN = UtilsSharedPref.getDisplayCurLUMEN();
+    }
 
 
     public void set_SLR(){
