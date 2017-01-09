@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout  xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:descendantFocusability="blocksDescendants"
     android:background="@color/colorWhite"
     android:gravity="center"
     android:keepScreenOn="true">
@@ -116,6 +117,7 @@
         android:paddingBottom="30dp"
         android:layout_above="@+id/LL_ALS"
         android:orientation="horizontal"
+        android:visibility="gone"
         android:id="@+id/LL_CABC"
         android:background="@drawable/textview_border">
         <TextView
@@ -134,8 +136,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="10"
-            android:id="@+id/SB_LUMEN"
-            android:layout_centerHorizontal="true" />
+            android:id="@+id/SB_LUMEN" />
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
@@ -163,7 +164,50 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="10"
-        android:id="@+id/SB_SLR"
-        android:layout_centerHorizontal="true" />
+        android:id="@+id/SB_SLR" />
     </LinearLayout>
-</RelativeLayout >
+    <RelativeLayout
+        android:id="@+id/RL_BTS"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:descendantFocusability="blocksDescendants"
+        xmlns:fab="http://schemas.android.com/apk/res-auto"
+        android:gravity="center">
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/FAB_Right"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            fab:fab_colorNormal="@color/colorPrimary"
+            fab:fab_colorPressed="@color/colorPrimaryDark"
+            fab:fab_colorRipple="@color/colorAccent"
+            android:src="@android:drawable/ic_media_next"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true" />
+
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/FAB_Left"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            fab:fab_colorNormal="@color/colorPrimary"
+            fab:fab_colorPressed="@color/colorPrimaryDark"
+            fab:fab_colorRipple="@color/colorAccent"
+            android:src="@android:drawable/ic_media_previous"
+            android:layout_centerVertical="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
+        <GridView
+            android:id="@+id/GV_Fab"
+            android:descendantFocusability="blocksDescendants"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:numColumns="auto_fit"
+            android:verticalSpacing="10dp"
+            android:horizontalSpacing="10dp"
+            android:stretchMode="columnWidth"
+            android:gravity="center"
+            android:layout_below="@+id/FAB_Right"
+            android:layout_alignParentBottom="true">
+        </GridView>
+        </RelativeLayout>
+</RelativeLayout>

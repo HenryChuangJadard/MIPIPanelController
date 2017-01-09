@@ -11,6 +11,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Handler;
 import android.support.multidex.MultiDex;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.res.ResourcesCompat;
@@ -20,16 +21,21 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.CompoundButton;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.henry.firstjadardapp.UtilsSharedPref.UtilsSharedPref;
+import com.github.clans.fab.FloatingActionButton;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -51,6 +57,11 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
     private TextView TV_WriteAddress, TV_WriteValue, TV_ReadAddress, TV_ReadValue,TV_Filename,TV_ImgInfo,TV_PanelSize;
     private SeekBar SB_SLR = null, SB_LUMEN;
     private Switch SW_ALS,SW_CABC;
+    private RelativeLayout RL_BTS;
+    private GridView GV_Fab;
+    private FabAdapter mFabAdapter;
+
+    private FloatingActionButton FAB_Right,FAB_Left;
     private int progressSLR;
     private int progressLUMEN;
 
@@ -76,10 +87,29 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
     static public String RegLength = "";
     static public String RegRead = "";
 
+    final static int SHOW_DURATION = 5000; //ms
     final static public String Page1 = "E0 1";
     //    final String filePath ="/sdcard/Pictures/";
     String filePath = Environment.getExternalStorageDirectory().getAbsolutePath() + APP_PATH + "/img/";
 
+    Handler mHandler=new Handler();
+    Runnable mRunnable=new Runnable() {
+
+        @Override
+        public void run() {
+            if(RL_BTS!=null)
+                RL_BTS.setVisibility(View.INVISIBLE); //If you want just hide the View. But it will retain space occupied by the View.
+            if(IV_Pic!=null)
+                IV_Pic.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN);
+        }
+    };
+
+    void resetUI(){
+        RL_BTS.setVisibility(View.VISIBLE);
+        IV_Pic.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+        mHandler.removeCallbacks(mRunnable);
+        mHandler.postDelayed(mRunnable, SHOW_DURATION);
+    }
 
     // Storage Permissions
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
@@ -192,6 +222,30 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         LL_ALL = (LinearLayout) findViewById(R.id.LL_ALL);
         LL_ALS = (LinearLayout) findViewById(R.id.LL_ALS);
         LL_CABC = (LinearLayout) findViewById(R.id.LL_CABC);
+        RL_BTS = (RelativeLayout) findViewById(R.id.RL_BTS);
+//        private FloatingActionButton FAB_Right,FAB_Left;
+        FAB_Left = (FloatingActionButton) findViewById(R.id.FAB_Left);
+        FAB_Right = (FloatingActionButton) findViewById(R.id.FAB_Right);
+
+        GV_Fab = (GridView) findViewById(R.id.GV_Fab);
+        mFabAdapter = new FabAdapter(this,UtilsSharedPref.getKeyDatas());
+        GV_Fab.setAdapter(mFabAdapter);
+        GV_Fab.setNumColumns(4);
+        GV_Fab.setFocusableInTouchMode(true);
+        GV_Fab.setOnTouchListener(new View.OnTouchListener(){
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                resetUI();
+                return false;
+            }
+        });
+
+
+        if(FAB_Left!=null)
+            FAB_Left.setOnClickListener(FAB_OnclickListener);
+        if(FAB_Right!=null)
+            FAB_Right.setOnClickListener(FAB_OnclickListener);
 
         SW_ALS = (Switch) findViewById(R.id.SW_ALS);
         if(SW_ALS!=null){
@@ -289,23 +343,32 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         IV_Pic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.v("JPVR", "isImageFitToScreen=" + isImageFitToScreen);
-//                if(isImageFitToScreen) {
-//                    isImageFitToScreen=false;
-//                    imageView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN);
-////                    imageView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-////                    imageView.setAdjustViewBounds(true);
-//                }else{
-                {
-                    isImageFitToScreen = true;
-                    fileIndex++;
-                    if (fileIndex >= filelist.length)
-                        fileIndex = 0;
-                    loadImage();
-                }
+//                changeFitScreen();
+                resetUI();
             }
         });
+
+        resetUI();
     }
+
+    View.OnClickListener FAB_OnclickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if(v.getId() == R.id.FAB_Left){
+                fileIndex--;
+                if (fileIndex < 0)
+                    fileIndex = filelist.length - 1;
+                loadImage();
+            }
+            if(v.getId() == R.id.FAB_Right){
+                fileIndex++;
+                if (fileIndex >= filelist.length)
+                    fileIndex = 0;
+                loadImage();
+            }
+            resetUI();
+        }
+    };
 
     public static void verifyStoragePermissions(Activity activity) {
         // Check if we have write permission
@@ -351,7 +414,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         Log.d("JPVR", "echoShellCommand " + cmd + " > " + file);
         try {
             FileWriter fw = new FileWriter(new File(file));
-            fw.write(cmd);
+            fw.write(cmd+"\\n");
             fw.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -402,7 +465,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         Log.d("JPVR", "setGenWriteJava cmd: " + cmd);
         try {
             FileWriter fw = new FileWriter(new File(GenWrite));
-            fw.write(cmd);
+            fw.write(cmd+"\\n");
             fw.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -502,8 +565,11 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
             LL_ALL.setVisibility(on ? View.VISIBLE : View.INVISIBLE);
         if(LL_ALS!=null)
             LL_ALS.setVisibility(on ? View.VISIBLE : View.INVISIBLE);
+//        if(LL_CABC!=null)
+//            LL_CABC.setVisibility(on ? View.VISIBLE : View.INVISIBLE);
+
         if(LL_CABC!=null)
-            LL_CABC.setVisibility(on ? View.VISIBLE : View.INVISIBLE);
+            LL_CABC.setVisibility(on ? View.INVISIBLE : View.INVISIBLE);
 
     }
 
@@ -654,84 +720,6 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         Log.d(TAG, "keyCode=" + keyCode);
 //        setGenWriteJava(Page1);
         switch (keyCode) {
-//            case KeyEvent.KEYCODE_1:
-////                runGenW("4A 11");
-//                setGenWriteJava("4A 11");
-//                Log.d("JPVR", "KEYCODE_1 ");
-//                return true;
-//            case KeyEvent.KEYCODE_2:
-//                setGenWriteJava("4A 12");
-//                Log.d("JPVR", "KEYCODE_2 ");
-//                return true;
-//            case KeyEvent.KEYCODE_3:
-//                setGenWriteJava("4A 13");
-//                Log.d("JPVR", "KEYCODE_3 ");
-//                return true;
-//            case KeyEvent.KEYCODE_4:
-//                setGenWriteJava("4A 14");
-//                Log.d("JPVR", "KEYCODE_4 ");
-//                return true;
-//            case KeyEvent.KEYCODE_5:
-//                setGenWriteJava("4A 15");
-//                Log.d("JPVR", "KEYCODE_5 ");
-//                return true;
-//            case KeyEvent.KEYCODE_6:
-//                setGenWriteJava("4A 16");
-//                Log.d("JPVR", "KEYCODE_6 ");
-//                return true;
-//            case KeyEvent.KEYCODE_7:
-//                setGenWriteJava("4A 17");
-//                Log.d("JPVR", "KEYCODE_7 ");
-//                return true;
-//            case KeyEvent.KEYCODE_8:
-//                setGenWriteJava("4A 18");
-//                Log.d("JPVR", "KEYCODE_8 ");
-//                return true;
-//            case KeyEvent.KEYCODE_9:
-//                setGenWriteJava("4A 19");
-//                Log.d("JPVR", "KEYCODE_9 ");
-//                return true;
-//            case KeyEvent.KEYCODE_0:
-//                setGenWriteJava("4A 10");
-//                Log.d("JPVR", "KEYCODE_0 ");
-//                return true;
-//            case KeyEvent.KEYCODE_S:
-//                setGenWriteJava("E0 0");
-//                setGenWriteJava("10");
-//                Log.d("JPVR", "KEYCODE_S ");
-//                return true;
-//            case KeyEvent.KEYCODE_W:
-//                setGenWriteJava("E0 0");
-//                setGenWriteJava("11");
-//                Log.d("JPVR", "KEYCODE_W ");
-//                return true;
-//            case KeyEvent.KEYCODE_D :
-//                setGenWriteJava("E0 0");
-//                setGenWriteJava("29");
-//                Log.d("JPVR", "KEYCODE_D ");
-//                return true;
-//            case KeyEvent.KEYCODE_C :
-//                setGenWriteJava("E0 0");
-//                setGenWriteJava("28");
-//                Log.d("JPVR", "KEYCODE_C ");
-//                return true;
-//            case KeyEvent.KEYCODE_ESCAPE:
-////                runGenW("4A 0");
-//                setGenWriteJava("4A 0");
-//                Log.d("JPVR", "KEYCODE_ESCAPE ");
-//                return true;
-//            case KeyEvent.KEYCODE_T:
-////                runGenW("4A 0");
-////                runGenW("4A 11");
-////                Executer("cat "+ GenWrite);
-//                ReadRegShellCommand(0xE1);
-//                Log.d("JPVR", "KEYCODE_T ");
-//                return true;
-//            case KeyEvent.KEYCODE_M:
-//                Log.d(TAG, "KEYCODE_M ");
-//                Intent i = new Intent(this, FullscreenActivity.class);
-//                startActivity(i);
-//                return true;
             case KeyEvent.KEYCODE_DPAD_RIGHT:
                 if(progressSLR==0)
                     progressSLR=1;
@@ -762,11 +750,12 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
                 Intent it = new Intent(getBaseContext(), SettingActivity.class);
                 startActivity(it);
                 return true;
-            case KeyEvent.KEYCODE_F1:
-                if ((IV_Pic.getSystemUiVisibility() & View.SYSTEM_UI_FLAG_HIDE_NAVIGATION) == View.SYSTEM_UI_FLAG_HIDE_NAVIGATION)
-                    IV_Pic.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
-                else
-                    IV_Pic.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN);
+            case KeyEvent.KEYCODE_F3:
+                changeFitScreen();
+                return true;
+            case KeyEvent.KEYCODE_F2:
+                setDisplayInfo(!UtilsSharedPref.getDisplayCtrl());
+                UtilsSharedPref.setDisplayCtrl(!UtilsSharedPref.getDisplayCtrl());
                 return true;
             case KeyEvent.KEYCODE_LEFT_BRACKET:
                 fileIndex--;
@@ -791,11 +780,19 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         }
     }
 
+    void changeFitScreen(){
+        if ((IV_Pic.getSystemUiVisibility() & View.SYSTEM_UI_FLAG_HIDE_NAVIGATION) == View.SYSTEM_UI_FLAG_HIDE_NAVIGATION)
+            IV_Pic.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+        else
+            IV_Pic.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN);
+    }
+
+
     void loadImage(){
         Bitmap bmp = BitmapFactory.decodeFile(filePath + filelist[fileIndex].getName(), op);
         IV_Pic.setImageBitmap(bmp);
         Log.d("JPVR", "file name: " + filePath + filelist[fileIndex].getName());
-        IV_Pic.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN);
+//        IV_Pic.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN);
         if(bmp!=null) {
             Log.d("JPVR", "x: " + bmp.getWidth());
             Log.d("JPVR", "y: " + bmp.getHeight());

@@ -558,7 +558,7 @@ public class  UtilsSharedPref {
                     echoShellCommand("38 10000000",DsiWrite);
             }
             FileWriter fw = new FileWriter(new File(file));
-            fw.write(cmd);
+            fw.write(cmd+"\\n");
             fw.close();
             result = true;
             if(cmd.getBytes().length>60)
@@ -668,7 +668,7 @@ public class  UtilsSharedPref {
         return readData;
     }
 
-    static boolean executeKey(KeyData kd){
+    static public boolean executeKey(KeyData kd){
 
         boolean result = false;
         if(kd.getReadMode() == KEY_MODE_READ){
