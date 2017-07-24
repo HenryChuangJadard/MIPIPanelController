@@ -18,18 +18,22 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import static com.example.henry.firstjadardapp.MainActivity.JD_PanelName;
 
 /**
  * Created by henry on 9/6/16.
  */
 public class  UtilsSharedPref {
-    static public SharedPreferences settings;
-    static public SharedPreferences dispSettings;
+    private static  SharedPreferences settings;
+    private static SharedPreferences dispSettings;
     static final String TAG ="UtilsSharedPref";
 
     final static public String PREF_KEY_ARRAY="keyarray";
@@ -42,6 +46,7 @@ public class  UtilsSharedPref {
     final static public String PREF_KEY_MODE = ".mode";
     final static public String PREF_KEY_LENGTH = ".length";
     final static public String PREF_VERSION = "version";
+    final static public String PREF_IMAGES_FOLDER = "imgsfolder";
     final static public String PREF_CURRENT_FILENAME = "currentfilename";
     final static public String PREF_DISPLAY_PROJECT = "keyproject";
     final static public String PREF_DISPLAY_CTRL = "displayctrl";
@@ -50,6 +55,8 @@ public class  UtilsSharedPref {
     final static public String PREF_DISPLAY_ALS_ENABLE = "als_enable";
     final static public String PREF_DISPLAY_CUR_LUMEN = "cur_lumen";
     final static public String PREF_DISPLAY_CABC_ENABLE = "cabc_enable";
+    final static public String PREF_DISPLAY_MIX_EFFECT = "mix_effect";
+    final static public String PREF_DISPLAY_COLOR_ENHANCE = "color_enhance";
 
 
     final static public String GenWrite_KitKat = "/sys/devices/platform/mipi_jadard.2305/genW";
@@ -61,6 +68,7 @@ public class  UtilsSharedPref {
     final static public String DsiWrite_Lollipop = "/sys/kernel/debug/mdp/dsi0_ctrl_reg";
     final static public String RegLength_Lollipop = "/sys/kernel/debug/mdp/panel_off";
     final static public String RegRead_Lollipop = "/sys/kernel/debug/mdp/panel_reg";
+    final static public String File_PanelName = "/sys/kernel/debug/mdp/panel_name";
 
     final static public String[] STR_PROJECTS = {"9522","9541","others"};
     final static public int PJ_9522 = 0;
@@ -95,7 +103,31 @@ public class  UtilsSharedPref {
 
     static Context mContext;
 
-    public static UtilsSharedPref getInstance() {
+    public enum PanelName {
+        JD9522(1),
+        JD9541(2),
+        JD9522HD(3),
+        JD9541HD(4),
+        JD9365D(5),
+        UNKNOWN(99);
+
+        private int value;
+
+        private PanelName(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return this.value;
+        }
+
+        public boolean equals(PanelName other) {
+            return this.value == other.value;
+        }
+
+    }
+
+    static public  UtilsSharedPref getInstance() {
         return mInstance;
     }
 
@@ -113,11 +145,10 @@ public class  UtilsSharedPref {
         }
     }
 
-    public static void reset(){
+    private static void reset(){
         Log.w(TAG,"Warning: to reset all pref database.");
-        settings.edit().clear().commit();
-        settings.edit().putString(PREF_KEY_ARRAY,"");
-        settings.edit().putString(PREF_VERSION,PrefVersion).commit();
+        settings.edit().clear().apply();
+        settings.edit().putString(PREF_VERSION,PrefVersion).apply();
     }
 
 
@@ -158,6 +189,12 @@ public class  UtilsSharedPref {
     }
 
     static public int getMaxLumen(){
+        if(JD_PanelName==PanelName.JD9365D){
+            //12bits
+            MAX_LUMEN = 255;
+        }else{
+            MAX_LUMEN = 4095;
+        }
         return MAX_LUMEN;
     }
 
@@ -192,7 +229,7 @@ public class  UtilsSharedPref {
 
     @SuppressLint("CommitPrefEdits")
     static public void setAddress(String key, String address){
-        settings.edit().putString(key+PREF_KEY_ADDRESS,address).commit();
+        settings.edit().putString(key+PREF_KEY_ADDRESS,address).apply();
     }
 
     static public String getValue(String key){
@@ -201,7 +238,7 @@ public class  UtilsSharedPref {
 
     @SuppressLint("CommitPrefEdits")
     static public void setValue(String key, String address){
-        settings.edit().putString(key+PREF_KEY_VALUE,address).commit();
+        settings.edit().putString(key+PREF_KEY_VALUE,address).apply();
     }
 
 
@@ -211,11 +248,11 @@ public class  UtilsSharedPref {
 
     @SuppressLint("CommitPrefEdits")
     static public void setKey(String key,boolean on){
-        settings.edit().putBoolean(key+PREF_KEY_ISNAME,on).commit();
+        settings.edit().putBoolean(key+PREF_KEY_ISNAME,on).apply();
     }
 
     static public void setName(String key, String name){
-        settings.edit().putString(key+PREF_KEY_NAME,name).commit();
+        settings.edit().putString(key+PREF_KEY_NAME,name).apply();
     }
 
     static public String getName(String key){
@@ -230,19 +267,33 @@ public class  UtilsSharedPref {
         return dispSettings.getBoolean(PREF_DISPLAY_ALS_ENABLE,false);
     }
     static public void setALSEnabled(boolean enable){
-        dispSettings.edit().putBoolean(PREF_DISPLAY_ALS_ENABLE,enable).commit();
+        dispSettings.edit().putBoolean(PREF_DISPLAY_ALS_ENABLE,enable).apply();
     }
 
     static public boolean isCABCEnabled(){
         return dispSettings.getBoolean(PREF_DISPLAY_CABC_ENABLE,false);
     }
     static public void setCABCEnabled(boolean enable){
-        dispSettings.edit().putBoolean(PREF_DISPLAY_CABC_ENABLE,enable).commit();
+        dispSettings.edit().putBoolean(PREF_DISPLAY_CABC_ENABLE,enable).apply();
+    }
+
+    static public boolean isMixEffect(){
+        return dispSettings.getBoolean(PREF_DISPLAY_MIX_EFFECT,false);
+    }
+    static public void setMixEffect(boolean enable){
+        dispSettings.edit().putBoolean(PREF_DISPLAY_MIX_EFFECT,enable).apply();
+    }
+
+    static public boolean isColorEnhance(){
+        return dispSettings.getBoolean(PREF_DISPLAY_COLOR_ENHANCE,false);
+    }
+    static public void setColorEnhance(boolean enable){
+        dispSettings.edit().putBoolean(PREF_DISPLAY_COLOR_ENHANCE,enable).apply();
     }
 
     @SuppressLint("CommitPrefEdits")
     static public void setEnable(String key, boolean enable){
-        settings.edit().putBoolean(key+PREF_KEY_ENABLE,enable).commit();
+        settings.edit().putBoolean(key+PREF_KEY_ENABLE,enable).apply();
     }
 
     static public int getLength(String key){
@@ -254,7 +305,7 @@ public class  UtilsSharedPref {
     static public void setLength(String key, int length){
         Log.d(TAG,"setLength for "+key+PREF_KEY_LENGTH);
         Log.d(TAG,"setLength length: "+length);
-        settings.edit().putInt(key+PREF_KEY_LENGTH,length).commit();
+        settings.edit().putInt(key+PREF_KEY_LENGTH,length).apply();
     }
 
     static public Boolean getMode(String key){
@@ -263,16 +314,26 @@ public class  UtilsSharedPref {
 
     @SuppressLint("CommitPrefEdits")
     static public void setMode(String key, boolean mode){
-        settings.edit().putBoolean(key+PREF_KEY_MODE,mode).commit();
+        settings.edit().putBoolean(key+PREF_KEY_MODE,mode).apply();
+    }
+
+
+    static public void setImagesFolder(String folder){
+        Log.d(TAG,"saveImagesFolder folder: "+folder);
+        dispSettings.edit().putString(PREF_IMAGES_FOLDER,folder).apply();
+    }
+
+    static public String getImagesFolder(){
+        return dispSettings.getString(PREF_IMAGES_FOLDER,"");
     }
 
     static public void saveCurrentFileName(String filenamepath){
         Log.d(TAG,"saveCurrentFileName filenamepath: "+filenamepath);
-        settings.edit().putString(PREF_CURRENT_FILENAME,filenamepath).commit();
+        dispSettings.edit().putString(PREF_CURRENT_FILENAME,filenamepath).apply();
     }
 
     static public String getCurrentFileName(){
-        return settings.getString(PREF_CURRENT_FILENAME,"");
+        return dispSettings.getString(PREF_CURRENT_FILENAME,"");
     }
 
     static public void removePrefSetting(KeyData kd){
@@ -299,6 +360,12 @@ public class  UtilsSharedPref {
 
     }
 
+    static public void changeKeyCode(KeyData kd, String key){
+        removePrefSetting(kd);
+        kd.setKeyCode(key);
+        setPrefSetting(kd);
+    }
+
     static public void setPrefSettings(ArrayList<KeyData> kds){
         if(kds!=null && kds.size()>0) {
             reset();
@@ -310,7 +377,7 @@ public class  UtilsSharedPref {
                 Log.d(TAG,kds.indexOf(kd)+"th key:"+key);
             }
 
-            settings.edit().putInt(PREF_KEY_NUMBER, kds.size()).putString(PREF_KEY_ARRAY, keylist.toString()).commit();
+            settings.edit().putInt(PREF_KEY_NUMBER, kds.size()).apply();
 
             Log.d(TAG,"setPrefSettings keylist.toString():"+keylist.toString());
         }
@@ -322,12 +389,12 @@ public class  UtilsSharedPref {
         ArrayList<KeyData> kds = new ArrayList<KeyData>();
         Log.d(TAG,"getKeyDatas settings:"+settings.toString());
 
-        keys= settings.getString(PREF_KEY_ARRAY,"");
-        Log.d(TAG,"getKeyDatas keys:"+ settings.getString(PREF_KEY_ARRAY,""));
-        Log.d(TAG, "keys.length:"+keys.length());
-        if(keys.length()>0){
-            for (int i=0; i<keys.length();i++) {
-                String k = ""+keys.charAt(i);
+        ArrayList<String> ableKeys = getAvaliableKeys(null);
+        Log.d(TAG,"ableKeys:"+ ableKeys.toString());
+        Log.d(TAG, "ableKeys.size:"+ableKeys.size());
+        if(ableKeys.size()>0){
+            for (int i=0; i<ableKeys.size();i++) {
+                String k = ""+ableKeys.get(i);
                 Log.d(TAG, "key:"+k);
                 if (isKey(k)) {
 //                    public KeyData(boolean bReadMode,String keycode, String address, String value, boolean enable)
@@ -348,6 +415,31 @@ public class  UtilsSharedPref {
         }
 
         return null;
+    }
+
+    static public ArrayList<String> getAvaliableKeys(ArrayList<KeyData> kds){
+        ArrayList<String> keys = new ArrayList<String>();
+        /*0-9 ascii*/
+        for(int i=48;i<58;i++){
+            keys.add(Character.toString ((char) i));
+        }
+
+        /*A-Z ascii*/
+        for(int i=65;i<91;i++){
+            keys.add(Character.toString ((char) i));
+        }
+
+        Log.d("getAvaliableKeys","all keys:"+keys.toString());
+        if(kds!=null) {
+            for (KeyData kd : kds) {
+                if (keys.contains(kd.getStrKeyCode())) {
+                    keys.remove(kd.getStrKeyCode());
+                    Log.d("getAvaliableKeys", "removed " + kd.getStrKeyCode());
+                }
+            }
+        }
+
+        return keys;
     }
 
     static private String readFromFile(String path){
@@ -549,7 +641,7 @@ public class  UtilsSharedPref {
     static public boolean echoShellCommand(String cmd, String file){
         boolean result = false;
         try{
-            Log.e(TAG, "cmd.getBytes().length ="+ cmd.getBytes().length );
+            Log.e(TAG, "cmd="+ cmd +",length="+ cmd.getBytes().length );
             if(cmd.getBytes().length>60)
             {
                 if(isLollipop)
@@ -605,6 +697,7 @@ public class  UtilsSharedPref {
         if(!isLollipop) {
         /*This command will make DSI controller enable its Command Mode, which is a work-around to address blocking-read issue.*/
             echoShellCommand("0 1f7", DsiWrite);
+            /*SYS6440@38, SYS6601@3C DB410c@unknown*/
             echoShellCommand("38 10000000", DsiWrite);
         /*This command will make DSI controller enable its Command Mode, which is a work-around to address blocking-read issue.*/
             echoShellCommand(reg,RegRead);
@@ -638,6 +731,30 @@ public class  UtilsSharedPref {
 
         return value;
     }
+
+    static public PanelName getPanelName(){
+        String retValue;
+        File file = new File(File_PanelName);
+        if(!file.exists())
+            return PanelName.UNKNOWN;
+
+        retValue = catExecutor("cat "+File_PanelName);
+        Log.d(TAG,"getPanelName retValue:"+retValue);
+
+        if(retValue.equals("JD9365D"))
+            return PanelName.JD9365D;
+        if(retValue.equals("JD9541"))
+            return PanelName.JD9541;
+        if(retValue.equals("JD9522"))
+            return PanelName.JD9522;
+        if(retValue.equals("JD9541HD"))
+            return PanelName.JD9541HD;
+        if(retValue.equals("JD9522HD"))
+            return PanelName.JD9522HD;
+
+        return PanelName.UNKNOWN;
+    }
+
 
     static String doRead(String addr, int length){
 
@@ -674,7 +791,7 @@ public class  UtilsSharedPref {
         if(kd.getReadMode() == KEY_MODE_READ){
             /*Clear read value column.*/
             kd.setValue("");
-            String readdata = doRead(kd.getAddress(),kd.getLength());
+            String readdata = doRead(kd.getAddress(),kd.getLength()).replace(": ","");
             if(readdata.equals("")){
                 result = false;
                 kd.setValue("");
@@ -741,6 +858,100 @@ public class  UtilsSharedPref {
 
     public interface AsyncDoKeyDataResponse{
         void processDoKeyDataFinish(Boolean result, KeyData kd);
+    }
+
+
+    public interface AsyncSendDataResponse {
+        void processFinish(String file, boolean result);
+    }
+
+    public static class SendData2OBR extends AsyncTask<String, Void, Integer> {
+        private  AsyncSendDataResponse delegate = null;
+        private String file = "";
+        final private String OBR_PATH = "/sys/kernel/debug/mdp/obr_send";
+        final private int MAX_WRITE_BYTES = 564;
+        final private int BMP_HEADER_LENGTH=54;
+        private Integer indexData = 0;
+        private char[] buffer = new char[MAX_WRITE_BYTES+20];
+        private char[] bmp_header = new char[BMP_HEADER_LENGTH];
+
+        public void setAsyncResponse(AsyncSendDataResponse delg){
+            delegate = delg;
+        }
+        @Override
+        protected Integer doInBackground(String... params) {
+            String path="";
+
+
+            if(params.length>0){
+                file = params[0];
+            }
+
+            if(file.equals(""))
+                return 0;
+            indexData = 0;
+            try {
+                int readLength ;
+                int openfile_size,width,height;
+                FileInputStream in = new FileInputStream(file);
+                BufferedReader br = new BufferedReader(new InputStreamReader(in));
+                FileOutputStream fos = new FileOutputStream(OBR_PATH);
+                readLength = br.read(bmp_header,indexData,BMP_HEADER_LENGTH);
+                indexData += readLength;
+                openfile_size = bmp_header[2] | bmp_header[3]<<8 | bmp_header[4]<<16 | bmp_header[5]<<24;
+                width = bmp_header[18] | bmp_header[19]<<8 | bmp_header[20]<<16 | bmp_header[21]<<24;
+                height = bmp_header[22] | bmp_header[23]<<8 | bmp_header[24]<<16 | bmp_header[25]<<24;
+                Log.d(TAG,"file="+file);
+                Log.d(TAG,"openfile_size="+openfile_size);
+                Log.d(TAG,"width="+width);
+                Log.d(TAG,"height="+height);
+                /*Reserve first byte for command 0x2c & 0x3c.*/
+                readLength = br.read( buffer ,indexData-1,MAX_WRITE_BYTES+1);
+                if(readLength>0){
+                    buffer[0] = indexData<MAX_WRITE_BYTES?(char)0x2c:(char)0x3c;
+                    indexData +=readLength;
+                }
+
+
+
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
+            return 0;
+        }
+
+        protected void onPostExecute(Integer result)
+        {
+            if(delegate!=null)
+                delegate.processFinish(file,result!=0);
+        }
+    }
+
+    static public void testJsonparser(){
+        String PP = "testJsonparser";
+        String in = "{\"Products\":{\"ST-1800\":{\"description\":\"ST-1800 A/B\",\"image url\":\"http://mum.coiler.com.tw/MUM/MUM_DATA/DeviceImages/20170410_ST-1800.png\",\"url\":\"http://coiler.com.tw/product/st-1800/\"},\"ST-2200\":{\"description\":\"ST-2200\",\"image url\":\"http://mum.coiler.com.tw/MUM/MUM_DATA/DeviceImages/20170410_ST-2200.png\",\"url\":\"http://coiler.com.tw/product/st-2200/\"}}}";
+        try {
+            JSONObject jsonin = new JSONObject(in);
+            JSONObject jobject = jsonin.getJSONObject("Products");
+            Log.e(PP,"jobject = "+jobject);
+            for(int i = 0; i<jobject.names().length(); i++){
+                Log.e(PP, "key = " + jobject.names().getString(i) + " value = " + jobject.get(jobject.names().getString(i)));
+                JSONObject device = jobject.getJSONObject(jobject.names().getString(i));
+                Log.e(PP,"device="+jobject.names().getString(i));
+                Log.e(PP,"description="+device.getString("description"));
+                Log.e(PP,"image url="+device.getString("image url"));
+                Log.e(PP,"url="+device.getString("url"));
+
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
     }
 
 }

@@ -7,8 +7,8 @@
     android:gravity="center">
     <Button
         android:id="@+id/fab_button"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
         android:background="@drawable/round_button"
         android:gravity="center_vertical|center_horizontal"
         android:textColor="@color/colorWhite" />

@@ -28,7 +28,10 @@
     <string name="Cancel">Cancel</string>
 
     <string name="ALS">ALS</string>
+    <string name="SLR">SLR</string>
     <string name="CABC">CABC</string>
+    <string name="MIX_EFF">Mix Effect</string>
+    <string name="CE">CE</string>
 
     <string name="ErrorRead">Failed to read.</string>
     <string name="ErrorWrite">Failed to write.</string>

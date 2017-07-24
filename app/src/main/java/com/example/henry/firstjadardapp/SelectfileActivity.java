@@ -71,6 +71,7 @@ public class SelectfileActivity extends AppCompatActivity implements UtilsShared
         Log.d(TAG,"processFinish");
         if(kds!=null && kds.size()>0){
             Log.d(TAG,"KeyDatas size:"+ kds.size());
+            Log.d(TAG,"KeyDatas currentFilename:"+ currentFilename);
             UtilsSharedPref.setPrefSettings(kds);
             UtilsSharedPref.saveCurrentFileName(currentFilename);
             backToSettingActivity();

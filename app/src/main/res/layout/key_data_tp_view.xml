@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:layout_alignParentTop="true"
+    android:layout_alignParentLeft="true"
+    android:layout_alignParentStart="true"
+    android:layout_marginLeft="3dp"
+    android:layout_marginRight="3dp"
+    android:background="@color/black_overlay">
+    <Spinner
+        android:id="@+id/SP_Key"
+        android:layout_width="wrap_content"
+        style="@style/TextTitleStyle"
+        android:layout_height="wrap_content" />
+    <Switch
+        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_weight="0.4"
+        android:id="@+id/SW_Key" />
+    <EditText
+        android:id="@+id/ET_Address"
+        android:layout_width="0dp"
+        android:layout_weight="0.5"
+        android:layout_height="wrap_content"
+        android:digits="0123456789ABCDEF"
+        android:maxLength="4"
+        android:text="@string/Add"
+        android:layout_marginLeft="3dp"
+        android:layout_marginStart="3dp"
+        style="@style/TextTitleStyle"
+        android:inputType="textCapCharacters"
+        />
+    <EditText
+        android:id="@+id/ET_Value"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="match_parent"
+        android:digits="0123456789ABCDEF "
+        android:maxLength="192"
+        android:layout_marginLeft="3dp"
+        android:layout_marginStart="3dp"
+        android:text="@string/Value"
+        style="@style/TextTitleStyle"
+        android:maxLines="1"
+        android:inputType="textCapCharacters"
+        />
+    <EditText
+        android:id="@+id/ET_Length"
+        android:layout_width="0dp"
+        android:layout_weight="0.2"
+        android:layout_height="match_parent"
+        android:gravity="center_horizontal"
+        android:digits="0123456789"
+        android:maxLength="2"
+        android:layout_marginLeft="3dp"
+        android:layout_marginStart="3dp"
+        style="@style/TextTitleStyle"
+        android:inputType="numberDecimal"
+        />
+    <Switch
+        android:id="@+id/SW_bRead"
+        android:layout_width="0dp"
+        android:layout_weight="0.4"
+        android:textOff="@string/W"
+        android:textOn="@string/R"
+        android:layout_height="match_parent"/>
+    <CheckBox
+        android:id="@+id/CB_Del"
+        android:gravity="center_horizontal"
+        android:layout_width="0dp"
+        android:layout_weight="0.2"
+        android:layout_height="match_parent" />
+</LinearLayout>

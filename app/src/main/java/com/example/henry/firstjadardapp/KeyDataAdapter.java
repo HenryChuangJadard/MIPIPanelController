@@ -124,7 +124,7 @@ public class KeyDataAdapter extends BaseAdapter{
         return convertView;
     }
 
-    View.OnFocusChangeListener ET_focusListener =  new View.OnFocusChangeListener() {
+    private View.OnFocusChangeListener ET_focusListener =  new View.OnFocusChangeListener() {
         @Override
         public void onFocusChange(View v, boolean hasFocus) {
 
@@ -143,7 +143,7 @@ public class KeyDataAdapter extends BaseAdapter{
     };
 
 
-    View.OnKeyListener ET_keyListener= new View.OnKeyListener() {
+    private View.OnKeyListener ET_keyListener= new View.OnKeyListener() {
         @Override
         public boolean onKey(View v, int keyCode, KeyEvent event) {
 

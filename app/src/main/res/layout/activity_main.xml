@@ -108,64 +108,6 @@
             style="@style/TextTitleStyleRead"
             android:background="@drawable/textview_border"  />
     </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingLeft="30dp"
-        android:paddingRight="30dp"
-        android:paddingBottom="30dp"
-        android:layout_above="@+id/LL_ALS"
-        android:orientation="horizontal"
-        android:visibility="gone"
-        android:id="@+id/LL_CABC"
-        android:background="@drawable/textview_border">
-        <TextView
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:gravity="center_horizontal"
-            android:layout_height="wrap_content"
-            android:text="@string/CABC"
-            android:maxLines="1"/>
-        <Switch
-            android:id="@+id/SW_CABC"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="match_parent"/>
-        <SeekBar
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="10"
-            android:id="@+id/SB_LUMEN" />
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingLeft="30dp"
-        android:paddingRight="30dp"
-        android:paddingBottom="30dp"
-        android:layout_above="@+id/LL_FileInfo"
-        android:orientation="horizontal"
-        android:id="@+id/LL_ALS"
-        android:background="@drawable/textview_border">
-        <TextView
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:gravity="center_horizontal"
-            android:layout_height="wrap_content"
-            android:text="@string/ALS"
-            android:maxLines="1"/>
-        <Switch
-            android:id="@+id/SW_ALS"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="match_parent"/>
-    <SeekBar
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="10"
-        android:id="@+id/SB_SLR" />
-    </LinearLayout>
     <RelativeLayout
         android:id="@+id/RL_BTS"
         android:layout_width="match_parent"
@@ -173,6 +115,39 @@
         android:descendantFocusability="blocksDescendants"
         xmlns:fab="http://schemas.android.com/apk/res-auto"
         android:gravity="center">
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/FAB_Play"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            fab:fab_colorNormal="@color/colorPrimary"
+            fab:fab_colorPressed="@color/colorPrimaryDark"
+            fab:fab_colorRipple="@color/colorAccent"
+            android:src="@android:drawable/ic_media_play"
+            android:layout_centerVertical="true"
+            android:layout_alignParentLeft="true"
+            android:layout_above="@+id/FAB_Add" />
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/FAB_Display"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            fab:fab_colorNormal="@color/colorPrimary"
+            fab:fab_colorPressed="@color/colorPrimaryDark"
+            fab:fab_colorRipple="@color/colorAccent"
+            android:src="@android:drawable/ic_menu_info_details"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:layout_above="@+id/FAB_Setting" />
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/FAB_Setting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            fab:fab_colorNormal="@color/colorPrimary"
+            fab:fab_colorPressed="@color/colorPrimaryDark"
+            fab:fab_colorRipple="@color/colorAccent"
+            android:src="@android:drawable/ic_menu_edit"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:layout_above="@+id/FAB_Right" />
         <com.github.clans.fab.FloatingActionButton
             android:id="@+id/FAB_Right"
             android:layout_width="wrap_content"
@@ -184,7 +159,6 @@
             android:layout_centerVertical="true"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true" />
-
         <com.github.clans.fab.FloatingActionButton
             android:id="@+id/FAB_Left"
             android:layout_width="wrap_content"
@@ -196,6 +170,30 @@
             android:layout_centerVertical="true"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true" />
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/FAB_Add"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            fab:fab_colorNormal="@color/colorPrimary"
+            fab:fab_colorPressed="@color/colorPrimaryDark"
+            fab:fab_colorRipple="@color/colorAccent"
+            android:src="@android:drawable/ic_menu_gallery"
+            android:layout_above="@id/FAB_Left"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
+        <!--<com.github.clans.fab.FloatingActionButton-->
+            <!--android:id="@+id/FAB_OBR"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--fab:fab_colorNormal="@color/colorPrimary"-->
+            <!--fab:fab_colorPressed="@color/colorPrimaryDark"-->
+            <!--fab:fab_colorRipple="@color/colorAccent"-->
+            <!--android:src="@android:drawable/ic_menu_compass"-->
+            <!--android:layout_centerVertical="true"-->
+            <!--android:layout_alignParentStart="true"-->
+            <!--android:layout_alignParentLeft="true"-->
+            <!--android:layout_above="@+id/FAB_Setting"-->
+             <!--android:visibility="gone"/>-->
         <GridView
             android:id="@+id/GV_Fab"
             android:descendantFocusability="blocksDescendants"
@@ -209,5 +207,105 @@
             android:layout_below="@+id/FAB_Right"
             android:layout_alignParentBottom="true">
         </GridView>
-        </RelativeLayout>
+    </RelativeLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/Feature_Control_Style"
+        android:layout_above="@+id/LL_FileInfo"
+        android:orientation="horizontal"
+        android:gravity="center_horizontal|center"
+        android:id="@+id/LL_ALS">
+        <TextView
+            android:layout_width="80dp"
+            android:gravity="center_horizontal|center"
+            android:layout_height="wrap_content"
+            android:text="@string/SLR"
+            android:background="@color/black_overlay"
+            android:textSize="16sp"
+            android:maxLines="1"/>
+        <Switch
+            android:id="@+id/SW_ALS"
+            android:paddingLeft="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        <SeekBar
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:progressDrawable="@drawable/seekbar_progressbar"
+            android:thumb="@drawable/play_seekbar_thumb"
+            android:id="@+id/SB_SLR" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/Feature_Control_Style"
+        android:orientation="horizontal"
+        android:gravity="center_horizontal|center"
+        android:layout_above="@id/LL_ALS"
+        android:id="@+id/LL_CABC">
+        <TextView
+            android:layout_width="80dp"
+            android:gravity="center_horizontal"
+            android:layout_height="wrap_content"
+            android:background="@color/black_overlay"
+            android:text="@string/CABC"
+            android:textSize="16sp"
+            android:maxLines="1"/>
+        <Switch
+            android:id="@+id/SW_CABC"
+            android:paddingLeft="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        <SeekBar
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:progressDrawable="@drawable/seekbar_progressbar"
+            android:thumb="@drawable/thumb_image"
+            android:id="@+id/SB_LUMEN" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/Feature_Control_Style"
+        android:orientation="horizontal"
+        android:id="@+id/LL_CE"
+        android:layout_above="@+id/LL_CABC">
+        <TextView
+            android:layout_width="80dp"
+            android:gravity="center_horizontal"
+            android:layout_height="wrap_content"
+            android:background="@color/black_overlay"
+            android:text="@string/CE"
+            android:textSize="16sp"
+            android:maxLines="1"/>
+        <Switch
+            android:id="@+id/SW_CE"
+            android:paddingLeft="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/Feature_Control_Style"
+        android:orientation="horizontal"
+        android:id="@+id/LL_MIX_EFF"
+        android:layout_above="@+id/LL_CE">
+        <TextView
+            android:layout_width="80dp"
+            android:gravity="center_horizontal"
+            android:layout_height="wrap_content"
+            android:background="@color/black_overlay"
+            android:text="@string/MIX_EFF"
+            android:textSize="16sp"
+            android:maxLines="1"/>
+        <Switch
+            android:id="@+id/SW_MIX_EFF"
+            android:paddingLeft="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
 </RelativeLayout>

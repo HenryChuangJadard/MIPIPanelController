@@ -1,5 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:fab="http://schemas.android.com/apk/res-auto">
+    <com.github.clans.fab.FloatingActionButton
+        android:id="@+id/FAB_Back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        fab:fab_colorNormal="@color/colorPrimary"
+        fab:fab_colorPressed="@color/colorPrimaryDark"
+        fab:fab_colorRipple="@color/colorAccent"
+        android:src="@android:drawable/ic_menu_agenda"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+<LinearLayout
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -273,3 +287,4 @@
         android:layout_marginTop="4dp"
         android:background="@android:color/holo_blue_dark"/>
 </LinearLayout>
+</RelativeLayout>

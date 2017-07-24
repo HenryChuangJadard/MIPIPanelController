@@ -19,6 +19,7 @@ import android.widget.Switch;
 import android.widget.Toast;
 
 import com.example.henry.firstjadardapp.UtilsSharedPref.UtilsSharedPref;
+import com.github.clans.fab.FloatingActionButton;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -35,6 +36,7 @@ public class SettingActivity extends AppCompatActivity implements UtilsSharedPre
     private Button BT_Load, BT_Save, BT_SaveAs, BT_AddKey, BT_Delete;
     private EditText ET_KeyIn, ET_AddressIn, ET_ValueIn, ET_LengthIn;
     private Switch SW_ModeIn, SW_EnableIn, SW_InfoCtrl;
+    private FloatingActionButton FAB_Back;
 
     //project selection
     private Spinner SP_Project;
@@ -70,6 +72,7 @@ public class SettingActivity extends AppCompatActivity implements UtilsSharedPre
 
                 }
             });
+            SP_Project.setSelection(UtilsSharedPref.getProject());
         }
         setListeners();
 
@@ -92,6 +95,8 @@ public class SettingActivity extends AppCompatActivity implements UtilsSharedPre
         SW_InfoCtrl.setChecked(UtilsSharedPref.getDisplayCtrl());
 
         SP_Project = (Spinner) findViewById(R.id.SP_Project);
+        FAB_Back = (FloatingActionButton) findViewById(R.id.FAB_Back);
+
 
 
     }
@@ -110,6 +115,15 @@ public class SettingActivity extends AppCompatActivity implements UtilsSharedPre
         BT_Load.setOnClickListener(ButtonClickListener);
         BT_Delete.setOnClickListener(ButtonClickListener);
         SW_InfoCtrl.setOnCheckedChangeListener(KeySwitchListener);
+
+        FAB_Back.setOnClickListener(new View.OnClickListener(){
+
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(getBaseContext(), MainActivity.class);
+                startActivity(i);
+            }
+        });
     }
 
     private void updateAllKeyDataView() {
@@ -421,5 +435,12 @@ public class SettingActivity extends AppCompatActivity implements UtilsSharedPre
             message = "Failed to save " + filename + "!";
         }
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+    }
+
+
+    @Override
+    public void onBackPressed() {
+        Intent i = new Intent(getBaseContext(), MainActivity.class);
+        startActivity(i);
     }
 }
