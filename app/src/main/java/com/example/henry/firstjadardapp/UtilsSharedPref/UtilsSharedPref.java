@@ -143,10 +143,10 @@ public class  UtilsSharedPref {
         mContext = context;
         if(!settings.getString(PREF_VERSION,"").equals(PrefVersion)){
             ArrayList<KeyData> keyDatas = new ArrayList<KeyData>();
-            keyDatas.add(new KeyData("A","DE","2",true));
-            keyDatas.add(new KeyData(true,"B","DE","0",true,1));
+            keyDatas.add(new KeyData("A","DE","02",true));
+            keyDatas.add(new KeyData(true,"B","DE","00",true,1));
             keyDatas.add(new KeyData("C","C5","07 19",true));
-            keyDatas.add(new KeyData(true,"d","C5","0",true,2));
+            keyDatas.add(new KeyData(true,"d","C5","00",true,2));
             setPrefSettings(keyDatas);
         }
     }
