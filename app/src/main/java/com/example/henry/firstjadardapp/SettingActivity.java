@@ -16,6 +16,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.henry.firstjadardapp.UtilsSharedPref.UtilsSharedPref;
@@ -35,12 +36,12 @@ public class SettingActivity extends AppCompatActivity implements UtilsSharedPre
     final String fileKeydata = "/sdcard/JPVR/mykey.keydata";
     private Button BT_Load, BT_Save, BT_SaveAs, BT_AddKey, BT_Delete;
     private EditText ET_KeyIn, ET_AddressIn, ET_ValueIn, ET_LengthIn;
-    private Switch SW_ModeIn, SW_EnableIn, SW_InfoCtrl;
+    private Switch SW_ModeIn, SW_EnableIn;
     private FloatingActionButton FAB_Back;
+    private TextView TV_Version;
 
     //project selection
     private Spinner SP_Project;
-
 
 
     @Override
@@ -91,8 +92,8 @@ public class SettingActivity extends AppCompatActivity implements UtilsSharedPre
         ET_LengthIn = (EditText) findViewById(R.id.ET_LengthIn);
         SW_EnableIn = (Switch) findViewById(R.id.SW_EnableIn);
         SW_ModeIn = (Switch) findViewById(R.id.SW_ModeIn);
-        SW_InfoCtrl = (Switch) findViewById(R.id.SW_InfoCtrl);
-        SW_InfoCtrl.setChecked(UtilsSharedPref.getDisplayCtrl());
+        TV_Version = (TextView) findViewById(R.id.TV_Version);
+        TV_Version.setText(UtilsSharedPref.PrefVersion);
 
         SP_Project = (Spinner) findViewById(R.id.SP_Project);
         FAB_Back = (FloatingActionButton) findViewById(R.id.FAB_Back);
@@ -114,7 +115,6 @@ public class SettingActivity extends AppCompatActivity implements UtilsSharedPre
         BT_SaveAs.setOnClickListener(ButtonClickListener);
         BT_Load.setOnClickListener(ButtonClickListener);
         BT_Delete.setOnClickListener(ButtonClickListener);
-        SW_InfoCtrl.setOnCheckedChangeListener(KeySwitchListener);
 
         FAB_Back.setOnClickListener(new View.OnClickListener(){
 
@@ -141,7 +141,7 @@ public class SettingActivity extends AppCompatActivity implements UtilsSharedPre
 
     @Override
     protected void onPause() {
-        Log.d(TAG, "onPause ");
+        FLog.d(TAG, "onPause ");
 //        Don't need to backup since we already saved them all.
         //UtilsSharedPref.setPrefSettings(keyDatas);
         updateAllKeyDataParameters();
@@ -150,9 +150,8 @@ public class SettingActivity extends AppCompatActivity implements UtilsSharedPre
 
     @Override
     protected void onResume() {
-        Log.d(TAG, "onResume ");
+        FLog.d(TAG, "onResume ");
         keyDatas.clear();
-        SW_InfoCtrl.setChecked(UtilsSharedPref.getDisplayCtrl());
         keyDatas = UtilsSharedPref.getKeyDatas();
         keyDataAdapter = new KeyDataAdapter(this, keyDatas);
         LV_Keydata.setAdapter(keyDataAdapter);
@@ -181,7 +180,7 @@ public class SettingActivity extends AppCompatActivity implements UtilsSharedPre
         }
         switch (keyCode) {
             case KeyEvent.KEYCODE_ALT_LEFT:
-                Log.d(TAG, "KEYCODE_ALT_LEFT ");
+                FLog.d(TAG, "KEYCODE_ALT_LEFT ");
                 Intent i = new Intent(getBaseContext(), MainActivity.class);
                 startActivity(i);
 
@@ -199,7 +198,7 @@ public class SettingActivity extends AppCompatActivity implements UtilsSharedPre
         @Override
         public void onItemClick(AdapterView<?> parent, View view,
                                 int position, long id) {
-            Log.d(TAG, "clicked position:" + position);
+            FLog.d(TAG, "clicked position:" + position);
 //            Toast.makeText(MainActivity.this,
 //                    data[position], Toast.LENGTH_LONG).show();
         }
@@ -211,7 +210,7 @@ public class SettingActivity extends AppCompatActivity implements UtilsSharedPre
                                        int position, long id) {
 //            Toast.makeText(SettingActivity.this,
 //                    "Long: " + keyDatas.get(position).getStrKeyCode(), Toast.LENGTH_LONG).show();
-            Log.d(TAG, "long clicked key:" + keyDatas.get(position).getStrKeyCode());
+            FLog.d(TAG, "long clicked key:" + keyDatas.get(position).getStrKeyCode());
             return false;
         }
     };
@@ -244,7 +243,7 @@ public class SettingActivity extends AppCompatActivity implements UtilsSharedPre
         if (!key.equals("") &&
                 !UtilsSharedPref.isKeyDataExisted(keyDatas, key) &&
                 !ET_AddressIn.getText().toString().equals("")) {
-            Log.d(TAG, "Add key:" + key);
+            FLog.d(TAG, "Add key:" + key);
             address = ET_AddressIn.getText().toString().trim();
             value = ET_ValueIn.getText().toString().trim();
             mode = SW_ModeIn.isChecked();
@@ -310,12 +309,12 @@ public class SettingActivity extends AppCompatActivity implements UtilsSharedPre
         @Override
         public void onCheckedChanged(CompoundButton buttonView,
                                      boolean isChecked) {
-            Log.v(TAG, "buttonView:" + buttonView);
-            Log.v(TAG, "isChecked:" + isChecked);
+            FLog.v(TAG, "buttonView:" + buttonView);
+            FLog.v(TAG, "isChecked:" + isChecked);
 
-            if (buttonView.getId() == R.id.SW_InfoCtrl) {
-                UtilsSharedPref.setDisplayCtrl(isChecked);
-            }
+//            if (buttonView.getId() == R.id.SW_InfoCtrl) {
+//                UtilsSharedPref.setDisplayCtrl(isChecked);
+//            }
 
         }
     };
@@ -415,9 +414,9 @@ public class SettingActivity extends AppCompatActivity implements UtilsSharedPre
 
     @Override
     public void processFinish(ArrayList<KeyData> kds) {
-        Log.d(TAG, "processFinish");
+        FLog.d(TAG, "processFinish");
         if (kds != null && kds.size() > 0) {
-            Log.d(TAG, "KeyDatas size:" + kds.size());
+            FLog.d(TAG, "KeyDatas size:" + kds.size());
             keyDatas = kds;
             keyDataAdapter = new KeyDataAdapter(this, kds);
             LV_Keydata.setAdapter(keyDataAdapter);

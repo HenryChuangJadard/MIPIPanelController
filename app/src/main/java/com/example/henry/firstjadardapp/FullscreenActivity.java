@@ -186,7 +186,7 @@ public class FullscreenActivity extends AppCompatActivity implements KeyEvent.Ca
         if(value.length()==0 || addr.length()==0)
         {
             Toast.makeText(this,"No input",Toast.LENGTH_LONG).show();
-            Log.e(TAG, "No input value.");
+            FLog.e(TAG, "No input value.");
         }
         MainActivity.echoShellCommand(addr+" "+value,MainActivity.GenWrite);
     }
@@ -202,23 +202,23 @@ public class FullscreenActivity extends AppCompatActivity implements KeyEvent.Ca
                 MainActivity.echoShellCommand(length,MainActivity.RegLength);
             }
         } catch (NumberFormatException e) {
-            Log.e(TAG,"Wrong input length.");
+            FLog.e(TAG,"Wrong input length.");
         }
 
         if(addr.length()==0)
         {
             Toast.makeText(this,"No input",Toast.LENGTH_LONG).show();
-            Log.e(TAG, "No input value.");
+            FLog.e(TAG, "No input value.");
         }
-        Log.d(TAG, "addr:"+addr);
+        FLog.d(TAG, "addr:"+addr);
         value = MainActivity.ReadRegShellCommand(addr);
-        Log.d(TAG, "value:"+value);
+        FLog.d(TAG, "value:"+value);
 
         TV_regReadValue.setText(value);
     }
 
     public void onButtonClick(View view){
-        Log.d(TAG, "getId: " + view.getId());
+        FLog.d(TAG, "getId: " + view.getId());
 
         switch(view.getId()){
             case R.id.B_Read:
@@ -236,7 +236,7 @@ public class FullscreenActivity extends AppCompatActivity implements KeyEvent.Ca
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         switch (keyCode) {
             case KeyEvent.KEYCODE_M:
-                Log.d(TAG, "KEYCODE_M ");
+                FLog.d(TAG, "KEYCODE_M ");
                 Intent i = new Intent(getBaseContext(), MainActivity.class);
 //                i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 //                i.setClass(FullscreenActivity.this,MainActivity.class);

@@ -39,7 +39,7 @@ public class KeyData {
         this.bEnable = enable;
         this.vCreated = false;
         this.Length = length;
-        Log.d(TAG,toString());
+        FLog.d(TAG,toString());
     }
 
     public KeyData(boolean bReadMode,String keycode, String address, String value, boolean enable){
@@ -48,7 +48,7 @@ public class KeyData {
         this.bEnable = enable;
         this.vCreated = false;
 
-        Log.d(TAG,toString());
+        FLog.d(TAG,toString());
     }
 
     public KeyData(String keycode, String address, String value, boolean enable){
@@ -130,8 +130,8 @@ public class KeyData {
         return sb.toString();
     }
     public void updateView(){
-        Log.d(TAG,"updateView: ");
-        Log.e(TAG,toString());
+        FLog.d(TAG,"updateView: ");
+        FLog.e(TAG,toString());
         if(TV_Key!=null){
 //            BT_Key.setEnabled(this.bEnable);
             TV_Key.setText(strKeyCode);
@@ -151,11 +151,11 @@ public class KeyData {
 
         if(SW_Key!=null){
             SW_Key.setChecked(bEnable);
-            Log.e(TAG,"updateView SW_Key.isChecked:"+SW_Key.isChecked());
+            FLog.e(TAG,"updateView SW_Key.isChecked:"+SW_Key.isChecked());
         }
 
         if(ET_Length!=null){
-            Log.e(TAG,"updateView Length:"+Length);
+            FLog.e(TAG,"updateView Length:"+Length);
             ET_Length.setText(String.valueOf(Length));
         }
 
@@ -163,11 +163,11 @@ public class KeyData {
     }
 
     public void updateParameters(){
-        Log.d(TAG,"updateParameters: "+strKeyCode);
-        Log.e(TAG,toString());
+        FLog.d(TAG,"updateParameters: "+strKeyCode);
+        FLog.e(TAG,toString());
         if(SW_Key!=null) {
             bEnable = SW_Key.isChecked();
-            Log.e(TAG,"updateParameters SW_Key.isChecked:"+SW_Key.isChecked());
+            FLog.e(TAG,"updateParameters SW_Key.isChecked:"+SW_Key.isChecked());
         }
         if(RB_ReadMode!=null)
             bReadMode = RB_ReadMode.isChecked();
@@ -181,13 +181,13 @@ public class KeyData {
             try {
                 Length = Integer.parseInt(ET_Length.getText().toString().trim());
             }catch(NumberFormatException  e){
-                Log.e(TAG,ET_Length.getText().toString());
+                FLog.e(TAG,ET_Length.getText().toString());
                 Length = UtilsSharedPref.KEY_LENGTH_DEFAULT;
             }
         }
 
         updateToPrefDB();
-        Log.i(TAG,"end of updateParameters:"+ toString());
+        FLog.i(TAG,"end of updateParameters:"+ toString());
     }
 
     public void updateToPrefDB(){

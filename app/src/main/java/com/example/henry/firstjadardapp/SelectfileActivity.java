@@ -68,10 +68,10 @@ public class SelectfileActivity extends AppCompatActivity implements UtilsShared
 
     @Override
     public void processFinish(ArrayList<KeyData> kds) {
-        Log.d(TAG,"processFinish");
+        FLog.d(TAG,"processFinish");
         if(kds!=null && kds.size()>0){
-            Log.d(TAG,"KeyDatas size:"+ kds.size());
-            Log.d(TAG,"KeyDatas currentFilename:"+ currentFilename);
+            FLog.d(TAG,"KeyDatas size:"+ kds.size());
+            FLog.d(TAG,"KeyDatas currentFilename:"+ currentFilename);
             UtilsSharedPref.setPrefSettings(kds);
             UtilsSharedPref.saveCurrentFileName(currentFilename);
             backToSettingActivity();
@@ -82,10 +82,10 @@ public class SelectfileActivity extends AppCompatActivity implements UtilsShared
         @Override
         public void onItemClick(AdapterView<?> parent, View view,
                                 int position, long id) {
-            Log.d(TAG,"clicked position:"+position);
+            FLog.d(TAG,"clicked position:"+position);
             if(theNamesOfFiles.length > position){
                 String fileKeydata = UtilsSharedPref.DIR_KEYDATA_FILE+theNamesOfFiles[position];
-                Log.d(TAG, "file to load:"+fileKeydata);
+                FLog.d(TAG, "file to load:"+fileKeydata);
                 UtilsSharedPref.GetKeyDataTask asyc_getkey = new UtilsSharedPref.GetKeyDataTask();
                 asyc_getkey.setAsyncResponse(SelectfileActivity.this);
                 asyc_getkey.execute(fileKeydata);

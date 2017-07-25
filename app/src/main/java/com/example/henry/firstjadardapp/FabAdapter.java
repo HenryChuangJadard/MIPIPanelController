@@ -84,7 +84,7 @@ public class FabAdapter extends BaseAdapter {
         } else {
             Fab = (Button) convertView;
         }
-//        Log.d("FabAdapter","DP_HEIGHT="+DP_HEIGHT);
+//        FLog.d("FabAdapter","DP_HEIGHT="+DP_HEIGHT);
         if(DP_HEIGHT<=800) {
             ViewGroup.LayoutParams params = Fab.getLayoutParams();
 //            convert dip to pixels
@@ -116,7 +116,7 @@ public class FabAdapter extends BaseAdapter {
                 @Override
                 public void onFocusChange(View v, boolean hasFocus) {
                     if (hasFocus && alertdialog!=null) {
-                        Log.d(TAG,"onFocusChange key:"+kd.getStrKeyCode());
+                        FLog.d(TAG,"onFocusChange key:"+kd.getStrKeyCode());
                         v.requestFocus();
 //                        alertdialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
                         InputMethodManager imm = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -157,7 +157,7 @@ public class FabAdapter extends BaseAdapter {
                                 @Override
                                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                                     Toast.makeText(mContext, keys.get(position), Toast.LENGTH_SHORT).show();
-                                    Log.d("SP_Key","key("+position+") selected:"+keys.get(position));
+                                    FLog.d("SP_Key","key("+position+") selected:"+keys.get(position));
                                 }
 
                                 @Override
@@ -198,16 +198,16 @@ public class FabAdapter extends BaseAdapter {
                             // do something when the button is clicked
                             public void onClick(DialogInterface arg0, int arg1) {
                                 if(SP_Key!=null && SP_Key.getSelectedItemPosition()!=0){
-                                    Log.d("SP_Key","1 key code:"+keyDatas.get(ikd).getStrKeyCode());
+                                    FLog.d("SP_Key","1 key code:"+keyDatas.get(ikd).getStrKeyCode());
                                     UtilsSharedPref.changeKeyCode(keyDatas.get(ikd),keys.get(SP_Key.getSelectedItemPosition()));
-                                    Log.d("SP_Key","getSelectedItemPosition("+SP_Key.getSelectedItemPosition()+") :"+keys.get(SP_Key.getSelectedItemPosition()));
+                                    FLog.d("SP_Key","getSelectedItemPosition("+SP_Key.getSelectedItemPosition()+") :"+keys.get(SP_Key.getSelectedItemPosition()));
                                     keyDatas.get(ikd).setKeyCode(keys.get(SP_Key.getSelectedItemPosition()));
-                                    Log.d("SP_Key","2 key code:"+keyDatas.get(ikd).getStrKeyCode());
+                                    FLog.d("SP_Key","2 key code:"+keyDatas.get(ikd).getStrKeyCode());
 
                                 }
                                 if(SW_Key!=null) {
                                     keyDatas.get(ikd).setEnable(SW_Key.isChecked());
-                                    Log.e(TAG,"updateParameters SW_Key.isChecked:"+SW_Key.isChecked());
+                                    FLog.e(TAG,"updateParameters SW_Key.isChecked:"+SW_Key.isChecked());
                                 }
                                 if(RB_ReadMode!=null)
                                     keyDatas.get(ikd).setReadMode(RB_ReadMode.isChecked());
@@ -221,7 +221,7 @@ public class FabAdapter extends BaseAdapter {
                                     try {
                                         keyDatas.get(ikd).setLength(Integer.parseInt(ET_Length.getText().toString().trim()));
                                     }catch(NumberFormatException  e){
-                                        Log.e(TAG,ET_Length.getText().toString());
+                                        FLog.e(TAG,ET_Length.getText().toString());
                                         keyDatas.get(ikd).setLength(UtilsSharedPref.KEY_LENGTH_DEFAULT);
                                     }
                                 }
@@ -284,12 +284,12 @@ public class FabAdapter extends BaseAdapter {
         }
 
 //        if(kd!=null) {
-//            Log.d(TAG, "FAB key:" + kd.getStrKeyCode());
+//            FLog.d(TAG, "FAB key:" + kd.getStrKeyCode());
 //        if(kd.getValue().length()>0)
-//            Log.d(TAG, "FAB kd.getValue().substring():" + ((kd.getValue().length()>1)?kd.getValue().substring(0,2):kd.getValue().substring(0,1)));
-//            Log.d(TAG, "FAB kd.getAddress():" + kd.getAddress());
+//            FLog.d(TAG, "FAB kd.getValue().substring():" + ((kd.getValue().length()>1)?kd.getValue().substring(0,2):kd.getValue().substring(0,1)));
+//            FLog.d(TAG, "FAB kd.getAddress():" + kd.getAddress());
 //        }else{
-//            Log.d(TAG,"----------------");
+//            FLog.d(TAG,"----------------");
 //        }
         String text = kd.getStrKeyCode() + "\n" + kd.getAddress();
         if(kd.getValue().length()>0) {

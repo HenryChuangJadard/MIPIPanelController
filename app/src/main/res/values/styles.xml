@@ -38,6 +38,7 @@
         <item name="android:textColor">@android:color/holo_blue_light</item>
         <item name="android:textStyle">bold</item>
     </style>
+
     <style name="TextTitleStyleWrite">
         <item name="android:textSize">15pt</item>
         <item name="android:textColor">@android:color/holo_blue_light</item>
@@ -48,9 +49,14 @@
         <item name="android:textSize">9pt</item>
         <item name="android:textColor">@android:color/white</item>
     </style>
+
     <style name="TextValueStyle">
         <item name="android:textSize">10pt</item>
         <item name="android:textColor">@android:color/holo_red_light</item>
     </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
 </resources>

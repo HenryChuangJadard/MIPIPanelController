@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:descendantFocusability="blocksDescendants"
@@ -207,6 +208,7 @@
             android:layout_below="@+id/FAB_Right"
             android:layout_alignParentBottom="true">
         </GridView>
+
     </RelativeLayout>
     <LinearLayout
         android:layout_width="match_parent"
@@ -308,4 +310,21 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
     </LinearLayout>
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/FAB_Right"
+        android:layout_centerHorizontal="true"
+        app:srcCompat="@drawable/jd_logo_nb" />
+
+    <ImageView
+        android:id="@+id/imageView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/fiti_nobg"
+        android:layout_above="@+id/LL_MIX_EFF"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="14dp" />
 </RelativeLayout>

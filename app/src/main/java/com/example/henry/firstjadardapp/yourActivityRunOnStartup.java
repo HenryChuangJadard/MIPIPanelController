@@ -13,9 +13,9 @@ public class yourActivityRunOnStartup extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
 
-        Log.e("onReceive","intent.getAction():"+intent.getAction());
-        Log.e("onReceive","intent.getAction():"+intent.getAction());
-        Log.e("onReceive","intent.getAction():"+intent.getAction());
+        FLog.e("onReceive","intent.getAction():"+intent.getAction());
+        FLog.e("onReceive","intent.getAction():"+intent.getAction());
+        FLog.e("onReceive","intent.getAction():"+intent.getAction());
 
 
         if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED) || intent.getAction().equals(Intent.ACTION_CAMERA_BUTTON)) {
@@ -34,7 +34,7 @@ public class yourActivityRunOnStartup extends BroadcastReceiver {
             try {
                 for (int i = 0; i < 5; i++) {
                     Thread.sleep(1000);
-                    Log.e("CountDownThread","Count to :"+(i+1));
+                    FLog.e("CountDownThread","Count to :"+(i+1));
                 }
                 Intent i = new Intent(mContext, MainActivity.class);
                 i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

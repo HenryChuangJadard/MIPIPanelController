@@ -7,8 +7,10 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.henry.firstjadardapp.FLog;
 import com.example.henry.firstjadardapp.KeyData;
 import com.example.henry.firstjadardapp.MainActivity;
+import com.example.henry.firstjadardapp.R;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -23,6 +25,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -35,6 +38,7 @@ public class  UtilsSharedPref {
     private static  SharedPreferences settings;
     private static SharedPreferences dispSettings;
     static final String TAG ="UtilsSharedPref";
+    public static SimpleDateFormat mSimpleDateFormat = new SimpleDateFormat("yyyyMMdd");
 
     final static public String PREF_KEY_ARRAY="keyarray";
     final static public String PREF_KEY_NUMBER="keynumber";
@@ -57,6 +61,7 @@ public class  UtilsSharedPref {
     final static public String PREF_DISPLAY_CABC_ENABLE = "cabc_enable";
     final static public String PREF_DISPLAY_MIX_EFFECT = "mix_effect";
     final static public String PREF_DISPLAY_COLOR_ENHANCE = "color_enhance";
+    final static String PREF_DISPLAY_CERT = ".certi";
 
 
     final static public String GenWrite_KitKat = "/sys/devices/platform/mipi_jadard.2305/genW";
@@ -95,7 +100,7 @@ public class  UtilsSharedPref {
     final static public int KEY_LENGTH_DEFAULT = 1;
     static final int READ_BLOCK_SIZE = 1024;
 
-    final static public String PrefVersion = "0.0.1";
+    final static public String PrefVersion = "0.0.2";
 
     final public static String DIR_KEYDATA_FILE = "/sdcard/JPVR/";
     final public static String KEYDATA_FILETYPE = ".keydata";
@@ -133,20 +138,21 @@ public class  UtilsSharedPref {
 
     @SuppressLint("CommitPrefEdits")
     public static void Initialize(Context context){
-        settings = context.getSharedPreferences("jadard",0);
-        dispSettings = context.getSharedPreferences("dispJadard",0);
+        settings = context.getSharedPreferences(context.getResources().getString(R.string.app_name),0);
+        dispSettings = context.getSharedPreferences("disp"+context.getResources().getString(R.string.app_name),0);
         mContext = context;
         if(!settings.getString(PREF_VERSION,"").equals(PrefVersion)){
             ArrayList<KeyData> keyDatas = new ArrayList<KeyData>();
-            keyDatas.add(new KeyData("A","E0","1",true));
-            keyDatas.add(new KeyData(true,"B","E1","0",true,1));
-            keyDatas.add(new KeyData(true,"C","E2","0",true,1));
+            keyDatas.add(new KeyData("A","DE","2",true));
+            keyDatas.add(new KeyData(true,"B","DE","0",true,1));
+            keyDatas.add(new KeyData("C","C5","07 19",true));
+            keyDatas.add(new KeyData(true,"d","C5","0",true,2));
             setPrefSettings(keyDatas);
         }
     }
 
     private static void reset(){
-        Log.w(TAG,"Warning: to reset all pref database.");
+        FLog.w(TAG,"Warning: to reset all pref database.");
         settings.edit().clear().apply();
         settings.edit().putString(PREF_VERSION,PrefVersion).apply();
     }
@@ -162,13 +168,21 @@ public class  UtilsSharedPref {
         return false;
     }
 
+    static public String getDisplayCert(){
+        return dispSettings.getString(PREF_DISPLAY_CERT,"");
+    }
+
+    static public void setDisplayCert(String key){
+        dispSettings.edit().putString(PREF_DISPLAY_CERT,key).apply();
+    }
+
     static public boolean getDisplayCtrl(){
-        Log.e(TAG,"getDisplayCtrl key:"+PREF_DISPLAY_CTRL);
+        FLog.e(TAG,"getDisplayCtrl key:"+PREF_DISPLAY_CTRL);
         return dispSettings.getBoolean(PREF_DISPLAY_CTRL,true);
     }
 
     static public void setDisplayCtrl(boolean ctrl){
-        Log.e(TAG,"setDisplayCtrl key:"+PREF_DISPLAY_CTRL + "ctrl:"+ctrl);
+        FLog.e(TAG,"setDisplayCtrl key:"+PREF_DISPLAY_CTRL + "ctrl:"+ctrl);
         dispSettings.edit().putBoolean(PREF_DISPLAY_CTRL,ctrl).apply();
     }
 
@@ -297,14 +311,14 @@ public class  UtilsSharedPref {
     }
 
     static public int getLength(String key){
-        Log.d(TAG,"getLength for "+key+PREF_KEY_LENGTH);
+        FLog.d(TAG,"getLength for "+key+PREF_KEY_LENGTH);
         return settings.getInt(key+PREF_KEY_LENGTH,1);
     }
 
     @SuppressLint("CommitPrefEdits")
     static public void setLength(String key, int length){
-        Log.d(TAG,"setLength for "+key+PREF_KEY_LENGTH);
-        Log.d(TAG,"setLength length: "+length);
+        FLog.d(TAG,"setLength for "+key+PREF_KEY_LENGTH);
+        FLog.d(TAG,"setLength length: "+length);
         settings.edit().putInt(key+PREF_KEY_LENGTH,length).apply();
     }
 
@@ -319,7 +333,7 @@ public class  UtilsSharedPref {
 
 
     static public void setImagesFolder(String folder){
-        Log.d(TAG,"saveImagesFolder folder: "+folder);
+        FLog.d(TAG,"saveImagesFolder folder: "+folder);
         dispSettings.edit().putString(PREF_IMAGES_FOLDER,folder).apply();
     }
 
@@ -328,7 +342,7 @@ public class  UtilsSharedPref {
     }
 
     static public void saveCurrentFileName(String filenamepath){
-        Log.d(TAG,"saveCurrentFileName filenamepath: "+filenamepath);
+        FLog.d(TAG,"saveCurrentFileName filenamepath: "+filenamepath);
         dispSettings.edit().putString(PREF_CURRENT_FILENAME,filenamepath).apply();
     }
 
@@ -374,12 +388,12 @@ public class  UtilsSharedPref {
                 String key = kd.getStrKeyCode();
                 keylist.append(key);
                 setPrefSetting(kd);
-                Log.d(TAG,kds.indexOf(kd)+"th key:"+key);
+                FLog.d(TAG,kds.indexOf(kd)+"th key:"+key);
             }
 
             settings.edit().putInt(PREF_KEY_NUMBER, kds.size()).apply();
 
-            Log.d(TAG,"setPrefSettings keylist.toString():"+keylist.toString());
+            FLog.d(TAG,"setPrefSettings keylist.toString():"+keylist.toString());
         }
 
     }
@@ -387,15 +401,15 @@ public class  UtilsSharedPref {
     static public ArrayList<KeyData> getKeyDatas(){
         String keys;
         ArrayList<KeyData> kds = new ArrayList<KeyData>();
-        Log.d(TAG,"getKeyDatas settings:"+settings.toString());
+        FLog.d(TAG,"getKeyDatas settings:"+settings.toString());
 
         ArrayList<String> ableKeys = getAvaliableKeys(null);
-        Log.d(TAG,"ableKeys:"+ ableKeys.toString());
-        Log.d(TAG, "ableKeys.size:"+ableKeys.size());
+        FLog.d(TAG,"ableKeys:"+ ableKeys.toString());
+        FLog.d(TAG, "ableKeys.size:"+ableKeys.size());
         if(ableKeys.size()>0){
             for (int i=0; i<ableKeys.size();i++) {
                 String k = ""+ableKeys.get(i);
-                Log.d(TAG, "key:"+k);
+                FLog.d(TAG, "key:"+k);
                 if (isKey(k)) {
 //                    public KeyData(boolean bReadMode,String keycode, String address, String value, boolean enable)
                     kds.add(new KeyData(getMode(k), k, getAddress(k), getValue(k), getEnable(k), getLength(k)));
@@ -429,12 +443,12 @@ public class  UtilsSharedPref {
             keys.add(Character.toString ((char) i));
         }
 
-        Log.d("getAvaliableKeys","all keys:"+keys.toString());
+        FLog.d("getAvaliableKeys","all keys:"+keys.toString());
         if(kds!=null) {
             for (KeyData kd : kds) {
                 if (keys.contains(kd.getStrKeyCode())) {
                     keys.remove(kd.getStrKeyCode());
-                    Log.d("getAvaliableKeys", "removed " + kd.getStrKeyCode());
+                    FLog.d("getAvaliableKeys", "removed " + kd.getStrKeyCode());
                 }
             }
         }
@@ -446,7 +460,7 @@ public class  UtilsSharedPref {
         File file = new File(path);
 
         if(!file.exists()) {
-            Log.e(TAG,file.getAbsolutePath()+" not exists.");
+            FLog.e(TAG,file.getAbsolutePath()+" not exists.");
             return "";
         }
 
@@ -474,7 +488,7 @@ public class  UtilsSharedPref {
     static private ArrayList<KeyData> getKeyDataFromStrJSON(String jsonStr){
         ArrayList<KeyData> kds = new ArrayList<KeyData>();
         if(jsonStr.equals("")){
-            Log.e(TAG,"Null input json string!");
+            FLog.e(TAG,"Null input json string!");
             return null;
         }
 
@@ -488,7 +502,7 @@ public class  UtilsSharedPref {
             // looping through All Contacts
             for (int i = 0; i < contacts.length(); i++) {
                 JSONObject c = contacts.getJSONObject(i);
-                Log.d(TAG, i+"- json object:"+c.toString());
+                FLog.d(TAG, i+"- json object:"+c.toString());
                 if(c.has(PREF_KEY_NAME)) {
                     String name = c.getString(PREF_KEY_NAME);
 
@@ -512,7 +526,7 @@ public class  UtilsSharedPref {
 
                     if(c.has(PREF_KEY_LENGTH))
                         length = c.getInt(PREF_KEY_LENGTH);
-                    Log.d(TAG,"json length:"+length);
+                    FLog.d(TAG,"json length:"+length);
                     if(!isKeyDataExisted(kds,name))
                         kds.add(new KeyData(mode, name, address, value, enable, length));
                 }
@@ -541,7 +555,7 @@ public class  UtilsSharedPref {
             filename = params[0];
 
             if(filename.equals("")){
-                Log.e(TAG,"No input filename.");
+                FLog.e(TAG,"No input filename.");
                 return false;
             }
 
@@ -557,20 +571,20 @@ public class  UtilsSharedPref {
                     jsonObj.put(PREF_KEY_LENGTH,kd.getLength());
                     jsonArray.put(jsonObj);
                 } catch (JSONException e) {
-                    Log.e(TAG,"JSON put error at :"+ kds.indexOf(kd));
-                    Log.e(TAG,"Key :"+ kd.getStrKeyCode());
-                    Log.e(TAG,"Address :"+ kd.getAddress());
-                    Log.e(TAG,"Value :"+ kd.getValue());
+                    FLog.e(TAG,"JSON put error at :"+ kds.indexOf(kd));
+                    FLog.e(TAG,"Key :"+ kd.getStrKeyCode());
+                    FLog.e(TAG,"Address :"+ kd.getAddress());
+                    FLog.e(TAG,"Value :"+ kd.getValue());
                     e.printStackTrace();
                 }
             }
 
             if(!(jsonArray.length()>0)){
-                Log.e(TAG,"jsonArray is empty.");
+                FLog.e(TAG,"jsonArray is empty.");
                 return false;
             }
 
-            Log.e(TAG,"jsonArray:"+ jsonArray.toString());
+            FLog.e(TAG,"jsonArray:"+ jsonArray.toString());
             try {
                 FileWriter file = new FileWriter(filename);
                 try {
@@ -618,10 +632,10 @@ public class  UtilsSharedPref {
             s = readFromFile(path);
 
             if(s.equals("")){
-                Log.e(TAG,"Failed to read string from "+path);
+                FLog.e(TAG,"Failed to read string from "+path);
                 return null;
             }
-            Log.v(TAG,"json str:"+s);
+            FLog.v(TAG,"json str:"+s);
 
             ArrayList<KeyData> kds = getKeyDataFromStrJSON(s);
 
@@ -641,7 +655,7 @@ public class  UtilsSharedPref {
     static public boolean echoShellCommand(String cmd, String file){
         boolean result = false;
         try{
-            Log.e(TAG, "cmd="+ cmd +",length="+ cmd.getBytes().length );
+            FLog.e(TAG, "cmd="+ cmd +",length="+ cmd.getBytes().length );
             if(cmd.getBytes().length>60)
             {
                 if(isLollipop)
@@ -661,7 +675,7 @@ public class  UtilsSharedPref {
                     echoShellCommand("38 14000000",DsiWrite);
             }
         }catch(IOException e){
-            Log.e(TAG, "ERROR at echoShellCommand "+ cmd +" > "+ file);
+            FLog.e(TAG, "ERROR at echoShellCommand "+ cmd +" > "+ file);
             e.printStackTrace();
         }
         return result;
@@ -684,7 +698,7 @@ public class  UtilsSharedPref {
 
         } catch (Exception e) {
             e.printStackTrace();
-            Log.e(TAG,"Error at catExecutor for cmd:"+command);
+            FLog.e(TAG,"Error at catExecutor for cmd:"+command);
         }
         return output.toString();
 
@@ -715,10 +729,10 @@ public class  UtilsSharedPref {
             }else{
                 valueStr =  retValue.substring(retValue.indexOf("value:")+ "value:".length());
             }
-            Log.d(TAG, "valueStr="+valueStr.trim()+"!!");
+            FLog.d(TAG, "valueStr="+valueStr.trim()+"!!");
             value = valueStr.trim();
         } catch (NumberFormatException e) {
-            Log.e(TAG,"Wrong number");
+            FLog.e(TAG,"Wrong number");
             value = "failed to parse value.";
         }
 
@@ -739,7 +753,7 @@ public class  UtilsSharedPref {
             return PanelName.UNKNOWN;
 
         retValue = catExecutor("cat "+File_PanelName);
-        Log.d(TAG,"getPanelName retValue:"+retValue);
+        FLog.d(TAG,"getPanelName retValue:"+retValue);
 
         if(retValue.equals("JD9365D"))
             return PanelName.JD9365D;
@@ -771,11 +785,11 @@ public class  UtilsSharedPref {
             result = echoShellCommand((isLollipop?(addr+" "+String.valueOf(length)):(String.valueOf(length))) ,RegLength);
 
             if(!result){
-                Log.e(TAG,"Failed to command "+ (isLollipop?(addr+" "+String.valueOf(length)):(String.valueOf(length))) +" > "+RegLength);
+                FLog.e(TAG,"Failed to command "+ (isLollipop?(addr+" "+String.valueOf(length)):(String.valueOf(length))) +" > "+RegLength);
                 return "";
             }
         } catch (NumberFormatException e) {
-            Log.e(TAG,"Wrong input length:"+length);
+            FLog.e(TAG,"Wrong input length:"+length);
             return "";
         }
 
@@ -901,10 +915,10 @@ public class  UtilsSharedPref {
                 openfile_size = bmp_header[2] | bmp_header[3]<<8 | bmp_header[4]<<16 | bmp_header[5]<<24;
                 width = bmp_header[18] | bmp_header[19]<<8 | bmp_header[20]<<16 | bmp_header[21]<<24;
                 height = bmp_header[22] | bmp_header[23]<<8 | bmp_header[24]<<16 | bmp_header[25]<<24;
-                Log.d(TAG,"file="+file);
-                Log.d(TAG,"openfile_size="+openfile_size);
-                Log.d(TAG,"width="+width);
-                Log.d(TAG,"height="+height);
+                FLog.d(TAG,"file="+file);
+                FLog.d(TAG,"openfile_size="+openfile_size);
+                FLog.d(TAG,"width="+width);
+                FLog.d(TAG,"height="+height);
                 /*Reserve first byte for command 0x2c & 0x3c.*/
                 readLength = br.read( buffer ,indexData-1,MAX_WRITE_BYTES+1);
                 if(readLength>0){
@@ -937,14 +951,14 @@ public class  UtilsSharedPref {
         try {
             JSONObject jsonin = new JSONObject(in);
             JSONObject jobject = jsonin.getJSONObject("Products");
-            Log.e(PP,"jobject = "+jobject);
+            FLog.e(PP,"jobject = "+jobject);
             for(int i = 0; i<jobject.names().length(); i++){
-                Log.e(PP, "key = " + jobject.names().getString(i) + " value = " + jobject.get(jobject.names().getString(i)));
+                FLog.e(PP, "key = " + jobject.names().getString(i) + " value = " + jobject.get(jobject.names().getString(i)));
                 JSONObject device = jobject.getJSONObject(jobject.names().getString(i));
-                Log.e(PP,"device="+jobject.names().getString(i));
-                Log.e(PP,"description="+device.getString("description"));
-                Log.e(PP,"image url="+device.getString("image url"));
-                Log.e(PP,"url="+device.getString("url"));
+                FLog.e(PP,"device="+jobject.names().getString(i));
+                FLog.e(PP,"description="+device.getString("description"));
+                FLog.e(PP,"image url="+device.getString("image url"));
+                FLog.e(PP,"url="+device.getString("url"));
 
             }
 

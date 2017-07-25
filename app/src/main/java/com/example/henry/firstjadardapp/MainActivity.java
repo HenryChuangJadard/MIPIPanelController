@@ -35,6 +35,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -59,6 +60,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.henry.firstjadardapp.UtilsSharedPref.AES;
 import com.example.henry.firstjadardapp.UtilsSharedPref.UtilsSharedPref;
 import com.github.clans.fab.FloatingActionButton;
 import com.turhanoz.android.reactivedirectorychooser.event.OnDirectoryCancelEvent;
@@ -122,7 +124,8 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
 //    final String imageFiles[]={"1x1.bmp","4x4.bmp","6x6.bmp","480x800_line_onoff.bmp","HCB.bmp","Test1.bmp","Test2.bmp","Test3.bmp"};
     final String imageFiles[] = {"005_boarder.bmp", "005_boarder.bmp", "005_boarder.bmp", "005_boarder.bmp", "005_boarder.bmp", "005_boarder.bmp", "005_boarder.bmp", "005_boarder.bmp"};
     int fileIndex = 0;
-    final String APP_PATH = "/JPVR";
+    public static final String APP_PATH = "/JPVR";
+    public static final String CERTIFICATION_FILE = "certi.jpvr";
     BitmapFactory.Options op;
     private File filelist[];
 //    final static public String GenWrite = "/sys/devices/platform/mipi_jadard.2305/genW";
@@ -202,13 +205,13 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         if(RL_BTS!=null)
             RL_BTS.setVisibility(View.VISIBLE);
         if(LL_CABC!=null && !bDisableCABC)
-            LL_CABC.setVisibility(View.VISIBLE);
+            LL_CABC.setVisibility(View.INVISIBLE);
         if(LL_CE!=null)
-            LL_CE.setVisibility(View.VISIBLE);
+            LL_CE.setVisibility(View.INVISIBLE);
         if(LL_ALS!=null)
             LL_ALS.setVisibility(View.INVISIBLE);
         if(LL_MixEff!=null && !bDisableMixEffect)
-            LL_MixEff.setVisibility(View.VISIBLE);
+            LL_MixEff.setVisibility(View.INVISIBLE);
 
         IV_Pic.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
         mHandler.removeCallbacks(mRunnable);
@@ -274,7 +277,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         try {
             File dir = new File(APPpath);
             if (!dir.exists()) {
-                Log.v("JPVR", "Not existed APPpath=" + APPpath);
+                FLog.v("JPVR", "Not existed APPpath=" + APPpath);
                 dir.mkdirs();
                 dir.getParentFile().mkdir();
             }
@@ -287,25 +290,23 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         }
 
 
-
-
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
-        Log.d("JPVR", "Display width in px is " + metrics.widthPixels);
-        Log.d("JPVR", "Display height in py is " + metrics.heightPixels);
+        FLog.d("JPVR", "Display width in px is " + metrics.widthPixels);
+        FLog.d("JPVR", "Display height in py is " + metrics.heightPixels);
 
         UtilsSharedPref.getInstance().Initialize(MainActivity.this);
 
-        Log.d(TAG,"UtilsSharedPref.getPanelName()");
+        FLog.d(TAG,"UtilsSharedPref.getPanelName()");
         JD_PanelName = UtilsSharedPref.getPanelName();
 //        JD_PanelName = UtilsSharedPref.PanelName.JD9522;
-        Log.d(TAG,"JD_PanelName:"+JD_PanelName.getValue());
+        FLog.d(TAG,"JD_PanelName:"+JD_PanelName.getValue());
         String kdFilepath =UtilsSharedPref.getCurrentFileName();
         File kdFile = new File(kdFilepath);
         if(!kdFile.exists()) {
             kdFilepath = UtilsSharedPref.DIR_KEYDATA_FILE + JD_PanelName + ".keydata";
         }
-        Log.d(TAG,"kdFile:"+kdFilepath);
+        FLog.d(TAG,"kdFile:"+kdFilepath);
 
         kdFile = new File(kdFilepath);
         if(kdFile.exists()){
@@ -319,8 +320,8 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
             Display display = getWindowManager().getDefaultDisplay();
             Point size = new Point();
             display.getSize(size);
-            Log.v("JPVR", "resolution x =" + size.x);
-            Log.v("JPVR", "resolution y =" + size.y);
+            FLog.v("JPVR", "resolution x =" + size.x);
+            FLog.v("JPVR", "resolution y =" + size.y);
             if (size.x == 720) {
                 filePath = Environment.getExternalStorageDirectory().getAbsolutePath() + APP_PATH + "/img_HD/";
                 PanelSize = "HD";
@@ -340,8 +341,8 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
             Display display = getWindowManager().getDefaultDisplay();
             Point size = new Point();
             display.getSize(size);
-            Log.v("JPVR", "resolution x =" + size.x);
-            Log.v("JPVR", "resolution y =" + size.y);
+            FLog.v("JPVR", "resolution x =" + size.x);
+            FLog.v("JPVR", "resolution y =" + size.y);
             if (size.x == 720) {
                 if(size.y > 1280){
                     PanelSize = "720x1440";
@@ -365,7 +366,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
 
         UtilsSharedPref.setImagesFolder(filePath);
 
-        Log.v("JPVR", "filePath =" + filePath);
+        FLog.v("JPVR", "filePath =" + filePath);
 
 
         Bitmap bitmap;
@@ -399,13 +400,13 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
 //        /storage/emulated/legacy/Pictures/HCB.bmp
             bitmap = BitmapFactory.decodeFile(filePath + filelist[fileIndex].getName(), op);
             curFilename = filelist[fileIndex].getName();
-            Log.d("JPVR", "file path: " + filePath + filelist[fileIndex].getName());
+            FLog.d("JPVR", "file path: " + filePath + filelist[fileIndex].getName());
 
-            Log.d("JPVR", "curFilename: " + curFilename);
+            FLog.d("JPVR", "curFilename: " + curFilename);
 
         }
         catch(NullPointerException e){
-            Log.e("Error", "NPE: " + e);
+            FLog.e("Error", "NPE: " + e);
             bitmap = null;
             filelist = null;
             fileIndex = 0;
@@ -579,7 +580,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
             IV_Pic.setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.white_720_1280, null));
         } else {
             if (IV_Pic == null)
-                Log.e(TAG, "imageView == null");
+                FLog.e(TAG, "imageView == null");
 
             String str = bitmap.getWidth()+"x"+bitmap.getHeight();
             TV_Filename.setText(curFilename);
@@ -669,7 +670,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
                     @Override
                     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                         Toast.makeText(MainActivity.this, keys.get(position), Toast.LENGTH_SHORT).show();
-                        Log.d("SP_Key","key("+position+") selected:"+keys.get(position));
+                        FLog.d("SP_Key","key("+position+") selected:"+keys.get(position));
                     }
 
                     @Override
@@ -690,17 +691,17 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
                     String value ;
                     Boolean mode ;
                     Boolean enable ;
-                    Log.d(TAG, "setPositiveButton:");
+                    FLog.d(TAG, "setPositiveButton:");
                     int length = UtilsSharedPref.KEY_LENGTH_DEFAULT;
                     if(SP_Key!=null){
                         key = keys.get(SP_Key.getSelectedItemPosition());
-                        Log.d("SP_Key","getSelectedItemPosition("+SP_Key.getSelectedItemPosition()+") :"+keys.get(SP_Key.getSelectedItemPosition()));
+                        FLog.d("SP_Key","getSelectedItemPosition("+SP_Key.getSelectedItemPosition()+") :"+keys.get(SP_Key.getSelectedItemPosition()));
                     }
                     if (!key.equals("") &&
                         !ET_Address.getText().toString().equals("") &&
                         !ET_Value.getText().toString().equals("")) {
 
-                        Log.d(TAG, "Add key:" + key);
+                        FLog.d(TAG, "Add key:" + key);
                         address = ET_Address.getText().toString().trim();
                         value = ET_Value.getText().toString().trim();
                         mode = RB_ReadMode.isChecked();
@@ -784,7 +785,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
 
         if (permission != PackageManager.PERMISSION_GRANTED) {
             // We don't have permission so prompt the user
-            Log.v("JPVR", "No permission..");
+            FLog.v("JPVR", "No permission..");
             ActivityCompat.requestPermissions(
                     activity,
                     PERMISSIONS_STORAGE,
@@ -796,7 +797,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
     private void runShellCommand(String cmd) {
         Process process = null;
         InputStream input = null;
-        Log.d("JPVR", "cmd: " + cmd);
+        FLog.d("JPVR", "cmd: " + cmd);
         try {
             process = Runtime.getRuntime().exec(cmd);
             input = process.getInputStream();
@@ -819,7 +820,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
     }
 
     public static void echoShellCommand(String cmd, String file) {
-        Log.d("JPVR", "echoShellCommand " + cmd + " > " + file);
+        FLog.d("JPVR", "echoShellCommand " + cmd + " > " + file);
         try {
             FileWriter fw = new FileWriter(new File(file));
             fw.write(cmd+"\\n");
@@ -832,7 +833,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
     public static String ReadRegShellCommand(String reg) {
         int addr;
         try {
-            Log.d(TAG, "reg:" + reg);
+            FLog.d(TAG, "reg:" + reg);
             addr = Integer.parseInt(reg, 16);
 //            addr=Int.parseLong("AA0F245C", 16);
         } catch (NumberFormatException e) {
@@ -845,7 +846,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         String value = "";
         String retValue;
         if (reg < 0 || reg > 0xff) {
-            Log.e(TAG, "Invalid register address: " + reg);
+            FLog.e(TAG, "Invalid register address: " + reg);
             return "";
         }
         echoShellCommand("0 1f7", DsiWrite);
@@ -857,20 +858,20 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         try {
             //Log.d(TAG,"retValue.substring("+retValue.indexOf("value:")+ "value:".length()+")"+retValue.substring(retValue.indexOf("value:")+ "value:".length()));
             String valueStr = retValue.substring(retValue.indexOf("value:") + "value:".length());
-            Log.d(TAG, "valueStr=" + valueStr.trim() + "!!");
+            FLog.d(TAG, "valueStr=" + valueStr.trim() + "!!");
             value = valueStr.trim();
         } catch (NumberFormatException e) {
-            Log.e(TAG, "Wrong number");
+            FLog.e(TAG, "Wrong number");
             value = "failed to parse value.";
         }
-        Log.e(TAG, "value: " + value);
+        FLog.e(TAG, "value: " + value);
         echoShellCommand("0 1f3", DsiWrite);
         echoShellCommand("38 14000000", DsiWrite);
         return value;
     }
 
     private static void setGenWriteJava(String cmd) {
-        Log.d("JPVR", "setGenWriteJava cmd: " + cmd);
+        FLog.d("JPVR", "setGenWriteJava cmd: " + cmd);
         try {
             FileWriter fw = new FileWriter(new File(GenWrite));
             fw.write(cmd+"\\n");
@@ -897,7 +898,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
             String line = "";
             while ((line = reader.readLine()) != null) {
                 output.append(line);
-                Log.d("JPVR", line);
+                FLog.d("JPVR", line);
             }
 
         } catch (Exception e) {
@@ -918,20 +919,20 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
                 value55 = "70";
             }
             if(JD_PanelName == UtilsSharedPref.PanelName.JD9365D){
-                Log.d("setALSEnable","JD9365D");
+                FLog.d("setALSEnable","JD9365D");
                 echoShellCommand("E0 4",GenWrite);//page 4
                 echoShellCommand("5D 00",GenWrite);
                 echoShellCommand("5E 00",GenWrite);
                 echoShellCommand("5F 04",GenWrite);
                 echoShellCommand("60 8A",GenWrite);
                 echoShellCommand("61 CF",GenWrite);
-//                Log.d("setALSEnable","page 3");
+//                FLog.d("setALSEnable","page 3");
                 echoShellCommand("E0 3",GenWrite);//page 3
                 echoShellCommand("A8 00",GenWrite);
                 echoShellCommand("E0 0",GenWrite);//page 0
-//                Log.d("setALSEnable","55 70");
+//                FLog.d("setALSEnable","55 70");
                 echoShellCommand("55 "+value55,GenWrite);
-//                Log.d("setALSEnable","55 70 end");
+//                FLog.d("setALSEnable","55 70 end");
 
             }else {
                 echoShellCommand("DE 1", GenWrite);
@@ -1027,7 +1028,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
                 }
             }
         }
-        Log.d("get_9365_55h_Config","value="+value);
+        FLog.d("get_9365_55h_Config","value="+value);
         return value;
     }
 
@@ -1105,7 +1106,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         @Override
         public void onCheckedChanged(CompoundButton buttonView,
                                      boolean isChecked) {
-            Log.v(TAG, "isChecked:" + isChecked);
+            FLog.v(TAG, "isChecked:" + isChecked);
 
             if (buttonView.getId() == R.id.SW_ALS) {
                 if(!UtilsSharedPref.isMixEffect()) {
@@ -1199,7 +1200,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
     };
 
     private void setDisplayInfo(boolean on) {
-        Log.d(TAG, "setDisplayInfo on : " + on);
+        FLog.d(TAG, "setDisplayInfo on : " + on);
         if (LL_Top != null)
             LL_Top.setVisibility(on ? View.VISIBLE : View.INVISIBLE);
         if (LL_Bottom != null)
@@ -1258,9 +1259,9 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
             else
                 toast.setText(String.valueOf(progressSLR));
 
-            Log.d("SB_SLR_ChangeListener","time-tsLastUpdated="+(time-tsLastUpdated));
-            Log.d("SB_SLR_ChangeListener","diff="+(diff));
-            Log.d("SB_SLR_ChangeListener","progressSLR>>2="+(progressSLR>>2));
+            FLog.d("SB_SLR_ChangeListener","time-tsLastUpdated="+(time-tsLastUpdated));
+            FLog.d("SB_SLR_ChangeListener","diff="+(diff));
+            FLog.d("SB_SLR_ChangeListener","progressSLR>>2="+(progressSLR>>2));
             if((time-tsLastUpdated)>500 || (diff > progressSLR>>1)){
                 tsLastUpdated = System.currentTimeMillis();
                 lastSLR = progressSLR;
@@ -1274,12 +1275,12 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         public void onStartTrackingTouch(SeekBar seekBar) {
             toast = Toast.makeText(MainActivity.this, "", Toast.LENGTH_SHORT);
 //            toast.show();
-            Log.d("OnSeekBarChangeListener","onStartTrackingTouch progressSLR = " + progressSLR);
+            FLog.d("OnSeekBarChangeListener","onStartTrackingTouch progressSLR = " + progressSLR);
             resetUI();
         }
 
         public void onStopTrackingTouch(SeekBar seekBar) {
-            Log.d("OnSeekBarChangeListener","onStopTrackingTouch progressSLR = " + progressSLR);
+            FLog.d("OnSeekBarChangeListener","onStopTrackingTouch progressSLR = " + progressSLR);
             set_SLR();
             tsLastUpdated = System.currentTimeMillis()/1000;
             lastSLR = progressSLR;
@@ -1291,7 +1292,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
 
 
     void addDirectoryChooserAsFloatingFragment() {
-        Log.d(TAG,"addDirectoryChooserAsFloatingFragment filePath="+filePath);
+        FLog.d(TAG,"addDirectoryChooserAsFloatingFragment filePath="+filePath);
         File file = new File(filePath);
 
         if(!file.exists()){
@@ -1322,13 +1323,13 @@ final int REQUEST_DIRECTORY = 1001;
 
         if (requestCode == REQUEST_DIRECTORY) {
             if (resultCode == Activity.RESULT_OK) {
-                Log.d(TAG,"data="+data.getData());
+                FLog.d(TAG,"data="+data.getData());
                 String path = getPath(this,data.getData());
-                Log.d(TAG,"path="+path);
+                FLog.d(TAG,"path="+path);
                 File file = new File(path);
                 if(file.exists()){
                     filePath = file.getParent()+"/";
-                    Log.d(TAG,"filePath="+filePath);
+                    FLog.d(TAG,"filePath="+filePath);
                     File selectFolder = new File(filePath);
                     filelist = selectFolder.listFiles();
                     if(filelist!=null && filelist.length>1) {
@@ -1363,14 +1364,14 @@ final int REQUEST_DIRECTORY = 1001;
                     }
                 });
             }
-//        Log.d(TAG,"filelist length="+filelist.length);
+//        FLog.d(TAG,"filelist length="+filelist.length);
 //        for(int i=0;i<filelist.length;i++){
-//            Log.d(TAG,"file["+(i+1)+"]="+filelist[i]);
+//            FLog.d(TAG,"file["+(i+1)+"]="+filelist[i]);
 //        }
             fileIndex = 0;
             UtilsSharedPref.setImagesFolder(filePath);
             loadImage();
-            Log.d(TAG, "onDirectoryChosenEvent path=" + onDirectoryChosenEvent.getFile());
+            FLog.d(TAG, "onDirectoryChosenEvent path=" + onDirectoryChosenEvent.getFile());
         }
     }
 
@@ -1508,7 +1509,7 @@ final int REQUEST_DIRECTORY = 1001;
 
     @Override
     public void onEvent(OnDirectoryCancelEvent onDirectoryCancelEvent) {
-        Log.d(TAG,"onDirectoryChosenEvent ="+onDirectoryCancelEvent.toString());
+        FLog.d(TAG,"onDirectoryChosenEvent ="+onDirectoryCancelEvent.toString());
     }
 
     class setSLRAsyncTask extends AsyncTask<Integer, Void, Boolean> {
@@ -1517,7 +1518,7 @@ final int REQUEST_DIRECTORY = 1001;
         @Override
         protected Boolean doInBackground(Integer... params) {
             mSLR = params[0];
-            Log.d("setSLRAsyncTask","mSLR  = " + mSLR);
+            FLog.d("setSLRAsyncTask","mSLR  = " + mSLR);
             return set_SLR(mSLR);
         }
 
@@ -1545,18 +1546,18 @@ final int REQUEST_DIRECTORY = 1001;
             }
             else
                 toast.setText(String.valueOf(progressLUMEN));
-            Log.d("SB_LUMEN_ChangeListener","time-tsLastUpdated="+(time-tsLastUpdated));
-            Log.d("SB_LUMEN_ChangeListener","diff="+(diff));
-            Log.d("SB_LUMEN_ChangeListener","lastLUME>>2="+(lastLUME>>2));
+            FLog.d("SB_LUMEN_ChangeListener","time-tsLastUpdated="+(time-tsLastUpdated));
+            FLog.d("SB_LUMEN_ChangeListener","diff="+(diff));
+            FLog.d("SB_LUMEN_ChangeListener","lastLUME>>2="+(lastLUME>>2));
             if((time-tsLastUpdated)>500 || (diff > (lastLUME>>2)))
             {
-                Log.i("SB_LUMEN_ChangeListener","triggered progressLUMEN="+progressLUMEN);
+                FLog.i("SB_LUMEN_ChangeListener","triggered progressLUMEN="+progressLUMEN);
                 tsLastUpdated = System.currentTimeMillis();
                 lastLUME = progressLUMEN;
                 toast.show();
                 new setLUMEAsyncTask().execute(lastLUME);
             }
-//            Log.d("OnSeekBarChangeListener","onProgressChanged progressLUMEN = " + progressLUMEN);
+//            FLog.d("OnSeekBarChangeListener","onProgressChanged progressLUMEN = " + progressLUMEN);
 //
 //            setLUMEN();
             resetUI();
@@ -1565,7 +1566,7 @@ final int REQUEST_DIRECTORY = 1001;
         public void onStartTrackingTouch(SeekBar seekBar) {
             toast = Toast.makeText(MainActivity.this, "", Toast.LENGTH_SHORT);
 //            toast.show();
-            Log.d("OnSeekBarChangeListener","onStartTrackingTouch progressLUMEN = " + progressLUMEN);
+            FLog.d("OnSeekBarChangeListener","onStartTrackingTouch progressLUMEN = " + progressLUMEN);
 //            int index= UtilsSharedPref.getProject();
 
             if(JD_PanelName.equals(UtilsSharedPref.PanelName.JD9365D)){
@@ -1580,7 +1581,7 @@ final int REQUEST_DIRECTORY = 1001;
         }
 
         public void onStopTrackingTouch(SeekBar seekBar) {
-            Log.d("OnSeekBarChangeListener","onStopTrackingTouch progressSLR = " + progressLUMEN);
+            FLog.d("OnSeekBarChangeListener","onStopTrackingTouch progressSLR = " + progressLUMEN);
             setLUMEN();
 //            int index= UtilsSharedPref.getProject();
             //            set for dimming.
@@ -1598,7 +1599,7 @@ final int REQUEST_DIRECTORY = 1001;
         @Override
         protected Boolean doInBackground(Integer... params) {
             mLUME = params[0];
-            Log.v("setLUMEAsyncTask","mLUME  = " + mLUME);
+            FLog.v("setLUMEAsyncTask","mLUME  = " + mLUME);
             return setLUMEN(mLUME);
         }
 
@@ -1626,7 +1627,7 @@ final int REQUEST_DIRECTORY = 1001;
         }else if(UtilsSharedPref.getMaxLumen()<65536) {
             str_lumen = lumAddr + String.format("%02X %02X ", progressLUMEN >> 8 & 0xff, progressLUMEN & 0xff);
         }
-        Log.d("setLUMEN","lumen cmd:"+str_lumen);
+        FLog.d("setLUMEN","lumen cmd:"+str_lumen);
         if(UtilsSharedPref.echoShellCommand(str_lumen, GenWrite))
             UtilsSharedPref.setPrefDisplayCurLUMEN(progressLUMEN);
         else
@@ -1648,22 +1649,22 @@ final int REQUEST_DIRECTORY = 1001;
         }else if(UtilsSharedPref.getMaxLumen()<65536) {
             str_lumen = lumAddr + String.format("%02X %02X ", lumen >> 8 & 0xff, lumen & 0xff);
         }
-        Log.d("setLUMENwPara","lumen cmd:"+str_lumen);
+        FLog.d("setLUMENwPara","lumen cmd:"+str_lumen);
         return UtilsSharedPref.echoShellCommand(str_lumen, GenWrite);
 
     }
 
 
     public void set_SLR(){
-        Log.d("set_SLR","progressSLR="+progressSLR);
-        Log.d("set_SLR","progressSLR=0x"+Integer.toHexString(progressSLR));
-        Log.d("set_SLR",String.format("%02X",progressSLR>>24&0xff));
-        Log.d("set_SLR",String.format("%02X",progressSLR>>16&0xff));
-        Log.d("set_SLR",String.format("%02X",progressSLR>>8&0xff));
-        Log.d("set_SLR",String.format("%02X",progressSLR&0xff));
+        FLog.d("set_SLR","progressSLR="+progressSLR);
+        FLog.d("set_SLR","progressSLR=0x"+Integer.toHexString(progressSLR));
+        FLog.d("set_SLR",String.format("%02X",progressSLR>>24&0xff));
+        FLog.d("set_SLR",String.format("%02X",progressSLR>>16&0xff));
+        FLog.d("set_SLR",String.format("%02X",progressSLR>>8&0xff));
+        FLog.d("set_SLR",String.format("%02X",progressSLR&0xff));
 
-        Log.d("set_SLR()","JD_PanelName="+JD_PanelName);
-//        Log.d("set_SLR()","UtilsSharedPref.PanelName.JD9365D="+UtilsSharedPref.PanelName.JD9365D);
+        FLog.d("set_SLR()","JD_PanelName="+JD_PanelName);
+//        FLog.d("set_SLR()","UtilsSharedPref.PanelName.JD9365D="+UtilsSharedPref.PanelName.JD9365D);
         if(JD_PanelName.equals(UtilsSharedPref.PanelName.JD9365D)){
             UtilsSharedPref.echoShellCommand("E0 0",GenWrite);//page 0
             String str_slr1 = "88 " + String.format("%02X ", progressSLR >> 24 & 0xff);
@@ -1682,7 +1683,7 @@ final int REQUEST_DIRECTORY = 1001;
         }else {
 
             String str_slr = "E3 " + String.format("%02X %02X %02X %02X ", progressSLR >> 24 & 0xff, progressSLR >> 16 & 0xff, progressSLR >> 8 & 0xff, progressSLR & 0xff);
-            Log.d("set_SLR", "slr cmd:" + str_slr);
+            FLog.d("set_SLR", "slr cmd:" + str_slr);
             if (UtilsSharedPref.echoShellCommand(str_slr, GenWrite))
                 UtilsSharedPref.setPrefDisplayCurSlr(progressSLR);
             else
@@ -1691,15 +1692,15 @@ final int REQUEST_DIRECTORY = 1001;
     }
 
     private boolean set_SLR(Integer slr){
-        Log.d("set_SLR","slr="+slr);
-        Log.d("set_SLR","slr=0x"+Integer.toHexString(slr));
-        Log.d("set_SLR",String.format("%02X",slr>>24&0xff));
-        Log.d("set_SLR",String.format("%02X",slr>>16&0xff));
-        Log.d("set_SLR",String.format("%02X",slr>>8&0xff));
-        Log.d("set_SLR",String.format("%02X",slr&0xff));
+        FLog.d("set_SLR","slr="+slr);
+        FLog.d("set_SLR","slr=0x"+Integer.toHexString(slr));
+        FLog.d("set_SLR",String.format("%02X",slr>>24&0xff));
+        FLog.d("set_SLR",String.format("%02X",slr>>16&0xff));
+        FLog.d("set_SLR",String.format("%02X",slr>>8&0xff));
+        FLog.d("set_SLR",String.format("%02X",slr&0xff));
 
-        Log.d("set_SLR(slr)","JD_PanelName="+JD_PanelName);
-        Log.d("set_SLR(slr)","UtilsSharedPref.PanelName.JD9365D="+UtilsSharedPref.PanelName.JD9365D);
+        FLog.d("set_SLR(slr)","JD_PanelName="+JD_PanelName);
+        FLog.d("set_SLR(slr)","UtilsSharedPref.PanelName.JD9365D="+UtilsSharedPref.PanelName.JD9365D);
 
         if(JD_PanelName.equals(UtilsSharedPref.PanelName.JD9365D)){
             echoShellCommand("E0 0",GenWrite);//page 0
@@ -1718,7 +1719,7 @@ final int REQUEST_DIRECTORY = 1001;
 
             echoShellCommand("DE 0",GenWrite);//page 0
             String str_slr = "E3 " + String.format("%02X %02X %02X %02X ", slr >> 24 & 0xff, slr >> 16 & 0xff, slr >> 8 & 0xff, slr & 0xff);
-            Log.d("set_SLR", "slr cmd:" + str_slr);
+            FLog.d("set_SLR", "slr cmd:" + str_slr);
             return UtilsSharedPref.echoShellCommand(str_slr, GenWrite);
         }
     }
@@ -1743,28 +1744,28 @@ final int REQUEST_DIRECTORY = 1001;
 
     @Override
     public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
-        Log.d("JPVR", "keyCode: " + keyCode);
+        FLog.d("JPVR", "keyCode: " + keyCode);
         return false;
     }
 
 
     public void onButtonClick(View view) {
-        Log.d("JPVR", "getId: " + view.getId());
+        FLog.d("JPVR", "getId: " + view.getId());
     }
 
     // Create a BroadcastReceiver for ACTION_FOUND.
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            Log.e(TAG,"BroadcastReceiver action="+action);
+            FLog.e(TAG,"BroadcastReceiver action="+action);
             if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                 // Discovery has found a device. Get the BluetoothDevice
                 // object and its info from the Intent.
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 String deviceName = device.getName();
                 String deviceHardwareAddress = device.getAddress(); // MAC address
-                Log.e(TAG,"BroadcastReceiver deviceName"+deviceName);
-                Log.e(TAG,"BroadcastReceiver deviceHardwareAddress"+deviceHardwareAddress);
+                FLog.e(TAG,"BroadcastReceiver deviceName"+deviceName);
+                FLog.e(TAG,"BroadcastReceiver deviceHardwareAddress"+deviceHardwareAddress);
             }
         }
     };
@@ -1773,7 +1774,7 @@ final int REQUEST_DIRECTORY = 1001;
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             super.onConnectionStateChange(gatt, status, newState);
-            Log.v(TAG, "Connection State Changed: " + (newState == BluetoothProfile.STATE_CONNECTED ? "Connected" : "Disconnected"));
+            FLog.v(TAG, "Connection State Changed: " + (newState == BluetoothProfile.STATE_CONNECTED ? "Connected" : "Disconnected"));
 //            if(newState == BluetoothProfile.STATE_CONNECTED) {
 //
 //            } else {
@@ -1785,7 +1786,7 @@ final int REQUEST_DIRECTORY = 1001;
     private Boolean connect(BluetoothDevice bdDevice) {
         Boolean bool = false;
         try {
-            Log.i("Log", "service method is called ");
+            FLog.i("Log", "service method is called ");
             Class cl = Class.forName("android.bluetooth.BluetoothDevice");
             Class[] par = {};
             Method method = cl.getMethod("createBond", par);
@@ -1794,7 +1795,7 @@ final int REQUEST_DIRECTORY = 1001;
             //Log.i("Log", "This is: "+bool.booleanValue());
             //Log.i("Log", "devicesss: "+bdDevice.getName());
         } catch (Exception e) {
-            Log.i("Log", "Inside catch of serviceFromDevice Method");
+            FLog.i("Log", "Inside catch of serviceFromDevice Method");
             e.printStackTrace();
         }
         return bool;
@@ -1825,26 +1826,26 @@ final int REQUEST_DIRECTORY = 1001;
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if ((keyCode == KeyEvent.KEYCODE_VOLUME_DOWN)){
             //Do something
-            Log.e(TAG,"KeyEvent.KEYCODE_VOLUME_DOWN");
+            FLog.e(TAG,"KeyEvent.KEYCODE_VOLUME_DOWN");
         }
         if ((keyCode == KeyEvent.KEYCODE_VOLUME_UP)){
             //Do something
-            Log.e(TAG,"KeyEvent.KEYCODE_VOLUME_UP");
+            FLog.e(TAG,"KeyEvent.KEYCODE_VOLUME_UP");
             BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
             if(mBluetoothAdapter!=null){
-                Log.e(TAG,"mBluetoothAdapter."+mBluetoothAdapter.isEnabled());
+                FLog.e(TAG,"mBluetoothAdapter."+mBluetoothAdapter.isEnabled());
                 if(mBluetoothAdapter.isEnabled()){
                     Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
-                    Log.e(TAG,"pairedDevices.size()"+pairedDevices.size());
+                    FLog.e(TAG,"pairedDevices.size()"+pairedDevices.size());
                     if (pairedDevices.size() > 0) {
                         // There are paired devices. Get the name and address of each paired device.
                         for (BluetoothDevice device : pairedDevices) {
                             String deviceName = device.getName();
                             String deviceHardwareAddress = device.getAddress(); // MAC address
 
-                            Log.e(TAG,"getBondState:"+device.getBondState());
-                            Log.e(TAG,"deviceName:"+deviceName);
-                            Log.e(TAG,"deviceHardwareAddress:"+deviceHardwareAddress);
+                            FLog.e(TAG,"getBondState:"+device.getBondState());
+                            FLog.e(TAG,"deviceName:"+deviceName);
+                            FLog.e(TAG,"deviceHardwareAddress:"+deviceHardwareAddress);
 //                            device.connectGatt(this,true,mGattCallback);
                             intentBT();
                         }
@@ -1859,10 +1860,10 @@ final int REQUEST_DIRECTORY = 1001;
     public boolean onKeyUp(int keyCode, KeyEvent event) {
 //        runGenW(Page1);
         if (event.getAction() == KeyEvent.ACTION_DOWN) {
-            Log.d(TAG, "keyAction=ACTION_DOWN ");
+            FLog.d(TAG, "keyAction=ACTION_DOWN ");
             return true;
         }
-        Log.d(TAG, "keyCode=" + keyCode);
+        FLog.d(TAG, "keyCode=" + keyCode);
 //        setGenWriteJava(Page1);
         switch (keyCode) {
             case KeyEvent.KEYCODE_DPAD_RIGHT:
@@ -1889,7 +1890,7 @@ final int REQUEST_DIRECTORY = 1001;
                 setGenWriteJava("C2 24 46 00");
                 setGenWriteJava("11");
                 setGenWriteJava("29");
-                Log.d("JPVR", "KEYCODE_ESCAPE ");
+                FLog.d("JPVR", "KEYCODE_ESCAPE ");
                 return true;
             case KeyEvent.KEYCODE_ALT_LEFT:
                 toSettingActivity();
@@ -1914,10 +1915,10 @@ final int REQUEST_DIRECTORY = 1001;
                 loadImage();
                 return true;
             case KeyEvent.KEYCODE_VOLUME_UP:
-                Log.e(TAG,"KeyEvent.KEYCODE_VOLUME_UP");
+                FLog.e(TAG,"KeyEvent.KEYCODE_VOLUME_UP");
                 return true;
             case KeyEvent.KEYCODE_VOLUME_DOWN:
-                Log.e(TAG,"KeyEvent.KEYCODE_VOLUME_DOWN");
+                FLog.e(TAG,"KeyEvent.KEYCODE_VOLUME_DOWN");
                 return true;
             default:
 
@@ -1947,14 +1948,14 @@ final int REQUEST_DIRECTORY = 1001;
         Bitmap bmp = null;
         if(filelist!=null && filelist.length>fileIndex) {
             bmp = BitmapFactory.decodeFile(filePath + filelist[fileIndex].getName(), op);
-            Log.d("JPVR", "file name: " + filePath + filelist[fileIndex].getName());
+            FLog.d("JPVR", "file name: " + filePath + filelist[fileIndex].getName());
         }
 
 //        IV_Pic.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN);
         if(bmp!=null) {
             int y=0;
             for(int x=0;x<10;x++){
-                Log.d("loadImage","("+x+","+y+")="+Integer.toHexString(bmp.getPixel(x,y)));
+                FLog.d("loadImage","("+x+","+y+")="+Integer.toHexString(bmp.getPixel(x,y)));
             }
             IV_Pic.setImageBitmap(bmp);
             String str = bmp.getWidth() + "x" + bmp.getHeight();
@@ -1969,9 +1970,9 @@ final int REQUEST_DIRECTORY = 1001;
 
     @Override
     public void processDoKeyDataFinish(Boolean result, KeyData kd) {
-        Log.i(TAG, "processDoKeyDataFinish result:" + result);
+        FLog.i(TAG, "processDoKeyDataFinish result:" + result);
         if (kd != null) {
-            Log.i(TAG, kd.toString());
+            FLog.i(TAG, kd.toString());
             if (kd.getReadMode() == UtilsSharedPref.KEY_MODE_READ) {
                 if (TV_ReadAddress != null) {
                     String displayr = kd.getStrKeyCode() + " " + getResources().getString(R.string.ToRead) + kd.getAddress()+"h";
@@ -1999,7 +2000,7 @@ final int REQUEST_DIRECTORY = 1001;
                 }
             }
         } else {
-            Log.e(TAG, "KD==null");
+            FLog.e(TAG, "KD==null");
 
         }
 
@@ -2007,10 +2008,10 @@ final int REQUEST_DIRECTORY = 1001;
 
     @Override
     public void processFinish(ArrayList<KeyData> kds) {
-        Log.d(TAG,"processFinish");
+        FLog.d(TAG,"processFinish");
         if(kds!=null && kds.size()>0){
-            Log.d(TAG,"KeyDatas size:"+ kds.size());
-            Log.d(TAG,"KeyDatas currentFilename:"+ currentFilename);
+            FLog.d(TAG,"KeyDatas size:"+ kds.size());
+            FLog.d(TAG,"KeyDatas currentFilename:"+ currentFilename);
             UtilsSharedPref.setPrefSettings(kds);
             UtilsSharedPref.saveCurrentFileName(currentFilename);
         }
@@ -2018,7 +2019,7 @@ final int REQUEST_DIRECTORY = 1001;
 
     private void readKeyData(String fileKeydata){
             if(fileKeydata!=""){
-                Log.d(TAG, "file to load:"+fileKeydata);
+                FLog.d(TAG, "file to load:"+fileKeydata);
                 UtilsSharedPref.GetKeyDataTask asyc_getkey = new UtilsSharedPref.GetKeyDataTask();
                 asyc_getkey.setAsyncResponse(this);
                 asyc_getkey.execute(fileKeydata);

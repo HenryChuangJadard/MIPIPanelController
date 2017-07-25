@@ -241,18 +241,20 @@
         android:layout_marginTop="5dp"
         android:layout_gravity="top"
         >
-        <Switch
-            android:id="@+id/SW_InfoCtrl"
+        <TextView
             android:layout_marginRight="10dp"
             android:paddingLeft="1dp"
             android:layout_width="0dp"
-            android:layout_weight="1"
+            android:layout_weight="2"
+            android:text="@string/Version"
+            style="@style/TextTitleStyle"
             android:layout_height="match_parent" />
         <TextView
+            android:id="@+id/TV_Version"
             android:layout_width="0dp"
             android:layout_weight="4"
             android:layout_height="match_parent"
-            android:text="@string/InfoControl"
+            android:text="@string/Value"
             style="@style/TextTitleStyle"
             android:paddingRight="1dp"/>
     </LinearLayout>
