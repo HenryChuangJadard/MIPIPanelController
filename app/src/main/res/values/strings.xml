@@ -48,6 +48,9 @@
     <string name="dummy_content">DUMMY\nCONTENT</string>
     <string name="NewKey">Key</string>
     <string name="Verifying">Verifying keys</string>
+    <string name="AddingMipiCmdTitle">Adding MIPI Command…</string>
+    <string name="AddingMipiCmd">Would you like to add %1$s command at address %2$s with value %3$s ?</string>
+    <string name="setting_reset_cmd">Reset all commands</string>
 
     <string-array name="projects">
         <item>9522</item>

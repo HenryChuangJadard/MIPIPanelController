@@ -45,10 +45,10 @@ public class FabAdapter extends BaseAdapter {
         mGVBTOnClickListener = listener;
     }
 
-    public FabAdapter(Context context, ArrayList<KeyData> kdatas){
+    public FabAdapter(Context context, ArrayList<KeyData> kdatas, UtilsSharedPref.AsyncDoKeyDataResponse cb){
         this.mContext = context;
         this.keyDatas = kdatas;
-        this.CB = (UtilsSharedPref.AsyncDoKeyDataResponse)mContext;
+        this.CB = cb;
     }
 
 
@@ -85,14 +85,14 @@ public class FabAdapter extends BaseAdapter {
             Fab = (Button) convertView;
         }
 //        FLog.d("FabAdapter","DP_HEIGHT="+DP_HEIGHT);
-        if(DP_HEIGHT<=800) {
+//        if(DP_HEIGHT<=800) {
             ViewGroup.LayoutParams params = Fab.getLayoutParams();
 //            convert dip to pixels
             int height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 50, mContext.getResources().getDisplayMetrics());
             params.height = height;
             params.width = height;
             Fab.setLayoutParams(params);
-        }
+//        }
 
 //        Fab.setButtonSize(FloatingActionButton.SIZE_NORMAL);
 //        Fab.setColorNormal(R.color.colorAccent);
@@ -236,6 +236,15 @@ public class FabAdapter extends BaseAdapter {
                             // do something when the button is clicked
                             public void onClick(DialogInterface arg0, int arg1) {
                                 //...
+                            }
+                        });
+                        dialog.setNeutralButton("Del",new DialogInterface.OnClickListener() {
+                            // do something when the button is clicked
+                            public void onClick(DialogInterface arg0, int arg1) {
+                                UtilsSharedPref.removePrefSetting(keyDatas.get(ikd));
+                                keyDatas = UtilsSharedPref.getKeyDatas();
+                                ((MainActivity)mContext).resetUI();
+                                notifyDataSetChanged();
                             }
                         });
                         dialog.show();

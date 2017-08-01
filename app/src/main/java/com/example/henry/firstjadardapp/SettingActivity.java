@@ -115,6 +115,7 @@ public class SettingActivity extends AppCompatActivity implements UtilsSharedPre
         BT_SaveAs.setOnClickListener(ButtonClickListener);
         BT_Load.setOnClickListener(ButtonClickListener);
         BT_Delete.setOnClickListener(ButtonClickListener);
+        BT_Delete.setOnLongClickListener(mResetCmdOnLongClickListener);
 
         FAB_Back.setOnClickListener(new View.OnClickListener(){
 
@@ -340,6 +341,22 @@ public class SettingActivity extends AppCompatActivity implements UtilsSharedPre
             LV_Keydata.invalidate();
         }
     }
+
+    View.OnLongClickListener mResetCmdOnLongClickListener = new View.OnLongClickListener(){
+        @Override
+        public boolean onLongClick(View v) {
+            new android.app.AlertDialog.Builder(SettingActivity.this).setCancelable(false).setTitle(R.string.setting_reset_cmd).setPositiveButton("OK",new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface arg0, int arg1) {
+                            UtilsSharedPref.resetAllCmd();
+                            keyDataAdapter = new KeyDataAdapter(SettingActivity.this, UtilsSharedPref.getKeyDatas());
+                            LV_Keydata.setAdapter(keyDataAdapter);
+                            LV_Keydata.invalidate();
+                        }
+                    }
+            ).setNegativeButton(R.string.Cancel,null).show();
+            return true;
+        }
+    };
 
     View.OnClickListener ButtonClickListener = new View.OnClickListener() {
 

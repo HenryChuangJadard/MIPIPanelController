@@ -100,7 +100,7 @@ public class  UtilsSharedPref {
     final static public int KEY_LENGTH_DEFAULT = 1;
     static final int READ_BLOCK_SIZE = 1024;
 
-    final static public String PrefVersion = "0.0.2";
+    final static public String PrefVersion = "1.0.2";
 
     final public static String DIR_KEYDATA_FILE = "/sdcard/JPVR/";
     final public static String KEYDATA_FILETYPE = ".keydata";
@@ -142,13 +142,19 @@ public class  UtilsSharedPref {
         dispSettings = context.getSharedPreferences("disp"+context.getResources().getString(R.string.app_name),0);
         mContext = context;
         if(!settings.getString(PREF_VERSION,"").equals(PrefVersion)){
-            ArrayList<KeyData> keyDatas = new ArrayList<KeyData>();
-            keyDatas.add(new KeyData("A","DE","02",true));
-            keyDatas.add(new KeyData(true,"B","DE","00",true,1));
-            keyDatas.add(new KeyData("C","C5","07 19",true));
-            keyDatas.add(new KeyData(true,"d","C5","00",true,2));
-            setPrefSettings(keyDatas);
+            resetAllCmd();
         }
+    }
+    public static void resetAllCmd(){
+        ArrayList<KeyData> keyDatas = new ArrayList<KeyData>();
+        keyDatas.add(new KeyData("0","DE","00",true));
+        keyDatas.add(new KeyData("1","DE","01",true));
+        keyDatas.add(new KeyData("2","DE","02",true));
+        keyDatas.add(new KeyData("3","DE","03",true));
+        keyDatas.add(new KeyData(true,"A","DE","00",true,1));
+        keyDatas.add(new KeyData("B","C5","07 19",true));
+        keyDatas.add(new KeyData(true,"C","C5","00",true,2));
+        setPrefSettings(keyDatas);
     }
 
     private static void reset(){
@@ -437,6 +443,32 @@ public class  UtilsSharedPref {
         for(int i=48;i<58;i++){
             keys.add(Character.toString ((char) i));
         }
+
+        /*A-Z ascii*/
+        for(int i=65;i<91;i++){
+            keys.add(Character.toString ((char) i));
+        }
+
+        FLog.d("getAvaliableKeys","all keys:"+keys.toString());
+        if(kds!=null) {
+            for (KeyData kd : kds) {
+                if (keys.contains(kd.getStrKeyCode())) {
+                    keys.remove(kd.getStrKeyCode());
+                    FLog.d("getAvaliableKeys", "removed " + kd.getStrKeyCode());
+                }
+            }
+        }
+
+        return keys;
+    }
+
+    static public ArrayList<String> getAvaliableAlphetKeys(){
+        ArrayList<KeyData> kds = getKeyDatas();
+        ArrayList<String> keys = new ArrayList<String>();
+        /*0-9 ascii*/
+//        for(int i=48;i<58;i++){
+//            keys.add(Character.toString ((char) i));
+//        }
 
         /*A-Z ascii*/
         for(int i=65;i<91;i++){
@@ -862,6 +894,33 @@ public class  UtilsSharedPref {
         }
     }
 
+    public static class doKeyDataActionTask extends AsyncTask<KeyData , Void, Boolean>{
+
+        AsyncDoKeyDataResponse CB;
+        KeyData KD;
+
+        public void setAsyncDoKeyDataResponse(AsyncDoKeyDataResponse cb){CB = cb;}
+
+        @Override
+        protected Boolean doInBackground(KeyData... keyDatas)  {
+            KD = keyDatas[0];
+            boolean result = false;
+
+            if(KD!=null){
+                result = executeKey(KD);
+            }
+
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result){
+            if(CB!=null){
+                CB.processDoKeyDataFinish(result, KD);
+            }
+        }
+    }
+
     public interface AsyncResponse {
         void processFinish(ArrayList<KeyData> result);
     }
@@ -966,6 +1025,18 @@ public class  UtilsSharedPref {
             e.printStackTrace();
         }
 
+    }
+
+    public static boolean isHexNumber (String cadena) {
+        try {
+            cadena.replace(" ","");
+            Long.parseLong(cadena, 16);
+            return true;
+        }
+        catch (NumberFormatException ex) {
+            // Error handling code...
+            return false;
+        }
     }
 
 }

@@ -44,6 +44,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -93,15 +94,20 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import static android.R.color.holo_orange_dark;
+import static com.example.henry.firstjadardapp.UtilsSharedPref.UtilsSharedPref.getAvaliableAlphetKeys;
+import static com.example.henry.firstjadardapp.UtilsSharedPref.UtilsSharedPref.isHexNumber;
+
 
 public class MainActivity extends AppCompatActivity implements DialogInterface.OnKeyListener
                                                     , KeyEvent.Callback
-                                                    , UtilsSharedPref.AsyncDoKeyDataResponse
                                                     , UtilsSharedPref.AsyncResponse, OnDirectoryChooserFragmentInteraction {
 
     private ImageView imageView, IV_Pic;
-    private LinearLayout LL_Top, LL_Bottom,LL_FileInfo,LL_ALL,LL_ALS,LL_CABC,LL_CE,LL_MixEff;
+    private LinearLayout LL_Top, LL_Bottom,LL_FileInfo,LL_ALL,LL_ALS,LL_CABC,LL_CE,LL_MixEff,LL_MipiCmdBar;
     private TextView TV_WriteAddress, TV_WriteValue, TV_ReadAddress, TV_ReadValue,TV_Filename,TV_ImgInfo,TV_PanelSize;
+    private EditText ET_CmdAddress,ET_CmdValue,ET_CmdLength;
+    private Button BT_CmdWrite, BT_CmdRead;
     private SeekBar SB_SLR = null, SB_LUMEN;
     private Switch SW_ALS,SW_CABC,SW_Mix_Eff,SW_CE;
     private RelativeLayout RL_BTS;
@@ -139,6 +145,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
     static public int DP_HEIGHT= 0;
     static private boolean bDisableCABC = false;
     static private boolean bDisableMixEffect = false;
+    static private boolean bDisableCmdInfoDetail = true;
 
     final static int SHOW_DURATION = 5000; //ms
     final static int PLAY_DURATION = 3000; //ms
@@ -218,6 +225,22 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         mHandler.postDelayed(mRunnable, SHOW_DURATION);
 
         mPlayHandler.removeCallbacks(mPlayRunnable);
+        cleanETFocus();
+    }
+
+    private void hideUI(){
+        if(RL_BTS!=null)
+            RL_BTS.setVisibility(View.INVISIBLE); //If you want just hide the View. But it will retain space occupied by the View.
+        if(LL_CABC!=null)
+            LL_CABC.setVisibility(View.INVISIBLE);
+        if(LL_CE!=null)
+            LL_CE.setVisibility(View.INVISIBLE);
+        if(LL_ALS!=null)
+            LL_ALS.setVisibility(View.INVISIBLE);
+        if(LL_MixEff!=null)
+            LL_MixEff.setVisibility(View.INVISIBLE);
+        if(IV_Pic!=null)
+            IV_Pic.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN);
     }
 
     // Storage Permissions
@@ -420,6 +443,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         LL_Top = (LinearLayout) findViewById(R.id.LL_Top);
         LL_Bottom = (LinearLayout) findViewById(R.id.LL_Bottom);
         LL_FileInfo = (LinearLayout) findViewById(R.id.LL_FileInfo);
+        LL_MipiCmdBar = (LinearLayout) findViewById(R.id.LL_MipiCmdBar);
         LL_ALL = (LinearLayout) findViewById(R.id.LL_ALL);
         LL_ALS = (LinearLayout) findViewById(R.id.LL_ALS);
         LL_CABC = (LinearLayout) findViewById(R.id.LL_CABC);
@@ -438,10 +462,17 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
 //        FAB_OBR = (FloatingActionButton) findViewById(R.id.FAB_OBR);
         FAB_Play = (FloatingActionButton) findViewById(R.id.FAB_Play);
 
+        ET_CmdAddress = (EditText) findViewById(R.id.ET_CmdAddress);
+        ET_CmdValue = (EditText) findViewById(R.id.ET_CmdValue);
+        ET_CmdLength = (EditText) findViewById(R.id.ET_CmdLength);
+        BT_CmdWrite = (Button) findViewById(R.id.BT_CmdWrite);
+        BT_CmdRead = (Button) findViewById(R.id.BT_CmdRead);
+
+
 
         GV_Fab = (GridView) findViewById(R.id.GV_Fab);
 
-        mFabAdapter = new FabAdapter(this,UtilsSharedPref.getKeyDatas());
+        mFabAdapter = new FabAdapter(this,UtilsSharedPref.getKeyDatas(), mAsyncDoKeyDataResponse);
         mFabAdapter.setGVBTnClickListener(GVBTOnClickListener);
         GV_Fab.setAdapter(mFabAdapter);
         GV_Fab.setNumColumns(4);
@@ -467,6 +498,22 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
             FAB_Setting.setOnClickListener(FAB_OnclickListener);
         if(FAB_Display!=null)
             FAB_Display.setOnClickListener(FAB_OnclickListener);
+
+        if(ET_CmdValue!=null)
+            ET_CmdValue.setOnFocusChangeListener(ET_CmdFocusListener);
+        if(ET_CmdAddress!=null)
+            ET_CmdAddress.setOnFocusChangeListener(ET_CmdFocusListener);
+        if(ET_CmdLength!=null) {
+            ET_CmdLength.setOnFocusChangeListener(ET_CmdFocusListener);
+        }
+        if(BT_CmdRead!=null){
+            BT_CmdRead.setOnClickListener(mMipiCmdOnClickListener);
+            BT_CmdRead.setOnLongClickListener(mMipiCmdOnLongClickListener);
+        }
+        if(BT_CmdWrite!=null){
+            BT_CmdWrite.setOnClickListener(mMipiCmdOnClickListener);
+            BT_CmdWrite.setOnLongClickListener(mMipiCmdOnLongClickListener);
+        }
 //        if(FAB_OBR!=null){
 //            FAB_OBR.setOnClickListener(FAB_OnclickListener);
 //        }
@@ -602,6 +649,182 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
 
     }
 
+    private View.OnFocusChangeListener ET_CmdFocusListener =  new View.OnFocusChangeListener() {
+        @Override
+        public void onFocusChange(View v, boolean hasFocus) {
+
+            FLog.d(TAG, "ET_CmdFocusListener v.getID():" +v.getId());
+            FLog.d(TAG, "ET_CmdFocusListener hasFocus:" +hasFocus);
+            if(hasFocus){
+                hideUI();
+            }
+        }
+    };
+
+    private void cleanETFocus(){
+        FLog.d(TAG,"cleanETFocus");
+        if(ET_CmdValue!=null)
+            ET_CmdValue.clearFocus();
+        if(ET_CmdAddress!=null)
+            ET_CmdAddress.clearFocus();
+        if(ET_CmdLength!=null)
+            ET_CmdLength.clearFocus();
+
+        View view = this.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            FLog.d(TAG,"hideSoftInputFromWindow");
+        }
+    }
+
+    View.OnLongClickListener mMipiCmdOnLongClickListener = new View.OnLongClickListener(){
+        String address="NN", value="NN",k="";
+        int length=0;
+        boolean isRead=false;
+        @Override
+        public boolean onLongClick(View v) {
+
+            isRead = v.getId() == R.id.BT_CmdRead;
+            FLog.v(TAG,"mMipiCmdOnLongClickListener");
+            if(ET_CmdAddress!=null){
+                address = ET_CmdAddress.getText().toString().trim();
+            }
+            if(ET_CmdValue!=null){
+                value = ET_CmdValue.getText().toString().trim();
+            }
+
+            if(ET_CmdLength!=null && !ET_CmdLength.getText().toString().trim().equals("")){
+                try {
+                    length = Integer.parseInt(ET_CmdLength.getText().toString().trim());
+                }catch(NumberFormatException  e){
+                    FLog.e(TAG,ET_CmdLength.getText().toString());
+                    length = UtilsSharedPref.KEY_LENGTH_DEFAULT;
+                }
+            }
+            k=getAvaliableAlphetKeys().get(0);
+            FLog.v(TAG,"mMipiCmdOnLongClickListener address="+address);
+            FLog.v(TAG,"mMipiCmdOnLongClickListener value="+value);
+            if(isHexNumber(address) && isHexNumber(value.replace(" ",""))) {
+                if(isRead) {
+                    if (BT_CmdRead != null) {
+                        BT_CmdRead.setBackgroundColor(getResources().getColor(R.color.colorOrange));
+                    }
+                    if (BT_CmdWrite != null) {
+                        BT_CmdWrite.setBackgroundColor(getResources().getColor(R.color.button_material_dark));
+                    }
+                }else{
+                    if (BT_CmdRead != null) {
+                        BT_CmdRead.setBackgroundColor(getResources().getColor(R.color.button_material_dark));
+                    }
+                    if (BT_CmdWrite != null) {
+                        BT_CmdWrite.setBackgroundColor(getResources().getColor(R.color.colorAccent));
+                    }
+                }
+                StringBuilder sb = new StringBuilder();
+                sb.append(isRead ? "Read " : "Write ");
+                sb.append("cmd \n Address: ");
+                sb.append(address);
+                sb.append("\n Value: [");
+                sb.append(value);
+                sb.append("]");
+//                String mesg = getResources().getString(R.string.AddCommand,isRead ? "Read " : "Write ",address,value);
+//                AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
+                new AlertDialog.Builder(MainActivity.this).setCancelable(false).setTitle(R.string.AddingMipiCmdTitle).setMessage(sb).setPositiveButton("OK",new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface arg0, int arg1) {
+                                FLog.v(TAG,"mMipiCmdOnLongClickListener added");
+                                ArrayList<KeyData> keyDatas = UtilsSharedPref.getKeyDatas();
+                                KeyData kd = new KeyData(isRead,k,address,value,true,length);
+                                keyDatas.add(kd);
+                                UtilsSharedPref.setPrefSettings(keyDatas);
+                                mFabAdapter = new FabAdapter(MainActivity.this,keyDatas,mAsyncDoKeyDataResponse);
+                                GV_Fab.setAdapter(mFabAdapter);
+                                mFabAdapter.notifyDataSetChanged();
+                            }
+                        }
+                        ).setNegativeButton(R.string.Cancel,null).show();
+
+//                new AlertDialog.Builder(getBaseContext()).setCancelable(false).setMessage("").setTitle(R.string.AddingMipiCmdTitle).setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
+//                    // do something when the button is clicked
+//                    public void onClick(DialogInterface arg0, int arg1) {
+//                    }
+//                }).setPositiveButton(R.string.Ok, new DialogInterface.OnClickListener() {
+//                    public void onClick(DialogInterface arg0, int arg1) {
+//                        FLog.v(TAG,"mMipiCmdOnLongClickListener added");
+//                        ArrayList<KeyData> keyDatas = UtilsSharedPref.getKeyDatas();
+//                        KeyData kd = new KeyData(isRead,k,address,value,true,length);
+//                        keyDatas.add(kd);
+//                        UtilsSharedPref.setPrefSettings(keyDatas);
+//                        mFabAdapter = new FabAdapter(MainActivity.this,keyDatas,mAsyncDoKeyDataResponse);
+//                        GV_Fab.setAdapter(mFabAdapter);
+//                        mFabAdapter.notifyDataSetChanged();
+//                    }
+//                }).show();
+
+            }
+
+//            if(isHexNumber(address) && isHexNumber(value)){
+//                FLog.v(TAG,"mMipiCmdOnLongClickListener added");
+//                ArrayList<KeyData> keyDatas = UtilsSharedPref.getKeyDatas();
+//                KeyData kd = new KeyData(isRead,k,address,value,true,length);
+//                keyDatas.add(kd);
+//                UtilsSharedPref.setPrefSettings(keyDatas);
+//                mFabAdapter = new FabAdapter(MainActivity.this,keyDatas,mAsyncDoKeyDataResponse);
+//                GV_Fab.setAdapter(mFabAdapter);
+//                mFabAdapter.notifyDataSetChanged();
+//            }
+
+            return true;
+        }
+    };
+
+    View.OnClickListener mMipiCmdOnClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            String address="NN", value="NN";
+            int length=0;
+            boolean isRead=false;
+
+            isRead = v.getId() == R.id.BT_CmdRead;
+
+            if(ET_CmdAddress!=null){
+                address = ET_CmdAddress.getText().toString().trim();
+            }
+            if(ET_CmdValue!=null){
+                value = ET_CmdValue.getText().toString().trim();
+            }
+            if(!isHexNumber(address) || (!isHexNumber(value.replace(" ", "")) && !isRead)) {
+                Toast.makeText(MainActivity.this,"Failed cmd...",Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if(v.getId()==R.id.BT_CmdRead) {
+                BT_CmdRead.setBackgroundColor(getResources().getColor(R.color.bright_blue));
+                BT_CmdWrite.setBackgroundColor(getResources().getColor(R.color.button_material_dark));
+            }
+            else {
+                BT_CmdWrite.setBackgroundColor(getResources().getColor(R.color.bright_blue));
+                BT_CmdRead.setBackgroundColor(getResources().getColor(R.color.button_material_dark));
+            }
+
+            if(ET_CmdLength!=null && !ET_CmdLength.getText().toString().trim().equals("")){
+                try {
+                    length = Integer.parseInt(ET_CmdLength.getText().toString().trim());
+                }catch(NumberFormatException  e){
+                    FLog.e(TAG,ET_CmdLength.getText().toString());
+                    length = UtilsSharedPref.KEY_LENGTH_DEFAULT;
+                }
+            }
+//            public KeyData(boolean bReadMode,String keycode, String address, String value, boolean enable, int length)
+
+            KeyData KD = new KeyData(isRead, "", address, value, true, length);
+            UtilsSharedPref.doKeyDataActionTask task = new UtilsSharedPref.doKeyDataActionTask();
+            task.setAsyncDoKeyDataResponse(mAsyncDoKeyDataResponse);
+            task.executeOnExecutor(kdExecutor, KD);
+
+        }
+    };
+
     View.OnClickListener GVBTOnClickListener = new View.OnClickListener() {
         public void onClick(View v) {
             if(v.getId()==R.id.fab_button){
@@ -712,7 +935,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
                         KeyData newkd = new KeyData(mode, key, address, value, enable, length);
                         newkd.updateToPrefDB();
 
-                        mFabAdapter = new FabAdapter(MainActivity.this,UtilsSharedPref.getKeyDatas());
+                        mFabAdapter = new FabAdapter(MainActivity.this,UtilsSharedPref.getKeyDatas(),mAsyncDoKeyDataResponse);
                         GV_Fab.setAdapter(mFabAdapter);
                         mFabAdapter.notifyDataSetChanged();
 
@@ -1201,13 +1424,19 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
 
     private void setDisplayInfo(boolean on) {
         FLog.d(TAG, "setDisplayInfo on : " + on);
-        if (LL_Top != null)
-            LL_Top.setVisibility(on ? View.VISIBLE : View.INVISIBLE);
-        if (LL_Bottom != null)
-            LL_Bottom.setVisibility(on ? View.VISIBLE : View.INVISIBLE);
+        if(!bDisableCmdInfoDetail) {
+            if (LL_Top != null)
+                LL_Top.setVisibility(on ? View.VISIBLE : View.INVISIBLE);
+            if (LL_Bottom != null)
+                LL_Bottom.setVisibility(on ? View.VISIBLE : View.INVISIBLE);
+        }
 
         if (LL_FileInfo != null)
             LL_FileInfo.setVisibility(on ? View.VISIBLE : View.INVISIBLE);
+        if (LL_MipiCmdBar != null)
+            LL_MipiCmdBar.setVisibility(on ? View.VISIBLE : View.INVISIBLE);
+
+
         if(LL_ALL!=null)
             LL_ALL.setVisibility(on ? View.VISIBLE : View.INVISIBLE);
 //        if(LL_ALS!=null)
@@ -1748,7 +1977,6 @@ final int REQUEST_DIRECTORY = 1001;
         return false;
     }
 
-
     public void onButtonClick(View view) {
         FLog.d("JPVR", "getId: " + view.getId());
     }
@@ -1866,6 +2094,9 @@ final int REQUEST_DIRECTORY = 1001;
         FLog.d(TAG, "keyCode=" + keyCode);
 //        setGenWriteJava(Page1);
         switch (keyCode) {
+            case KeyEvent.KEYCODE_BACK:
+                cleanETFocus();
+                return false;
             case KeyEvent.KEYCODE_DPAD_RIGHT:
                 if(progressSLR==0)
                     progressSLR=1;
@@ -1923,7 +2154,7 @@ final int REQUEST_DIRECTORY = 1001;
             default:
 
                 UtilsSharedPref.doKeyActionTask task = new UtilsSharedPref.doKeyActionTask();
-                task.setAsyncDoKeyDataResponse(this);
+                task.setAsyncDoKeyDataResponse(mAsyncDoKeyDataResponse);
                 task.executeOnExecutor(kdExecutor, keyCode);
 
 //                return super.onKeyUp(keyCode, event);
@@ -1968,43 +2199,117 @@ final int REQUEST_DIRECTORY = 1001;
         }
     }
 
-    @Override
-    public void processDoKeyDataFinish(Boolean result, KeyData kd) {
-        FLog.i(TAG, "processDoKeyDataFinish result:" + result);
-        if (kd != null) {
-            FLog.i(TAG, kd.toString());
-            if (kd.getReadMode() == UtilsSharedPref.KEY_MODE_READ) {
-                if (TV_ReadAddress != null) {
-                    String displayr = kd.getStrKeyCode() + " " + getResources().getString(R.string.ToRead) + kd.getAddress()+"h";
-                    TV_ReadAddress.setText(displayr);
-                }
-                if (TV_ReadValue != null) {
-                    if (result) {
-                        TV_ReadValue.setText(kd.getValue());
-                        mFabAdapter.notifyDataSetChanged();
-                    }
-                    else
-                        TV_ReadValue.setText(getResources().getString(R.string.ErrorRead));
-                }
-
-            } else {
-                if (TV_WriteAddress != null) {
-                    String displayw = kd.getStrKeyCode() + " " + getResources().getString(R.string.ToWrite) + kd.getAddress() +"h";
-                    TV_WriteAddress.setText(displayw);
-                }
-                if (TV_WriteValue != null) {
-                    if (result)
-                        TV_WriteValue.setText(kd.getValue());
-                    else
-                        TV_WriteValue.setText(getResources().getString(R.string.ErrorWrite));
-                }
+    Toast mMipiToast = null;
+    UtilsSharedPref.AsyncDoKeyDataResponse mAsyncDoKeyDataResponse = new UtilsSharedPref.AsyncDoKeyDataResponse(){
+        @Override
+        public void processDoKeyDataFinish(Boolean result, KeyData kd) {
+            FLog.i(TAG, "processDoKeyDataFinish result:" + result);
+            if(mMipiToast==null) {
+                mMipiToast = Toast.makeText(MainActivity.this,"",Toast.LENGTH_SHORT);
             }
-        } else {
-            FLog.e(TAG, "KD==null");
+            mMipiToast.cancel();
+            if (kd != null) {
+                if (ET_CmdAddress != null) {
+                    ET_CmdAddress.setText(kd.getAddress());
+                }
+                if (ET_CmdLength != null) {
+                    ET_CmdLength.setText(String.valueOf(kd.getLength()));
+                }
+                if(result){
+                    if (ET_CmdValue != null) {
+                        ET_CmdValue.setText(kd.getValue());
+                    }
+                    if(kd.getReadMode() == UtilsSharedPref.KEY_MODE_READ) {
+                        if (BT_CmdRead != null) {
+                            BT_CmdRead.setBackgroundColor(getResources().getColor(R.color.colorOrange));
+                        }
+                        if(BT_CmdWrite!=null){
+                            BT_CmdWrite.setBackgroundColor(getResources().getColor(R.color.button_material_dark));
+                        }
+
+                        mMipiToast = Toast.makeText(MainActivity.this,"Successfully read from "+kd.getAddress(),Toast.LENGTH_SHORT);
+                        mMipiToast.show();
+                    }else{
+                        if(BT_CmdWrite!=null){
+                            BT_CmdWrite.setBackgroundColor(getResources().getColor(R.color.colorAccent));
+                        }
+                        if (BT_CmdRead != null) {
+                            BT_CmdRead.setBackgroundColor(getResources().getColor(R.color.button_material_dark));
+                        }
+                        if(ET_CmdLength!=null){
+                            ET_CmdLength.setText(String.valueOf(kd.getValue().replace(" ","").length()/2));
+                        }
+
+                        mMipiToast = Toast.makeText(MainActivity.this,"Successfully write to "+kd.getAddress(),Toast.LENGTH_SHORT);
+                        mMipiToast.show();
+                    }
+                }else{
+                    if(kd.getReadMode() == UtilsSharedPref.KEY_MODE_READ) {
+                        if (ET_CmdValue != null) {
+                            ET_CmdValue.setText(getResources().getString(R.string.ErrorRead));
+                        }
+
+                        mMipiToast = Toast.makeText(MainActivity.this,"Failed read from "+ kd.getAddress(),Toast.LENGTH_SHORT);
+                        mMipiToast.show();
+                    }else{
+                        if (ET_CmdValue != null) {
+                            ET_CmdValue.setText(getResources().getString(R.string.ErrorWrite));
+                        }
+
+                        mMipiToast = Toast.makeText(MainActivity.this,"Failed write to "+kd.getAddress(),Toast.LENGTH_SHORT);
+                        mMipiToast.show();
+                    }
+                    if(kd.getReadMode() == UtilsSharedPref.KEY_MODE_READ) {
+                        if (BT_CmdRead != null) {
+                            BT_CmdRead.setBackgroundColor(getResources().getColor(R.color.colorBlack));
+                        }
+                        if(BT_CmdWrite!=null){
+                            BT_CmdWrite.setBackgroundColor(getResources().getColor(R.color.button_material_dark));
+                        }
+                    }else{
+                        if(BT_CmdWrite!=null){
+                            BT_CmdWrite.setBackgroundColor(getResources().getColor(R.color.colorBlack));
+                        }
+                        if (BT_CmdRead != null) {
+                            BT_CmdRead.setBackgroundColor(getResources().getColor(R.color.button_material_dark));
+                        }
+                    }
+                }
+                FLog.i(TAG, kd.toString());
+                if (kd.getReadMode() == UtilsSharedPref.KEY_MODE_READ) {
+                    if (TV_ReadAddress != null) {
+                        String displayr = kd.getStrKeyCode() + " " + getResources().getString(R.string.ToRead) + kd.getAddress()+"h";
+                        TV_ReadAddress.setText(displayr);
+                    }
+                    if (TV_ReadValue != null) {
+                        if (result) {
+                            TV_ReadValue.setText(kd.getValue());
+                            mFabAdapter.notifyDataSetChanged();
+                        }
+                        else
+                            TV_ReadValue.setText(getResources().getString(R.string.ErrorRead));
+                    }
+
+                } else {
+                    if (TV_WriteAddress != null) {
+                        String displayw = kd.getStrKeyCode() + " " + getResources().getString(R.string.ToWrite) + kd.getAddress() +"h";
+                        TV_WriteAddress.setText(displayw);
+                    }
+                    if (TV_WriteValue != null) {
+                        if (result)
+                            TV_WriteValue.setText(kd.getValue());
+                        else
+                            TV_WriteValue.setText(getResources().getString(R.string.ErrorWrite));
+                    }
+                }
+            } else {
+                FLog.e(TAG, "KD==null");
+
+            }
 
         }
+    };
 
-    }
 
     @Override
     public void processFinish(ArrayList<KeyData> kds) {

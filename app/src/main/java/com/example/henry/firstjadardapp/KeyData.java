@@ -39,7 +39,7 @@ public class KeyData {
         this.bEnable = enable;
         this.vCreated = false;
         this.Length = length;
-        FLog.d(TAG,toString());
+//        FLog.d(TAG,toString());
     }
 
     public KeyData(boolean bReadMode,String keycode, String address, String value, boolean enable){
@@ -48,7 +48,7 @@ public class KeyData {
         this.bEnable = enable;
         this.vCreated = false;
 
-        FLog.d(TAG,toString());
+//        FLog.d(TAG,toString());
     }
 
     public KeyData(String keycode, String address, String value, boolean enable){

@@ -3,10 +3,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:descendantFocusability="blocksDescendants"
     android:background="@color/colorWhite"
     android:gravity="center"
-    android:keepScreenOn="true">
+    android:keepScreenOn="true"
+    android:descendantFocusability="afterDescendants"
+    >
 
     <ImageView
         android:id="@+id/IV_Pic"
@@ -21,7 +22,6 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_marginLeft="5dp"
-        android:layout_marginTop="10dp"
         android:layout_marginRight="5dp">
         <TextView
             android:id="@+id/TV_PanelSize"
@@ -29,31 +29,28 @@
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             style="@style/TextTitleStyleWrite"
-            android:background="@drawable/textview_border"  />
-    <LinearLayout
-        android:id="@+id/LL_Top"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp">
+            />
+            <LinearLayout
+            android:id="@+id/LL_Top"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:visibility="gone">
         <TextView
             android:id="@+id/TV_WriteAddress"
             android:layout_width="0dp"
             android:layout_weight="0.5"
             android:layout_height="wrap_content"
-            android:layout_marginRight="5dp"
             android:gravity="center_horizontal"
-            style="@style/TextTitleStyleWrite"
-            android:background="@drawable/textview_border"  />
+            style="@style/TextTitleStyleWrite" />
         <TextView
             android:id="@+id/TV_WriteValue"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:gravity="center_horizontal"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
-            style="@style/TextTitleStyleWrite"
-            android:background="@drawable/textview_border"  />
+            style="@style/TextTitleStyleWrite" />
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
@@ -61,26 +58,88 @@
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp"
         android:layout_marginTop="5dp"
+        android:visibility="gone"
         android:id="@+id/LL_Bottom">
         <TextView
             android:id="@+id/TV_ReadAddress"
             android:layout_width="0dp"
             android:layout_weight="0.5"
             android:layout_height="wrap_content"
-            android:layout_marginRight="5dp"
             android:gravity="center_horizontal"
-            style="@style/TextTitleStyleRead"
-            android:background="@drawable/textview_border"  />
+            style="@style/TextTitleStyleRead" />
         <TextView
             android:id="@+id/TV_ReadValue"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:gravity="center_horizontal"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
-            style="@style/TextTitleStyleRead"
-            android:background="@drawable/textview_border"  />
+            style="@style/TextTitleStyleRead" />
     </LinearLayout>
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/LL_MipiCmdBar"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginLeft="5dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginRight="5dp"
+        android:layout_above="@+id/LL_FileInfo"
+        android:background="@color/black_overlay"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        >
+        <EditText
+            android:id="@+id/ET_CmdAddress"
+            android:layout_width="0dp"
+            android:layout_weight="0.3"
+            android:layout_height="wrap_content"
+            android:digits="0123456789ABCDEF"
+            android:maxLength="4"
+            android:text="@string/Add"
+            android:layout_marginStart="3dp"
+            style="@style/TextTitleStyle"
+            android:inputType="textCapCharacters"
+            />
+        <EditText
+            android:id="@+id/ET_CmdValue"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:digits="0123456789ABCDEF "
+            android:maxLength="192"
+            android:layout_marginStart="3dp"
+            android:text="@string/Value"
+            style="@style/TextTitleStyle"
+            android:maxLines="1"
+            android:inputType="textCapCharacters"
+            />
+        <EditText
+            android:id="@+id/ET_CmdLength"
+            android:layout_width="0dp"
+            android:layout_weight="0.2"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:digits="0123456789"
+            android:maxLength="2"
+            android:layout_marginStart="3dp"
+            style="@style/TextTitleStyle"
+            android:inputType="numberDecimal"
+            />
+        <Button
+            android:id="@+id/BT_CmdWrite"
+            android:gravity="center_horizontal"
+            android:layout_width="0dp"
+            android:layout_weight="0.2"
+            android:text="@string/W"
+            android:layout_height="wrap_content" />
+        <Button
+            android:id="@+id/BT_CmdRead"
+            android:gravity="center_horizontal"
+            android:layout_width="0dp"
+            android:layout_weight="0.2"
+            android:text="@string/R"
+            android:layout_height="wrap_content" />
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
@@ -95,19 +154,17 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:layout_marginRight="5dp"
             android:gravity="center_horizontal"
             style="@style/TextTitleStyleRead"
-            android:background="@drawable/textview_border"  />
+            android:textSize="12sp" />
         <TextView
             android:id="@+id/TV_ImgInfo"
             android:layout_width="0dp"
             android:layout_weight="0.5"
             android:gravity="center_horizontal"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
             style="@style/TextTitleStyleRead"
-            android:background="@drawable/textview_border"  />
+            android:textSize="12sp" />
     </LinearLayout>
     <RelativeLayout
         android:id="@+id/RL_BTS"
@@ -206,7 +263,7 @@
             android:stretchMode="columnWidth"
             android:gravity="center"
             android:layout_below="@+id/FAB_Right"
-            android:layout_alignParentBottom="true">
+            android:layout_marginBottom="50dp">
         </GridView>
 
     </RelativeLayout>
@@ -217,6 +274,7 @@
         android:layout_above="@+id/LL_FileInfo"
         android:orientation="horizontal"
         android:gravity="center_horizontal|center"
+        android:visibility="gone"
         android:id="@+id/LL_ALS">
         <TextView
             android:layout_width="80dp"
@@ -245,6 +303,7 @@
         android:orientation="horizontal"
         android:gravity="center_horizontal|center"
         android:layout_above="@id/LL_ALS"
+        android:visibility="gone"
         android:id="@+id/LL_CABC">
         <TextView
             android:layout_width="80dp"
@@ -273,6 +332,7 @@
         style="@style/Feature_Control_Style"
         android:orientation="horizontal"
         android:id="@+id/LL_CE"
+        android:visibility="gone"
         android:layout_above="@+id/LL_CABC">
         <TextView
             android:layout_width="80dp"
@@ -295,6 +355,7 @@
         style="@style/Feature_Control_Style"
         android:orientation="horizontal"
         android:id="@+id/LL_MIX_EFF"
+        android:visibility="gone"
         android:layout_above="@+id/LL_CE">
         <TextView
             android:layout_width="80dp"
@@ -315,16 +376,14 @@
         android:id="@+id/imageView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/FAB_Right"
         android:layout_centerHorizontal="true"
-        app:srcCompat="@drawable/jd_logo_nb" />
-
+        app:srcCompat="@drawable/fiti_nobg" />
     <ImageView
         android:id="@+id/imageView3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:srcCompat="@drawable/fiti_nobg"
-        android:layout_above="@+id/LL_MIX_EFF"
+        app:srcCompat="@drawable/jadard_logo_medium"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="14dp" />
+        android:layout_below="@+id/imageView"/>
+
 </RelativeLayout>

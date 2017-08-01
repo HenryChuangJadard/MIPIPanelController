@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:layout_marginLeft="5dp"
+    android:layout_marginBottom="10dp"
+    android:layout_marginRight="5dp"
+    android:layout_alignParentBottom="true"
+    android:background="@color/black_overlay">
+    <EditText
+        android:id="@+id/ET_CmdAddress"
+        android:layout_width="0dp"
+        android:layout_weight="0.5"
+        android:layout_height="wrap_content"
+        android:digits="0123456789ABCDEF"
+        android:maxLength="4"
+        android:text="@string/Add"
+        android:layout_marginLeft="3dp"
+        android:layout_marginStart="3dp"
+        style="@style/TextTitleStyle"
+        android:inputType="textCapCharacters"
+        />
+    <EditText
+        android:id="@+id/ET_CmdValue"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:digits="0123456789ABCDEF "
+        android:maxLength="192"
+        android:layout_marginLeft="3dp"
+        android:layout_marginStart="3dp"
+        android:text="@string/Value"
+        style="@style/TextTitleStyle"
+        android:maxLines="1"
+        android:inputType="textCapCharacters"
+        />
+    <EditText
+        android:id="@+id/ET_Length"
+        android:layout_width="0dp"
+        android:layout_weight="0.2"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:digits="0123456789"
+        android:maxLength="2"
+        android:layout_marginLeft="3dp"
+        android:layout_marginStart="3dp"
+        style="@style/TextTitleStyle"
+        android:inputType="numberDecimal"
+        />
+    <Button
+        android:id="@+id/BT_Write"
+        android:gravity="center_horizontal"
+        android:layout_width="0dp"
+        android:layout_weight="0.2"
+        android:text="@string/W"
+        android:layout_height="wrap_content" />
+    <Button
+        android:id="@+id/BT_Read"
+        android:gravity="center_horizontal"
+        android:layout_width="0dp"
+        android:layout_weight="0.2"
+        android:text="@string/R"
+        android:layout_height="wrap_content" />
+</LinearLayout>

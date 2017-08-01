@@ -6,6 +6,7 @@
     <color name="colorTransparent">#e0000000</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+    <color name="colorOrange">#ffff8800</color>
 
     <color name="black_overlay">#66000000</color>
 </resources>
