@@ -3,7 +3,7 @@ package com.example.henry.firstjadardapp;
 import android.util.Log;
 
 public class FLog {
-    public static final boolean DEBUG_MODE = true;
+    public static final boolean DEBUG_MODE = false;
     public static final String LOG_TAG = "[JPVR]";
 
     public static void v(String tag, String msg) {

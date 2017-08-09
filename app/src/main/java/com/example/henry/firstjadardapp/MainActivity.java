@@ -36,6 +36,8 @@ import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -125,6 +127,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
     ThreadPoolExecutor kdExecutor;
 
     boolean isImageFitToScreen;
+    boolean isMipiEditTextInUse = false;
     final String imageLocation = "/sdcard/Pictures/005_boarder.bmp";
     //    final String filePath ="/sdcard/Pictures/";
 //    final String imageFiles[]={"1x1.bmp","4x4.bmp","6x6.bmp","480x800_line_onoff.bmp","HCB.bmp","Test1.bmp","Test2.bmp","Test3.bmp"};
@@ -144,7 +147,9 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
     static public String RegRead = "";
     static public int DP_HEIGHT= 0;
     static private boolean bDisableCABC = false;
-    static private boolean bDisableMixEffect = false;
+    static private boolean bDisableCE = true;
+    static private boolean bDisableSLR = true;
+    static private boolean bDisableMixEffect = true;
     static private boolean bDisableCmdInfoDetail = true;
 
     final static int SHOW_DURATION = 5000; //ms
@@ -212,13 +217,13 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         if(RL_BTS!=null)
             RL_BTS.setVisibility(View.VISIBLE);
         if(LL_CABC!=null && !bDisableCABC)
-            LL_CABC.setVisibility(View.INVISIBLE);
-        if(LL_CE!=null)
-            LL_CE.setVisibility(View.INVISIBLE);
-        if(LL_ALS!=null)
-            LL_ALS.setVisibility(View.INVISIBLE);
+            LL_CABC.setVisibility(View.VISIBLE);
+        if(LL_CE!=null && !bDisableCE)
+            LL_CE.setVisibility(View.VISIBLE);
+        if(LL_ALS!=null && !bDisableSLR)
+            LL_ALS.setVisibility(View.VISIBLE);
         if(LL_MixEff!=null && !bDisableMixEffect)
-            LL_MixEff.setVisibility(View.INVISIBLE);
+            LL_MixEff.setVisibility(View.VISIBLE);
 
         IV_Pic.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
         mHandler.removeCallbacks(mRunnable);
@@ -383,6 +388,10 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
                 PanelSize = "HD_800";
                 DP_HEIGHT = 800;
             }else{
+                bDisableCABC = true;
+                bDisableMixEffect = true;
+                bDisableCE = true;
+                bDisableSLR = true;
                 PanelSize = "Unknown";
             }
         }
@@ -499,10 +508,12 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         if(FAB_Display!=null)
             FAB_Display.setOnClickListener(FAB_OnclickListener);
 
-        if(ET_CmdValue!=null)
+        if(ET_CmdValue!=null) {
             ET_CmdValue.setOnFocusChangeListener(ET_CmdFocusListener);
-        if(ET_CmdAddress!=null)
+        }
+        if(ET_CmdAddress!=null) {
             ET_CmdAddress.setOnFocusChangeListener(ET_CmdFocusListener);
+        }
         if(ET_CmdLength!=null) {
             ET_CmdLength.setOnFocusChangeListener(ET_CmdFocusListener);
         }
@@ -532,22 +543,22 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         SW_CABC = (Switch) findViewById(R.id.SW_CABC);
         SW_CE = (Switch) findViewById(R.id.SW_CE);
 
-        if(SW_Mix_Eff!=null){
+        if(SW_Mix_Eff!=null && !bDisableMixEffect){
             SW_Mix_Eff.setOnCheckedChangeListener(KeySwitchListener);
             SW_Mix_Eff.setChecked(UtilsSharedPref.isMixEffect());
         }
 
-        if(SW_CE!=null){
+        if(SW_CE!=null && !bDisableCE){
             SW_CE.setOnCheckedChangeListener(KeySwitchListener);
             SW_CE.setChecked(UtilsSharedPref.isColorEnhance());
             setColorEnhance(UtilsSharedPref.isColorEnhance());
         }
 
-        if(SW_ALS!=null){
+        if(SW_ALS!=null && !bDisableSLR){
             SW_ALS.setOnCheckedChangeListener(KeySwitchListener);
             SW_ALS.setChecked(UtilsSharedPref.isALSEnabled());
         }
-        if(SW_CABC!=null){
+        if(SW_CABC!=null && !bDisableCABC){
             SW_CABC.setOnCheckedChangeListener(KeySwitchListener);
             SW_CABC.setChecked(UtilsSharedPref.isCABCEnabled());
         }
@@ -563,21 +574,22 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         TV_PanelSize.setText(PanelSize);
 
         SB_LUMEN = (SeekBar)findViewById(R.id.SB_LUMEN);
-        if(SB_LUMEN!=null){
+        if(SB_LUMEN!=null && !bDisableCABC){
             SB_LUMEN.setOnSeekBarChangeListener(SB_LUMEN_ChangeListener);
             SB_LUMEN.setMax(UtilsSharedPref.getMaxLumen());
 
             progressLUMEN = UtilsSharedPref.getDisplayCurLUMEN();
             //in case the lumen is too dark to see.
-            if(progressLUMEN<40){
+            if(progressLUMEN<15){
                 progressLUMEN = UtilsSharedPref.getMaxLumen()/2;
+                FLog.e(TAG,"Too dark to see, reset brightness...");
+                setLUMEN();
+                SB_LUMEN.setProgress(progressLUMEN);
             }
-            setLUMEN();
-            SB_LUMEN.setProgress(progressLUMEN);
         }
 
         SB_SLR = (SeekBar)findViewById(R.id.SB_SLR);
-        if(SB_SLR!=null) {
+        if(SB_SLR!=null && !bDisableSLR) {
             SB_SLR.setOnSeekBarChangeListener(SB_SLR_ChangeListener);
             SB_SLR.setMax(UtilsSharedPref.MAX_SLR);
             progressSLR = UtilsSharedPref.getDisplayCurSLR();
@@ -657,6 +669,10 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
             FLog.d(TAG, "ET_CmdFocusListener hasFocus:" +hasFocus);
             if(hasFocus){
                 hideUI();
+                isMipiEditTextInUse = true;
+            }
+            else{
+                isMipiEditTextInUse= false;
             }
         }
     };
@@ -824,6 +840,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
 
         }
     };
+
 
     View.OnClickListener GVBTOnClickListener = new View.OnClickListener() {
         public void onClick(View v) {
@@ -1973,7 +1990,7 @@ final int REQUEST_DIRECTORY = 1001;
 
     @Override
     public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
-        FLog.d("JPVR", "keyCode: " + keyCode);
+        FLog.d("JPVR", "onKey keyCode: " + keyCode);
         return false;
     }
 
@@ -2091,7 +2108,7 @@ final int REQUEST_DIRECTORY = 1001;
             FLog.d(TAG, "keyAction=ACTION_DOWN ");
             return true;
         }
-        FLog.d(TAG, "keyCode=" + keyCode);
+        FLog.d(TAG, "onKeyUp keyCode=" + keyCode);
 //        setGenWriteJava(Page1);
         switch (keyCode) {
             case KeyEvent.KEYCODE_BACK:
@@ -2152,7 +2169,9 @@ final int REQUEST_DIRECTORY = 1001;
                 FLog.e(TAG,"KeyEvent.KEYCODE_VOLUME_DOWN");
                 return true;
             default:
-
+                if(isMipiEditTextInUse){
+                    return true;
+                }
                 UtilsSharedPref.doKeyActionTask task = new UtilsSharedPref.doKeyActionTask();
                 task.setAsyncDoKeyDataResponse(mAsyncDoKeyDataResponse);
                 task.executeOnExecutor(kdExecutor, keyCode);

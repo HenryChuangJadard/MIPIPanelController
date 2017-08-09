@@ -100,7 +100,7 @@ public class  UtilsSharedPref {
     final static public int KEY_LENGTH_DEFAULT = 1;
     static final int READ_BLOCK_SIZE = 1024;
 
-    final static public String PrefVersion = "1.0.2";
+    final static public String PrefVersion = "1.0.3";
 
     final public static String DIR_KEYDATA_FILE = "/sdcard/JPVR/";
     final public static String KEYDATA_FILETYPE = ".keydata";
@@ -114,6 +114,7 @@ public class  UtilsSharedPref {
         JD9522HD(3),
         JD9541HD(4),
         JD9365D(5),
+        JD9367xHD(6),
         UNKNOWN(99);
 
         private int value;
@@ -797,6 +798,8 @@ public class  UtilsSharedPref {
             return PanelName.JD9541HD;
         if(retValue.equals("JD9522HD"))
             return PanelName.JD9522HD;
+        if(retValue.equals("JD9367_xHD"))
+            return PanelName.JD9365D;
 
         return PanelName.UNKNOWN;
     }
