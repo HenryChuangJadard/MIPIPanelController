@@ -1,4 +1,4 @@
-package com.example.henry.firstjadardapp;
+package com.jadard.henry.jpvr;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -10,11 +10,10 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.telephony.TelephonyManager;
-import android.util.Log;
 import android.view.View;
 
-import com.example.henry.firstjadardapp.UtilsSharedPref.AES;
-import com.example.henry.firstjadardapp.UtilsSharedPref.UtilsSharedPref;
+import com.jadard.henry.jpvr.UtilsSharedPref.AES;
+import com.jadard.henry.jpvr.UtilsSharedPref.UtilsSharedPref;
 
 import java.io.File;
 import java.util.Date;

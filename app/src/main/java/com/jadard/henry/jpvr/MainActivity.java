@@ -1,4 +1,4 @@
-package com.example.henry.firstjadardapp;
+package com.jadard.henry.jpvr;
 
 import android.Manifest;
 import android.app.Activity;
@@ -10,7 +10,6 @@ import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothProfile;
 import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -35,17 +34,12 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.telephony.TelephonyManager;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Display;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -63,16 +57,12 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.henry.firstjadardapp.UtilsSharedPref.AES;
-import com.example.henry.firstjadardapp.UtilsSharedPref.UtilsSharedPref;
+import com.jadard.henry.jpvr.UtilsSharedPref.UtilsSharedPref;
 import com.github.clans.fab.FloatingActionButton;
 import com.turhanoz.android.reactivedirectorychooser.event.OnDirectoryCancelEvent;
 import com.turhanoz.android.reactivedirectorychooser.event.OnDirectoryChosenEvent;
 import com.turhanoz.android.reactivedirectorychooser.ui.DirectoryChooserFragment;
 import com.turhanoz.android.reactivedirectorychooser.ui.OnDirectoryChooserFragmentInteraction;
-
-import net.rdrei.android.dirchooser.DirectoryChooserActivity;
-import net.rdrei.android.dirchooser.DirectoryChooserConfig;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -87,7 +77,6 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Queue;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.UUID;
@@ -96,9 +85,8 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import static android.R.color.holo_orange_dark;
-import static com.example.henry.firstjadardapp.UtilsSharedPref.UtilsSharedPref.getAvaliableAlphetKeys;
-import static com.example.henry.firstjadardapp.UtilsSharedPref.UtilsSharedPref.isHexNumber;
+import static com.jadard.henry.jpvr.UtilsSharedPref.UtilsSharedPref.getAvaliableAlphetKeys;
+import static com.jadard.henry.jpvr.UtilsSharedPref.UtilsSharedPref.isHexNumber;
 
 
 public class MainActivity extends AppCompatActivity implements DialogInterface.OnKeyListener
@@ -146,7 +134,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
     static public String RegLength = "";
     static public String RegRead = "";
     static public int DP_HEIGHT= 0;
-    static private boolean bDisableCABC = false;
+    static private boolean bDisableCABC = true;
     static private boolean bDisableCE = true;
     static private boolean bDisableSLR = true;
     static private boolean bDisableMixEffect = true;

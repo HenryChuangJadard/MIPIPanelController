@@ -1,4 +1,4 @@
-package com.example.henry.firstjadardapp;
+package com.jadard.henry.jpvr;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

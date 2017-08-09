@@ -1,10 +1,9 @@
-package com.example.henry.firstjadardapp;
+package com.jadard.henry.jpvr;
 
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
 public class yourActivityRunOnStartup extends BroadcastReceiver {
 

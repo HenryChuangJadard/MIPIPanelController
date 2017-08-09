@@ -1,16 +1,15 @@
-package com.example.henry.firstjadardapp;
+package com.jadard.henry.jpvr;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import com.example.henry.firstjadardapp.UtilsSharedPref.UtilsSharedPref;
+import com.jadard.henry.jpvr.UtilsSharedPref.UtilsSharedPref;
 
 import java.io.File;
 import java.io.FilenameFilter;

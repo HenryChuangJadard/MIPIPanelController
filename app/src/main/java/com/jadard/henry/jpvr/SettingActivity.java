@@ -1,11 +1,10 @@
-package com.example.henry.firstjadardapp;
+package com.jadard.henry.jpvr;
 
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AdapterView;
@@ -19,7 +18,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.henry.firstjadardapp.UtilsSharedPref.UtilsSharedPref;
+import com.jadard.henry.jpvr.UtilsSharedPref.UtilsSharedPref;
 import com.github.clans.fab.FloatingActionButton;
 
 import java.io.File;

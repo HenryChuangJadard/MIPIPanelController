@@ -1,16 +1,13 @@
-package com.example.henry.firstjadardapp.UtilsSharedPref;
+package com.jadard.henry.jpvr.UtilsSharedPref;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.util.Log;
-import android.widget.Toast;
 
-import com.example.henry.firstjadardapp.FLog;
-import com.example.henry.firstjadardapp.KeyData;
-import com.example.henry.firstjadardapp.MainActivity;
-import com.example.henry.firstjadardapp.R;
+import com.jadard.henry.jpvr.FLog;
+import com.jadard.henry.jpvr.KeyData;
+import com.jadard.henry.jpvr.R;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -24,12 +21,10 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
 
-import static com.example.henry.firstjadardapp.MainActivity.JD_PanelName;
+import static com.jadard.henry.jpvr.MainActivity.JD_PanelName;
 
 /**
  * Created by henry on 9/6/16.

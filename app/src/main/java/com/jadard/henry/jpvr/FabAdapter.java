@@ -1,9 +1,8 @@
-package com.example.henry.firstjadardapp;
+package com.jadard.henry.jpvr;
 
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,17 +17,11 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Switch;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.henry.firstjadardapp.UtilsSharedPref.UtilsSharedPref;
-import com.github.clans.fab.FloatingActionButton;
+import com.jadard.henry.jpvr.UtilsSharedPref.UtilsSharedPref;
 
 import java.util.ArrayList;
-
-import at.markushi.ui.CircleButton;
-
-import static com.example.henry.firstjadardapp.MainActivity.DP_HEIGHT;
 
 /**
  * Created by henry on 1/6/17.

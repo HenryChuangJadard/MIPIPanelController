@@ -1,4 +1,4 @@
-package com.example.henry.firstjadardapp.UtilsSharedPref;
+package com.jadard.henry.jpvr.UtilsSharedPref;
 
 import java.util.Calendar;
 import java.util.TimeZone;
@@ -12,7 +12,7 @@ import org.apache.http.util.EncodingUtils;
 
 import android.content.Context;
 
-import com.example.henry.firstjadardapp.R;
+import com.jadard.henry.jpvr.R;
 
 /**
  * AES編解碼工具

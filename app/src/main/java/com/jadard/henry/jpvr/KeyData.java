@@ -1,13 +1,12 @@
-package com.example.henry.firstjadardapp;
+package com.jadard.henry.jpvr;
 
-import android.util.Log;
 import android.view.KeyEvent;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import com.example.henry.firstjadardapp.UtilsSharedPref.UtilsSharedPref;
+import com.jadard.henry.jpvr.UtilsSharedPref.UtilsSharedPref;
 
 
 /**
