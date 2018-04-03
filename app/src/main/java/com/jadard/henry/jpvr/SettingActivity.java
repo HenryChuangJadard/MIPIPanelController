@@ -1,3 +1,18 @@
+/*
+ *  /*************************************************************************
+ *  *
+ *  * Jadard Technology Inc. CONFIDENTIAL
+ *  * __________________
+ *  *  All Rights Reserved.
+ *  * 2018 MIPIPanelController
+ *  * NOTICE:  All information contained herein is, and remains  the property of Jadard Technology Inc..
+ *  * The intellectual and technical concepts contained herein are proprietary to Jadard Technology Inc.
+ *  * patents in process, and are protected by trade secret or copyright law.
+ *  * Dissemination of this information or reproduction of this material is strictly forbidden unless prior
+ *  * written permission is obtained from Jadard Technology Inc..
+ *
+ */
+
 package com.jadard.henry.jpvr;
 
 import android.content.DialogInterface;
@@ -18,7 +33,9 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.jadard.henry.jpvr.UtilsSharedPref.UtilsSharedPref;
+import com.jadard.henry.jpvr.Utils.KeyData;
+import com.jadard.henry.jpvr.Utils.KeyDataAdapter;
+import com.jadard.henry.jpvr.Utils.UtilsSharedPref;
 import com.github.clans.fab.FloatingActionButton;
 
 import java.io.File;
@@ -57,14 +74,15 @@ public class SettingActivity extends AppCompatActivity implements UtilsSharedPre
         if(SP_Project!=null){
             ArrayAdapter<String> projectlist = new ArrayAdapter<>(SettingActivity.this,
                     android.R.layout.simple_spinner_dropdown_item,
-                    UtilsSharedPref.STR_PROJECTS);
+                    UtilsSharedPref.STR_Models);
 
             SP_Project.setAdapter(projectlist);
             SP_Project.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    UtilsSharedPref.setProject(position);
-                    Toast.makeText(SettingActivity.this, UtilsSharedPref.STR_PROJECTS[position], Toast.LENGTH_SHORT).show();
+                    FLog.d(TAG,"onItemSelected position="+position);
+                    UtilsSharedPref.setModel(position);
+                    Toast.makeText(SettingActivity.this, UtilsSharedPref.STR_Models[position], Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
@@ -72,7 +90,7 @@ public class SettingActivity extends AppCompatActivity implements UtilsSharedPre
 
                 }
             });
-            SP_Project.setSelection(UtilsSharedPref.getProject());
+            SP_Project.setSelection(UtilsSharedPref.getModel());
         }
         setListeners();
 

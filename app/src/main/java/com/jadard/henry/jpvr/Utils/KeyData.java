@@ -1,4 +1,19 @@
-package com.jadard.henry.jpvr;
+/*
+ *  /*************************************************************************
+ *  *
+ *  * Jadard Technology Inc. CONFIDENTIAL
+ *  * __________________
+ *  *  All Rights Reserved.
+ *  * 2018 MIPIPanelController
+ *  * NOTICE:  All information contained herein is, and remains  the property of Jadard Technology Inc..
+ *  * The intellectual and technical concepts contained herein are proprietary to Jadard Technology Inc.
+ *  * patents in process, and are protected by trade secret or copyright law.
+ *  * Dissemination of this information or reproduction of this material is strictly forbidden unless prior
+ *  * written permission is obtained from Jadard Technology Inc..
+ *
+ */
+
+package com.jadard.henry.jpvr.Utils;
 
 import android.view.KeyEvent;
 import android.widget.CheckBox;
@@ -6,18 +21,22 @@ import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import com.jadard.henry.jpvr.UtilsSharedPref.UtilsSharedPref;
+import com.jadard.henry.jpvr.FLog;
+import com.jadard.henry.jpvr.Utils.UtilsSharedPref;
 
 
 /**
  * Created by henry on 9/1/16.
  */
+
+
 public class KeyData {
     private int KeyCode = -1;
     private String strKeyCode ="";
     private boolean bReadMode = false;
-    private String Address = "";
-    private String Value = "";
+//    private String Address = "";
+//    private String Value = "";
+    private DsiCmd mDsicmd = null;
     private int Length = 1;
     private boolean bEnable = false;
     public boolean bNeedUpdate = false;
@@ -82,18 +101,27 @@ public class KeyData {
     public int getKeyCode(){return KeyCode;}
 
     public void setAddress(String address){
-        this.Address = address;
+
+        if(mDsicmd==null){
+            mDsicmd = new DsiCmd(address);
+        }else {
+            mDsicmd.setAddress(address);
+        }
         bNeedUpdate = true;
     }
 
-    public String getAddress(){return Address;}
+    public String getAddress(){return mDsicmd==null?"":mDsicmd.getAddress();}
 
     public void setValue(String value){
-        this.Value = value;
+        if(mDsicmd==null){
+            mDsicmd = new DsiCmd("",value);
+        }else {
+            mDsicmd.setValue(value);
+        }
         bNeedUpdate = true;
     }
 
-    public String getValue(){return Value;}
+    public String getValue(){return mDsicmd==null?"":mDsicmd.getValue();}
 
     public void setEnable(boolean enable){
         this.bEnable = enable;
@@ -120,8 +148,8 @@ public class KeyData {
         StringBuilder sb = new StringBuilder();
         sb.append("Key: "+strKeyCode).append("\n");
         sb.append("bEnable: "+bEnable).append("\n");
-        sb.append("Address: "+Address).append("\n");
-        sb.append("Value: "+Value).append("\n");
+        sb.append("Address: "+mDsicmd.getAddress()).append("\n");
+        sb.append("Value: "+mDsicmd.getValue()).append("\n");
         sb.append("bReadMode: "+bReadMode).append("\n");
         sb.append("Length:"+Length).append("\n");
 
@@ -137,11 +165,11 @@ public class KeyData {
         }
 
         if(ET_Address!=null){
-            ET_Address.setText(Address);
+            ET_Address.setText(mDsicmd==null?"":mDsicmd.getAddress());
         }
 
         if(ET_Value!=null){
-            ET_Value.setText(Value);
+            ET_Value.setText(mDsicmd==null?"":mDsicmd.getValue());
         }
 
         if(RB_ReadMode!=null){
@@ -171,9 +199,9 @@ public class KeyData {
         if(RB_ReadMode!=null)
             bReadMode = RB_ReadMode.isChecked();
         if(ET_Value!=null)
-            Value=ET_Value.getText().toString().trim();
+            mDsicmd.setValue(ET_Value.getText().toString().trim());
         if(ET_Address!=null)
-            Address = ET_Address.getText().toString().trim();
+            mDsicmd.setAddress(ET_Address.getText().toString().trim());
 
 
         if(ET_Length!=null && !ET_Length.getText().toString().trim().equals("")){
@@ -202,13 +230,12 @@ public class KeyData {
 
     private void intiBaseParameters(String keycode, String address, String value)
     {
-        this.Address = address;
-        this.Value = value;
+        mDsicmd = new DsiCmd(address,value);
         this.strKeyCode = keycode.toUpperCase();
         this.KeyCode = KeyEvent.keyCodeFromString(KEYCODE_PREFIX+this.strKeyCode);
     }
 
-    static public boolean isKeyAssigned(int keyCode)
+    static private boolean isKeyAssigned(int keyCode)
     {
         if( (keyCode> KeyEvent.KEYCODE_0) && (keyCode < KeyEvent.KEYCODE_Z)) {
             return true;

@@ -52,6 +52,9 @@
         <activity android:name=".FullscreenActivity" />
         <activity android:name=".SettingActivity" />
         <activity android:name=".SelectfileActivity" />
+        <activity android:name=".CmdActivity"
+            android:windowSoftInputMode="adjustPan"/>
+
         <activity
             android:name=".IndexActivity"
             android:label="@string/title_activity_index"

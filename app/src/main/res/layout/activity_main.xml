@@ -8,13 +8,29 @@
     android:keepScreenOn="true"
     android:descendantFocusability="afterDescendants"
     >
+    <Button
+        android:id="@+id/BT_fnc"
+        android:gravity="top"
+        android:background="@null"
+        android:layout_width="50dp"
+        android:layout_height="50dp" />
+
+    <Button
+        android:id="@+id/BT_PanelSelect"
+        android:gravity="top"
+        android:background="@null"
+        android:layout_alignParentEnd="true"
+        android:text="1"
+        android:layout_width="50dp"
+        android:layout_height="50dp" />
+
 
     <ImageView
         android:id="@+id/IV_Pic"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:adjustViewBounds="true"
-        android:scaleType = "centerCrop"
+        android:scaleType = "fitXY"
         android:contentDescription="@string/Read" />
     <LinearLayout
         android:id="@+id/LL_ALL"
@@ -96,7 +112,6 @@
             android:layout_height="wrap_content"
             android:digits="0123456789ABCDEF"
             android:maxLength="4"
-            android:text="@string/Add"
             android:layout_marginStart="3dp"
             style="@style/TextTitleStyle"
             android:inputType="textCapCharacters"
@@ -109,9 +124,7 @@
             android:digits="0123456789ABCDEF "
             android:maxLength="192"
             android:layout_marginStart="3dp"
-            android:text="@string/Value"
             style="@style/TextTitleStyle"
-            android:maxLines="1"
             android:inputType="textCapCharacters"
             />
         <EditText
@@ -172,7 +185,9 @@
         android:layout_height="match_parent"
         android:descendantFocusability="blocksDescendants"
         xmlns:fab="http://schemas.android.com/apk/res-auto"
-        android:gravity="center">
+        android:gravity="center"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true">
         <com.github.clans.fab.FloatingActionButton
             android:id="@+id/FAB_Play"
             android:layout_width="wrap_content"
@@ -202,7 +217,7 @@
             fab:fab_colorNormal="@color/colorPrimary"
             fab:fab_colorPressed="@color/colorPrimaryDark"
             fab:fab_colorRipple="@color/colorAccent"
-            android:src="@android:drawable/ic_menu_edit"
+            android:src="@android:drawable/ic_menu_view"
             android:layout_centerVertical="true"
             android:layout_alignParentRight="true"
             android:layout_above="@+id/FAB_Right" />
@@ -265,6 +280,113 @@
             android:layout_below="@+id/FAB_Right"
             android:layout_marginBottom="50dp">
         </GridView>
+        <LinearLayout
+            android:id="@+id/LL_CABC_MODE"
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:layout_below="@+id/FAB_Right"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/TV_CABC_Mode"
+                android:layout_width="0dp"
+                android:layout_weight="1.5"
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorAccent"
+                android:text="@string/CABC_Mode" />
+            <RadioGroup
+                android:id="@+id/RG_CABC_Mode"
+                android:layout_width="0dp"
+                android:layout_weight="4"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" >
+                <RadioButton
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/colorAccent"
+                    android:buttonTint="@color/colorAccent"
+                    android:id="@+id/CABC_Mode_Off"
+                    android:text="@string/CABC_Mode_off" />
+                <RadioButton
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/colorAccent"
+                    android:buttonTint="@color/colorAccent"
+                    android:id="@+id/CABC_Mode_Mov"
+                    android:text="@string/CABC_Mode_Mov" />
+                <RadioButton
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/colorAccent"
+                    android:buttonTint="@color/colorAccent"
+                    android:id="@+id/CABC_Mode_Pic"
+                    android:text="@string/CABC_Mode_Pic" />
+                <RadioButton
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/colorAccent"
+                    android:buttonTint="@color/colorAccent"
+                    android:id="@+id/CABC_Mode_UI"
+                    android:text="@string/CABC_Mode_UI" />
+            </RadioGroup>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/LL_PWM_MODE"
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:layout_below="@+id/LL_CABC_MODE"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/TV_PWM_Mode"
+                android:layout_width="0dp"
+                android:layout_weight="1.5"
+                android:textColor="@color/colorAccent"
+                android:layout_height="wrap_content"
+                android:text="@string/PWM_Mode" />
+            <RadioGroup
+                android:id="@+id/RG_PWM_Mode"
+                android:layout_width="0dp"
+                android:layout_weight="4"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" >
+                <RadioButton
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/colorAccent"
+                    android:buttonTint="@color/colorAccent"
+                    android:id="@+id/PWM_Mode_8"
+                    android:text="@string/PWM_Mode_8" />
+                <RadioButton
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/colorAccent"
+                    android:buttonTint="@color/colorAccent"
+                    android:id="@+id/PWM_Mode_10"
+                    android:text="@string/PWM_Mode_10" />
+                <RadioButton
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/colorAccent"
+                    android:buttonTint="@color/colorAccent"
+                    android:id="@+id/PWM_Mode_11"
+                    android:text="@string/PWM_Mode_11" />
+                <RadioButton
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/colorAccent"
+                    android:buttonTint="@color/colorAccent"
+                    android:id="@+id/PWM_Mode_12"
+                    android:text="@string/PWM_Mode_12" />
+            </RadioGroup>
+        </LinearLayout>
 
     </RelativeLayout>
     <LinearLayout
@@ -287,9 +409,35 @@
         <Switch
             android:id="@+id/SW_ALS"
             android:paddingLeft="10dp"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"/>
+        <Button
+            android:id="@+id/BT_SLR_ModeOff"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:text="Off"
+            android:layout_height="wrap_content" />
+        <Button
+            android:id="@+id/BT_SLR_ModeHigh"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:text="High"
+            android:layout_height="wrap_content" />
+        <Button
+            android:id="@+id/BT_SLR_ModeMedium"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:text="Med"
+            android:layout_height="wrap_content" />
+        <Button
+            android:id="@+id/BT_SLR_ModeLow"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:text="Low"
+            android:layout_height="wrap_content" />
         <SeekBar
+            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:progressDrawable="@drawable/seekbar_progressbar"
@@ -303,18 +451,18 @@
         android:orientation="horizontal"
         android:gravity="center_horizontal|center"
         android:layout_above="@id/LL_ALS"
-        android:visibility="gone"
         android:id="@+id/LL_CABC">
         <TextView
             android:layout_width="80dp"
             android:gravity="center_horizontal"
             android:layout_height="wrap_content"
             android:background="@color/black_overlay"
-            android:text="@string/CABC"
+            android:text="@string/Brightness"
             android:textSize="16sp"
             android:maxLines="1"/>
         <Switch
             android:id="@+id/SW_CABC"
+            android:visibility="gone"
             android:paddingLeft="10dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
@@ -332,7 +480,7 @@
         style="@style/Feature_Control_Style"
         android:orientation="horizontal"
         android:id="@+id/LL_CE"
-        android:visibility="gone"
+        android:layout_marginBottom="5dp"
         android:layout_above="@+id/LL_CABC">
         <TextView
             android:layout_width="80dp"
@@ -347,6 +495,27 @@
             android:paddingLeft="10dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
+        <Button
+            android:id="@+id/BT_CE_parameter1"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:text="1"
+            android:visibility="gone"
+            android:layout_height="wrap_content" />
+        <Button
+            android:id="@+id/BT_CE_parameter2"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:text="2"
+            android:visibility="gone"
+            android:layout_height="wrap_content" />
+        <Button
+            android:id="@+id/BT_CE_parameter3"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:text="3"
+            android:visibility="gone"
+            android:layout_height="wrap_content" />
     </LinearLayout>
 
     <LinearLayout
@@ -355,8 +524,9 @@
         style="@style/Feature_Control_Style"
         android:orientation="horizontal"
         android:id="@+id/LL_MIX_EFF"
-        android:visibility="gone"
-        android:layout_above="@+id/LL_CE">
+        android:layout_above="@+id/LL_CE"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="5dp">
         <TextView
             android:layout_width="80dp"
             android:gravity="center_horizontal"
@@ -377,10 +547,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
+        android:visibility="gone"
         app:srcCompat="@drawable/fiti_new" />
     <ImageView
         android:id="@+id/imageView3"
         android:layout_width="wrap_content"
+        android:visibility="gone"
         android:layout_height="wrap_content"
         app:srcCompat="@drawable/jadard_logo_medium"
         android:layout_centerHorizontal="true"

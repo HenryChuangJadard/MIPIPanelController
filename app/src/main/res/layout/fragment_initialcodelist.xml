@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~  /*************************************************************************
+  ~  *
+  ~  * Jadard Technology Inc. CONFIDENTIAL
+  ~  * __________________
+  ~  *  All Rights Reserved.
+  ~  * 2018 MIPIPanelController
+  ~  * NOTICE:  All information contained herein is, and remains  the property of Jadard Technology Inc..
+  ~  * The intellectual and technical concepts contained herein are proprietary to Jadard Technology Inc.
+  ~  * patents in process, and are protected by trade secret or copyright law.
+  ~  * Dissemination of this information or reproduction of this material is strictly forbidden unless prior
+  ~  * written permission is obtained from Jadard Technology Inc..
+  ~  */
+  -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    >
+    <ListView
+        android:id="@+id/LV_FileList"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:cacheColorHint="@null"
+        />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/Feature_Control_Style"
+        android:orientation="horizontal"
+        android:layout_marginTop="5dp"
+        android:id="@+id/LL_Filelist_ControlBar"
+        >
+
+        <Button
+            android:id="@+id/BT_Initialcode_add"
+            android:layout_width="wrap_content"
+            android:background="@drawable/btn_filelist_select"
+            style="@android:style/ButtonBar"
+            android:text="@string/CommandActivity_AddInitialCode"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+</LinearLayout>

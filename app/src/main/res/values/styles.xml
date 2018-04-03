@@ -28,7 +28,7 @@
     </style>
 
     <style name="TextTitleStyle">
-        <item name="android:textSize">10pt</item>
+        <item name="android:textSize">10sp</item>
         <item name="android:textColor">@android:color/white</item>
         <item name="android:textStyle">bold</item>
     </style>
@@ -46,17 +46,26 @@
     </style>
 
     <style name="LV_TextTitleStyle">
-        <item name="android:textSize">9pt</item>
+        <item name="android:textSize">20sp</item>
         <item name="android:textColor">@android:color/white</item>
     </style>
 
     <style name="TextValueStyle">
-        <item name="android:textSize">10pt</item>
+        <item name="android:textSize">14sp</item>
         <item name="android:textColor">@android:color/holo_red_light</item>
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="AutoCall_Report_ListFile">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+    <style name="AutoCall_Report_ListFile.Info">
+        <item name="android:textSize">12sp</item>
+    </style>
 
 </resources>

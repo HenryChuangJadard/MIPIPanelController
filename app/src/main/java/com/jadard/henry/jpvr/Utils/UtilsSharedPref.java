@@ -1,4 +1,19 @@
-package com.jadard.henry.jpvr.UtilsSharedPref;
+/*
+ *  /*************************************************************************
+ *  *
+ *  * Jadard Technology Inc. CONFIDENTIAL
+ *  * __________________
+ *  *  All Rights Reserved.
+ *  * 2018 MIPIPanelController
+ *  * NOTICE:  All information contained herein is, and remains  the property of Jadard Technology Inc..
+ *  * The intellectual and technical concepts contained herein are proprietary to Jadard Technology Inc.
+ *  * patents in process, and are protected by trade secret or copyright law.
+ *  * Dissemination of this information or reproduction of this material is strictly forbidden unless prior
+ *  * written permission is obtained from Jadard Technology Inc..
+ *
+ */
+
+package com.jadard.henry.jpvr.Utils;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -6,7 +21,6 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 
 import com.jadard.henry.jpvr.FLog;
-import com.jadard.henry.jpvr.KeyData;
 import com.jadard.henry.jpvr.R;
 
 import org.json.JSONArray;
@@ -47,8 +61,10 @@ public class  UtilsSharedPref {
     final static public String PREF_VERSION = "version";
     final static public String PREF_IMAGES_FOLDER = "imgsfolder";
     final static public String PREF_CURRENT_FILENAME = "currentfilename";
+    final static public String PREF_DISPLAY_MODEL = "dsipmodel";
     final static public String PREF_DISPLAY_PROJECT = "keyproject";
     final static public String PREF_DISPLAY_CTRL = "displayctrl";
+    final static public String PREF_DISPLAY_CABC_CTRL = "displaycabcctrl";
     final static public String PREF_DISPLAY_IMG_INDEX = "imgindex";
     final static public String PREF_DISPLAY_CUR_SLR = "cur_slr";
     final static public String PREF_DISPLAY_ALS_ENABLE = "als_enable";
@@ -56,6 +72,8 @@ public class  UtilsSharedPref {
     final static public String PREF_DISPLAY_CABC_ENABLE = "cabc_enable";
     final static public String PREF_DISPLAY_MIX_EFFECT = "mix_effect";
     final static public String PREF_DISPLAY_COLOR_ENHANCE = "color_enhance";
+    final static String PREF_NUMBER_INITIAL_FILE = "number_initial_file";
+    final static String PREF_INITIAL_FILE = "initial_file.";
     final static String PREF_DISPLAY_CERT = ".certi";
 
 
@@ -70,10 +88,23 @@ public class  UtilsSharedPref {
     final static public String RegRead_Lollipop = "/sys/kernel/debug/mdp/panel_reg";
     final static public String File_PanelName = "/sys/kernel/debug/mdp/panel_name";
 
-    final static public String[] STR_PROJECTS = {"9522","9541","others"};
+    final static public String GenWrite2_Lollipop = "/sys/kernel/debug/mdp/panel1_reg";
+    final static public String DsiWrite2_Lollipop = "/sys/kernel/debug/mdp/dsi1_ctrl_reg";
+    final static public String RegLength2_Lollipop = "/sys/kernel/debug/mdp/panel1_off";
+    final static public String RegRead2_Lollipop = "/sys/kernel/debug/mdp/panel1_reg";
+    final static public String File_Panel2Name = "/sys/kernel/debug/mdp/panel1_name";
+    final static public int MIPI_DISPLAY1 = 1;
+    final static public int MIPI_DISPLAY2 = 2;
+
+    final static public String[] STR_Models = {"XiaoMi","ZT","others"};
+    final static public int MD_XiaoMi = 0;
+    final static public int MD_ZT = 1;
+    final static public int MD_OTHERS = 2;
+
+    final static public String[] STR_PROJECTS = {"PJ_9522","PJ_9541","others"};
     final static public int PJ_9522 = 0;
     final static public int PJ_9541 = 1;
-    final static public int PJ_OTHER = 100;
+    final static public int PJ_OTHER = 2;
 
     final static public int MAX_SLR = 65536;
     final static public int MIN_SLR = 0;
@@ -110,6 +141,8 @@ public class  UtilsSharedPref {
         JD9541HD(4),
         JD9365D(5),
         JD9367xHD(6),
+        JD9365Z(7),
+        JD9366D(8),
         UNKNOWN(99);
 
         private int value;
@@ -183,6 +216,64 @@ public class  UtilsSharedPref {
         return dispSettings.getBoolean(PREF_DISPLAY_CTRL,true);
     }
 
+    static public void setDisplayCABCCtrl(boolean ctrl){
+        dispSettings.edit().putBoolean(PREF_DISPLAY_CABC_CTRL,ctrl).apply();
+    }
+
+    static public boolean getDisplayCABCCtrl(){
+        return dispSettings.getBoolean(PREF_DISPLAY_CABC_CTRL,true);
+    }
+
+    static public void setInitilFilelist(ArrayList<String> filelist){
+        int i ;
+        for(i = 0;i<filelist.size();i++){
+            settings.edit().putString(PREF_INITIAL_FILE+i,filelist.get(i)).apply();
+        }
+        settings.edit().putInt(PREF_NUMBER_INITIAL_FILE,filelist.size()).apply();
+    }
+
+    static public void addInitilFile(String filename){
+        int i ;
+        File file = new File(filename);
+        if(!file.exists()){
+            FLog.e("addInitilFile","Not found: "+filename);
+            return;
+        }
+        i  = settings.getInt(PREF_NUMBER_INITIAL_FILE,0);
+        settings.edit().putString(PREF_INITIAL_FILE+i,filename).apply();
+        settings.edit().putInt(PREF_NUMBER_INITIAL_FILE,(i+1)).apply();
+    }
+
+    static public void rmInitilFile(String filename){
+        ArrayList<String> list = getInitilFilelist();
+        for (String name:list ) {
+            if(name.equals(filename)){
+                list.remove(name);
+                setInitilFilelist(list);
+                break;
+            }
+        }
+    }
+
+
+    static public ArrayList<String> getInitilFilelist(){
+        ArrayList<String> list = new ArrayList<>();
+        int number = settings.getInt(PREF_NUMBER_INITIAL_FILE,0);
+        for (int i = 0;i<number; i++ ){
+            list.add(settings.getString(PREF_INITIAL_FILE+i,""));
+        }
+//        for (String filename:list ) {
+//            if(filename.equals("")){
+//                list.remove(filename);
+//            }
+//        }
+//        setInitilFilelist(list);
+//        final static String PREF_NUMBER_INITIAL_FILE = "number_initial_file";
+//        final static String PREF_INITIAL_FILE = "initial_file.";
+        return list;
+    }
+
+
     static public void setDisplayCtrl(boolean ctrl){
         FLog.e(TAG,"setDisplayCtrl key:"+PREF_DISPLAY_CTRL + "ctrl:"+ctrl);
         dispSettings.edit().putBoolean(PREF_DISPLAY_CTRL,ctrl).apply();
@@ -205,7 +296,7 @@ public class  UtilsSharedPref {
     }
 
     static public int getMaxLumen(){
-        if(JD_PanelName==PanelName.JD9365D){
+        if(JD_PanelName==PanelName.JD9365D || JD_PanelName==PanelName.JD9365Z){
             //12bits
             MAX_LUMEN = 255;
         }else{
@@ -220,6 +311,12 @@ public class  UtilsSharedPref {
 
     static public void setPrefDisplayCurLUMEN(int index){
         dispSettings.edit().putInt(PREF_DISPLAY_CUR_LUMEN,index).apply();
+    }
+
+    static public int getModel(){return dispSettings.getInt(PREF_DISPLAY_MODEL,MD_OTHERS);}
+
+    static public void setModel(int index){
+        dispSettings.edit().putInt(PREF_DISPLAY_MODEL,index).apply();
     }
 
     static public int getProject(){
@@ -774,13 +871,13 @@ public class  UtilsSharedPref {
         return value;
     }
 
-    static public PanelName getPanelName(){
+    static public PanelName getPanelName(String filename){
         String retValue;
-        File file = new File(File_PanelName);
+        File file = new File(filename);
         if(!file.exists())
             return PanelName.UNKNOWN;
 
-        retValue = catExecutor("cat "+File_PanelName);
+        retValue = catExecutor("cat "+filename);
         FLog.d(TAG,"getPanelName retValue:"+retValue);
 
         if(retValue.equals("JD9365D"))
@@ -795,12 +892,16 @@ public class  UtilsSharedPref {
             return PanelName.JD9522HD;
         if(retValue.equals("JD9367_xHD"))
             return PanelName.JD9365D;
+        if(retValue.equals("JD9365Z"))
+            return PanelName.JD9365Z;
+        if(retValue.equals("JD9366D"))
+            return PanelName.JD9366D;
 
         return PanelName.UNKNOWN;
     }
 
 
-    static String doRead(String addr, int length){
+    static public String doRead(String addr, int length){
 
         boolean result;
         String readData;

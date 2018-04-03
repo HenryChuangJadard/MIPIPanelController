@@ -11,6 +11,7 @@
     <string name="ToRead">Pressed To Read:\ </string>
     <string name="ToWrite">Pressed To Write:\ </string>
     <string name="LoadFile">Load File</string>
+    <string name="Filename">File Name:</string>
     <string name="SaveFile">Save</string>
     <string name="SaveFileAs">Save As</string>
     <string name="AddKey">Add Key</string>
@@ -29,10 +30,27 @@
     <string name="Len">Len</string>
     <string name="Ok">Ok</string>
     <string name="Cancel">Cancel</string>
+    <string name="Delete">Delete</string>
+    <string name="Run">Run</string>
+    <string name="Edit">Edit</string>
+    <string name="Browser">Browser</string>
+    <string name="Import">Import</string>
+    <string name="Discard">Discard</string>
+    <string name="Apply">Apply</string>
+    <string name="SaveToFile">Save to File</string>
+
+    <string name="CommandActivity_InitialCode">Initial Code</string>
+    <string name="CommandActivity_InitialCodeSelect">Initial Code Selection</string>
+    <string name="CommandActivity_DSICmdEditor">DSI CMD Editor</string>
+    <string name="CommandActivity_AddInitialCode">Add Initial Code</string>
+    <string name="CommandActivity_LoadInitialCode">Loading Initial Code…</string>
+    <string name="Result">Result</string>
+    <string name="Delay">Delay(ms)</string>
 
     <string name="ALS">ALS</string>
     <string name="SLR">SLR</string>
     <string name="CABC">CABC</string>
+    <string name="Brightness">Backlight</string>
     <string name="MIX_EFF">Mix Effect</string>
     <string name="CE">CE</string>
 
@@ -42,6 +60,7 @@
     <string name="NoKeyDataWarning">No Key Data to Save</string>
     <string name="InfoControl">Main page information display</string>
     <string name="Project">Project:</string>
+    <string name="Model">Model:</string>
     <string name="SaveAsDialogTitle">Input filename to save</string>
     <string name="title_activity_fullscreen">FullscreenActivity</string>
     <string name="dummy_button">Dummy Button</string>
@@ -51,6 +70,20 @@
     <string name="AddingMipiCmdTitle">Adding MIPI Command…</string>
     <string name="AddingMipiCmd">Would you like to add %1$s command at address %2$s with value %3$s ?</string>
     <string name="setting_reset_cmd">Reset all commands</string>
+    <string name="CABC_Mode">CABC Mode</string>
+    <string name="CABC_Mode_off">Off</string>
+    <string name="CABC_Mode_Mov">Mov</string>
+    <string name="CABC_Mode_Pic">Pic</string>
+    <string name="CABC_Mode_UI">UI</string>
+
+    <string name="PWM_Mode">PWM Mode</string>
+    <string name="PWM_Mode_8">8b</string>
+    <string name="PWM_Mode_10">10b</string>
+    <string name="PWM_Mode_11">11b</string>
+    <string name="PWM_Mode_12">12b</string>
+
+    <string name="FileModification_Date">Date:</string>
+    <string name="File_Size">&#160;&#160;Size:</string>
 
     <string-array name="projects">
         <item>9522</item>

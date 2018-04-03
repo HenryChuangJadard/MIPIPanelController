@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~  /*************************************************************************
+  ~  *
+  ~  * Jadard Technology Inc. CONFIDENTIAL
+  ~  * __________________
+  ~  *  All Rights Reserved.
+  ~  * 2018 MIPIPanelController
+  ~  * NOTICE:  All information contained herein is, and remains  the property of Jadard Technology Inc..
+  ~  * The intellectual and technical concepts contained herein are proprietary to Jadard Technology Inc.
+  ~  * patents in process, and are protected by trade secret or copyright law.
+  ~  * Dissemination of this information or reproduction of this material is strictly forbidden unless prior
+  ~  * written permission is obtained from Jadard Technology Inc..
+  ~  */
+  -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:layout_gravity="center"
+    android:layout_alignParentTop="true"
+    android:layout_alignParentStart="true"
+    android:layout_marginLeft="3dp"
+    android:layout_marginRight="3dp"
+    android:background="@color/black_overlay">
+    <TextView
+        android:layout_width="0dp"
+        android:layout_weight="5"
+        android:id="@+id/TV_InitialFilename"
+        style="@style/TextTitleStyle"
+        android:layout_gravity="center"
+        android:layout_height="wrap_content" />
+  <Button
+      android:id="@+id/BT_InitialCodeRun"
+      android:layout_width="0dp"
+      android:layout_weight="1"
+      android:text="@string/Run"
+      style="@style/TextTitleStyle"
+      android:layout_gravity="center"
+      android:layout_height="wrap_content"
+      android:maxLines="1"/>
+    <Button
+        android:id="@+id/BT_InitialCodeEdit"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:text="@string/Edit"
+        style="@style/TextTitleStyle"
+        android:layout_gravity="center"
+        android:layout_height="wrap_content"
+        android:maxLines="1"/>
+    <Button
+        android:id="@+id/BT_InitialCodeBrowser"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:text="@string/Browser"
+        android:layout_gravity="center"
+        style="@style/TextTitleStyle"
+        android:layout_height="wrap_content"
+        android:maxLines="1"/>
+</LinearLayout>

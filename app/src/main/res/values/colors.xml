@@ -2,11 +2,65 @@
 <resources>
     <color name="colorBlack">#000000</color>
     <color name="colorWhite">#FFFFFF</color>
-    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimary">#3F00B5</color>
     <color name="colorTransparent">#e0000000</color>
-    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorPrimaryDark">#303FFF</color>
     <color name="colorAccent">#FF4081</color>
     <color name="colorOrange">#ffff8800</color>
+
+
+    <color name="White">#FFFFFFFF</color>
+    <color name="Black">#FF000000</color>
+    <color name="Red">#FFFF0000</color>
+    <color name="Pink">#FFFF69b4</color>
+    <color name="Gray">#FF999999</color>
+    <color name="Orange">#FFFFa500</color>
+    <color name="Yellow">#FFFFFF00</color>
+    <color name="Yellow1">#FFfbc02d</color>
+    <color name="Yellow2">#FFffd600</color>
+    <color name="Yellow3">#FFffea00</color>
+    <color name="Blue">#FF0000FF</color>
+    <color name="Green">#FF32A032</color>
+
+    <color name="BG">#FFF2F2F2</color>
+
+    <color name="BG_Grey">#FFF2F2F2</color>
+    <color name="UI_Blue">#FF29AAE2</color>
+    <color name="UI_Grey">#FF808285</color>
+
+    <color name="Tab_Blue">#FF0095DA</color>
+    <color name="Tab_Grey">#FF6D6F71</color>
+    <color name="ST_GRAY">#FF4D4D4D</color>
+
+    <color name="BG_Nav">#FFff7043</color>
+    <color name="BG_Tab">#FF343B4A</color>
+    <color name="BG_Cmd">#FFff7043</color>
+    <color name="BG_Context">#FFF2F2F2</color>
+    <color name="BG_Progress">#FF343B4A</color>
+    <color name="Line">#FF5D626E</color>
+
+    <color name="Font_Title">#FF343B4A</color>
+    <color name="Font_DialogTitle">#FFff7043</color>
+    <color name="Font_DialogDivider">#FFff7043</color>
+    <color name="Font_Context">#FFF2F2F2</color>
+    <color name="Font_Text">#FF262B37</color>
+    <color name="Font_SubText">#FF5D626E</color>
+
+    <color name="Picture_BG_Nav">#E6272B37</color>
+    <color name="Picture_Font">#FFFFFFFF</color>
+    <color name="Picture_Title">#FF999999</color>
+    <color name="Picture_Border">#FFff7043</color>
+
+    <color name="MentionBar_Color">#FF00BFA5</color>
+    <color name="Parameter_Context_Color">#262b37</color>
+    <color name="MapLegend_unselected_text">#80FFFFFF</color>
+    <!--<color name="colorBlack">#000000</color>-->
+    <!--<color name="colorWhite">#FFFFFF</color>-->
+    <!--<color name="colorPrimary">#3F51FF</color>-->
+    <!--<color name="colorTransparent">#e0000000</color>-->
+    <!--<color name="colorPrimaryDark">#303FFF</color>-->
+    <!--<color name="colorAccent">#FF40FF</color>-->
+    <!--<color name="colorOrange">#ffff1100</color>-->
 
     <color name="black_overlay">#66000000</color>
 </resources>

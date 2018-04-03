@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~  /*************************************************************************
+  ~  *
+  ~  * Jadard Technology Inc. CONFIDENTIAL
+  ~  * __________________
+  ~  *  All Rights Reserved.
+  ~  * 2018 MIPIPanelController
+  ~  * NOTICE:  All information contained herein is, and remains  the property of Jadard Technology Inc..
+  ~  * The intellectual and technical concepts contained herein are proprietary to Jadard Technology Inc.
+  ~  * patents in process, and are protected by trade secret or copyright law.
+  ~  * Dissemination of this information or reproduction of this material is strictly forbidden unless prior
+  ~  * written permission is obtained from Jadard Technology Inc..
+  ~  */
+  -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    >
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="top"
+        >
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="0.1"
+            android:layout_height="match_parent"
+            android:visibility="invisible"/>
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            style="@style/LV_TextTitleStyle"
+            android:text="@string/Address"
+            android:background="@drawable/listview_title_border"/>
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="10"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            style="@style/LV_TextTitleStyle"
+            android:text="@string/ValueNoColon"
+            android:background="@drawable/listview_title_border"/>
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            style="@style/LV_TextTitleStyle"
+            android:text="@string/Delay"
+            android:background="@drawable/listview_title_border"/>
+    </LinearLayout>
+    <ListView
+        android:id="@+id/LV_DsiCommandList"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="20"
+        android:cacheColorHint="@null"
+        android:descendantFocusability="beforeDescendants"
+        />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        style="@style/Feature_Control_Style"
+        android:orientation="horizontal"
+        android:layout_marginTop="5dp"
+        android:id="@+id/LL_DSI_ControlBar"
+        >
+        <Button
+            android:id="@+id/BT_DsiCmd_Add"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/btn_add_selector"
+            style="@android:style/ButtonBar"
+            />
+        <Button
+            android:id="@+id/BT_DsiCmd_Apply"
+            android:layout_width="wrap_content"
+            android:background="@drawable/btn_filelist_select"
+            style="@android:style/ButtonBar"
+            android:text="@string/Apply"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            />
+        <Button
+            android:id="@+id/BT_DsiCmd_SaveFile"
+            android:layout_width="wrap_content"
+            android:background="@drawable/btn_filelist_select"
+            style="@android:style/ButtonBar"
+            android:text="@string/SaveToFile"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="20dp"
+            />
+
+
+        <Button
+            android:id="@+id/BT_DsiCmd_Discard"
+            android:layout_width="wrap_content"
+            android:background="@drawable/btn_filelist_select"
+            style="@android:style/ButtonBar"
+            android:text="@string/Discard"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            />
+        <Button
+            android:id="@+id/BT_DsiCmd_Delete"
+            android:layout_width="wrap_content"
+            android:background="@drawable/btn_filelist_select"
+            style="@android:style/ButtonBar"
+            android:text="@string/Delete"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="20dp"
+            />
+
+
+    </LinearLayout>
+</LinearLayout>

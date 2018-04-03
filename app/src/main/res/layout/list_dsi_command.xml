@@ -1,42 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~  /*************************************************************************
+  ~  *
+  ~  * Jadard Technology Inc. CONFIDENTIAL
+  ~  * __________________
+  ~  *  All Rights Reserved.
+  ~  * 2018 MIPIPanelController
+  ~  * NOTICE:  All information contained herein is, and remains  the property of Jadard Technology Inc..
+  ~  * The intellectual and technical concepts contained herein are proprietary to Jadard Technology Inc.
+  ~  * patents in process, and are protected by trade secret or copyright law.
+  ~  * Dissemination of this information or reproduction of this material is strictly forbidden unless prior
+  ~  * written permission is obtained from Jadard Technology Inc..
+  ~  */
+  -->
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:layout_alignParentTop="true"
     android:orientation="horizontal"
+    android:layout_alignParentTop="true"
     android:layout_alignParentLeft="true"
     android:layout_alignParentStart="true"
     android:layout_marginLeft="3dp"
     android:layout_marginRight="3dp"
     android:background="@color/black_overlay">
     <TextView
+        android:id="@+id/TV_DSI_ID"
         android:layout_width="0dp"
         android:layout_weight="0.1"
-        android:id="@+id/TV_Key"
-        style="@style/TextTitleStyle"
-        android:layout_height="wrap_content" />
-    <Switch
-        android:layout_height="wrap_content"
-        android:layout_width="0dp"
-        android:layout_weight="0.4"
-        android:id="@+id/SW_Key" />
+        android:layout_height="match_parent"
+        android:visibility="invisible"/>
     <EditText
-        android:id="@+id/ET_Address"
+        android:id="@+id/ET_DSI_Address"
         android:layout_width="0dp"
-        android:layout_weight="0.5"
+        android:layout_weight="1"
         android:layout_height="wrap_content"
         android:digits="0123456789ABCDEF"
         android:maxLength="4"
-        android:text="@string/Add"
         android:layout_marginLeft="3dp"
         android:layout_marginStart="3dp"
         style="@style/TextTitleStyle"
         android:inputType="textCapCharacters"
+        android:gravity="center"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:textIsSelectable="true"
         />
     <EditText
-        android:id="@+id/ET_Value"
+        android:id="@+id/ET_DSI_Value"
         android:layout_width="0dp"
-        android:layout_weight="1"
+        android:layout_weight="10"
         android:layout_height="match_parent"
         android:digits="0123456789ABCDEF "
         android:maxLength="192"
@@ -48,29 +61,25 @@
         android:inputType="textCapCharacters"
         />
     <EditText
-        android:id="@+id/ET_Length"
+        android:id="@+id/ET_DSI_Delay"
         android:layout_width="0dp"
-        android:layout_weight="0.2"
+        android:layout_weight="1"
         android:layout_height="match_parent"
         android:gravity="center_horizontal"
         android:digits="0123456789"
-        android:maxLength="2"
+        android:maxLength="4"
         android:layout_marginLeft="3dp"
         android:layout_marginStart="3dp"
         style="@style/TextTitleStyle"
         android:inputType="numberDecimal"
+        android:focusableInTouchMode="true"
+        android:textIsSelectable="true"
         />
-    <Switch
-        android:id="@+id/SW_bRead"
-        android:layout_width="0dp"
-        android:layout_weight="0.4"
-        android:textOff="@string/W"
-        android:textOn="@string/R"
-        android:layout_height="match_parent"/>
-    <CheckBox
-        android:id="@+id/CB_Del"
-        android:gravity="center_horizontal"
-        android:layout_width="0dp"
-        android:layout_weight="0.2"
-        android:layout_height="match_parent" />
+    <Button
+        android:id="@+id/BT_DSI_Del"
+        android:layout_width="30dip"
+        android:layout_height="30dip"
+        android:background="@drawable/btn_delete_selector"
+        android:layout_marginLeft="3dip"
+        />
 </LinearLayout>

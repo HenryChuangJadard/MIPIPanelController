@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~  /*************************************************************************
+  ~  *
+  ~  * Jadard Technology Inc. CONFIDENTIAL
+  ~  * __________________
+  ~  *  All Rights Reserved.
+  ~  * 2018 MIPIPanelController
+  ~  * NOTICE:  All information contained herein is, and remains  the property of Jadard Technology Inc..
+  ~  * The intellectual and technical concepts contained herein are proprietary to Jadard Technology Inc.
+  ~  * patents in process, and are protected by trade secret or copyright law.
+  ~  * Dissemination of this information or reproduction of this material is strictly forbidden unless prior
+  ~  * written permission is obtained from Jadard Technology Inc..
+  ~  */
+  -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    >
+    <ListView
+        android:id="@+id/LV_FileList"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:cacheColorHint="@null"
+        />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/Feature_Control_Style"
+        android:orientation="horizontal"
+        android:id="@+id/LL_Filelist_ControlBar"
+        android:layout_marginBottom="5dp"
+        android:layout_marginTop="5dp">
+
+
+        <Button
+            android:id="@+id/BT_Filelist_Select"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:background="@drawable/btn_filelist_select"
+            style="@android:style/ButtonBar"
+            android:text="@string/select"
+            android:layout_height="wrap_content" />
+        <Button
+            android:id="@+id/BT_Filelist_Cancel"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            style="@android:style/ButtonBar"
+            android:text="@string/Cancel"
+            android:background="@drawable/btn_filelist_select"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"/>
+        <Button
+            android:id="@+id/BT_Filelist_Delete"
+            style="@android:style/ButtonBar"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:background="@drawable/btn_filelist_select"
+            android:text="@string/Delete"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:visibility="gone"/>
+        <Button
+            android:id="@+id/BT_Filelist_Import"
+            style="@android:style/ButtonBar"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:background="@drawable/btn_filelist_select"
+            android:text="@string/Import"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"/>
+    </LinearLayout>
+</LinearLayout>

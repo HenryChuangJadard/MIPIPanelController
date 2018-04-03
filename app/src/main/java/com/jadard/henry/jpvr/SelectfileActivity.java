@@ -1,3 +1,18 @@
+/*
+ *  /*************************************************************************
+ *  *
+ *  * Jadard Technology Inc. CONFIDENTIAL
+ *  * __________________
+ *  *  All Rights Reserved.
+ *  * 2018 MIPIPanelController
+ *  * NOTICE:  All information contained herein is, and remains  the property of Jadard Technology Inc..
+ *  * The intellectual and technical concepts contained herein are proprietary to Jadard Technology Inc.
+ *  * patents in process, and are protected by trade secret or copyright law.
+ *  * Dissemination of this information or reproduction of this material is strictly forbidden unless prior
+ *  * written permission is obtained from Jadard Technology Inc..
+ *
+ */
+
 package com.jadard.henry.jpvr;
 
 import android.content.Intent;
@@ -9,7 +24,8 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import com.jadard.henry.jpvr.UtilsSharedPref.UtilsSharedPref;
+import com.jadard.henry.jpvr.Utils.KeyData;
+import com.jadard.henry.jpvr.Utils.UtilsSharedPref;
 
 import java.io.File;
 import java.io.FilenameFilter;
