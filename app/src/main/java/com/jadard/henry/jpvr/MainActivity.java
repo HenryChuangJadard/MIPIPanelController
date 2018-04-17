@@ -60,6 +60,8 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -100,6 +102,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Locale;
 import java.util.Scanner;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -169,10 +172,10 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
     static public String RegRead = "";
     static public String DsiPanelName = "";
     static public int DP_HEIGHT= 0;
-    static private boolean bDisableCABC = true;
-    static private boolean bDisableModeCABC = true;
-    static private boolean bDisableCE = true;
-    static private boolean bDisableSLR = true;
+    static private boolean bDisableCABC = false;
+    static private boolean bDisableModeCABC = false;
+    static private boolean bDisableCE = false;
+    static private boolean bDisableSLR = false;
     static private boolean bDisableModeSLR = true;
     static private boolean bDisableMixEffect = true;
     static private boolean bDisableGridButton = true;
@@ -181,6 +184,9 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
     static private boolean bDisableCmdInfoDetail = true;
     static private boolean bXiaomiCEParameters = true;
     private int mModel = MD_ZT;
+
+
+    static final boolean FIH_PLATFORM = true;
 
     final static int SHOW_DURATION = 5000; //ms
     final static int PLAY_DURATION = 3000; //ms
@@ -212,10 +218,57 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
 //                LL_ALS.setVisibility(View.INVISIBLE);
             if(LL_MixEff!=null)
                 LL_MixEff.setVisibility(View.INVISIBLE);
-            if(IV_Pic!=null)
-                IV_Pic.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN);
+//            if(IV_Pic!=null)
+//                IV_Pic.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN);
+//            requestWindowFeature(Window.FEATURE_NO_TITLE);
+//            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+            toggleHideyBar();
         }
     };
+
+    /**
+     * Detects and toggles immersive mode (also known as "hidey bar" mode).
+     */
+    public void toggleHideyBar() {
+
+        // The UI options currently enabled are represented by a bitfield.
+        // getSystemUiVisibility() gives us that bitfield.
+        int uiOptions = this.getWindow().getDecorView().getSystemUiVisibility();
+        int newUiOptions = uiOptions;
+//        boolean isImmersiveModeEnabled =
+//                ((uiOptions | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY) == uiOptions);
+//        if (isImmersiveModeEnabled) {
+//            FLog.i(TAG, "Turning immersive mode mode off. ");
+//        } else {
+//            FLog.i(TAG, "Turning immersive mode mode on.");
+//        }
+
+        // Navigation bar hiding:  Backwards compatible to ICS.
+        if (Build.VERSION.SDK_INT >= 14) {
+            newUiOptions |= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+        }
+
+        // Status bar hiding: Backwards compatible to Jellybean
+        if (Build.VERSION.SDK_INT >= 16) {
+            newUiOptions |= View.SYSTEM_UI_FLAG_FULLSCREEN;
+        }
+
+        // Immersive mode: Backward compatible to KitKat.
+        // Note that this flag doesn't do anything by itself, it only augments the behavior
+        // of HIDE_NAVIGATION and FLAG_FULLSCREEN.  For the purposes of this sample
+        // all three flags are being toggled together.
+        // Note that there are two immersive mode UI flags, one of which is referred to as "sticky".
+        // Sticky immersive mode differs in that it makes the navigation and status bars
+        // semi-transparent, and the UI flag does not get cleared when the user interacts with
+        // the screen.
+        if (Build.VERSION.SDK_INT >= 18) {
+            newUiOptions |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+        }
+
+        this.getWindow().getDecorView().setSystemUiVisibility(newUiOptions);
+    }
+
     private class DualPresentation extends Presentation
     {
         ImageView IV_DualPresentation ;
@@ -260,8 +313,8 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
 //                LL_ALS.setVisibility(View.INVISIBLE);
             if(LL_MixEff!=null)
                 LL_MixEff.setVisibility(View.INVISIBLE);
-            if(IV_Pic!=null)
-                IV_Pic.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN);
+//            if(IV_Pic!=null)
+//                IV_Pic.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN);
 
             fileIndex++;
             if (fileIndex >= filelist.length)
@@ -284,7 +337,8 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         if(LL_MixEff!=null && !bDisableMixEffect)
             LL_MixEff.setVisibility(View.VISIBLE);
 
-        IV_Pic.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+
+//        IV_Pic.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
         mHandler.removeCallbacks(mRunnable);
         mHandler.postDelayed(mRunnable, SHOW_DURATION);
 
@@ -304,8 +358,11 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
             LL_ALS.setVisibility(View.INVISIBLE);
         if(LL_MixEff!=null)
             LL_MixEff.setVisibility(View.INVISIBLE);
-        if(IV_Pic!=null)
-            IV_Pic.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN);
+//        if(IV_Pic!=null)
+//            IV_Pic.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN);
+
+//        requestWindowFeature(Window.FEATURE_NO_TITLE);
+//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
     }
 
     // Storage Permissions
@@ -362,6 +419,8 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         }
 
         setContentView(R.layout.activity_main);
+
+        toggleHideyBar();
 
         verifyStoragePermissions(this);
         String APPpath = Environment.getExternalStorageDirectory().getAbsolutePath() + APP_PATH;
@@ -1385,6 +1444,14 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
     }
 
     public static void echoShellCommand(String cmd, String file) {
+        if(FIH_PLATFORM){
+            int nCmds = cmd.split(" ").length;
+            StringBuilder sb = new StringBuilder();
+            String scmds = String.format(Locale.ENGLISH,"%02d",nCmds);
+            sb.append(scmds).append(",");
+            sb.append(cmd.replace(" ",","));
+            cmd = sb.toString();
+        }
         FLog.d("JPVR", "echoShellCommand " + cmd + " > " + file);
         try {
             FileWriter fw = new FileWriter(new File(file));
@@ -2870,10 +2937,10 @@ final int REQUEST_DIRECTORY = 1001;
     }
 
     void changeFitScreen(){
-        if ((IV_Pic.getSystemUiVisibility() & View.SYSTEM_UI_FLAG_HIDE_NAVIGATION) == View.SYSTEM_UI_FLAG_HIDE_NAVIGATION)
-            IV_Pic.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
-        else
-            IV_Pic.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN);
+//        if ((IV_Pic.getSystemUiVisibility() & View.SYSTEM_UI_FLAG_HIDE_NAVIGATION) == View.SYSTEM_UI_FLAG_HIDE_NAVIGATION)
+//            IV_Pic.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+//        else
+//            IV_Pic.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN);
     }
 
 
