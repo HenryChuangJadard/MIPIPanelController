@@ -101,7 +101,10 @@ public class CmdActivity extends AppCompatActivity implements View.OnClickListen
         F_InitialCodeList.updateAdapter();
         mFragmentManager.beginTransaction().hide(mFileListFragment).hide(F_DsiCommandList).show(F_InitialCodeList).commit();
         mToolbar.setNavigationIcon(R.drawable.jd_logo_nb);
-        mToolbar.setTitle(R.string.CommandActivity_InitialCode);
+        StringBuilder sb = new StringBuilder();
+        sb.append(getResources().getString(R.string.CommandActivity_InitialCode));
+        sb.append("\n").append("V"+BuildConfig.VERSION_NAME);
+        mToolbar.setTitle(sb.toString());
 
     }
 

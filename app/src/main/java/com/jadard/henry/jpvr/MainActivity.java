@@ -172,10 +172,10 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
     static public String RegRead = "";
     static public String DsiPanelName = "";
     static public int DP_HEIGHT= 0;
-    static private boolean bDisableCABC = false;
-    static private boolean bDisableModeCABC = false;
+    static private boolean bDisableCABC = true;
+    static private boolean bDisableModeCABC = true;
     static private boolean bDisableCE = false;
-    static private boolean bDisableSLR = false;
+    static private boolean bDisableSLR = true;
     static private boolean bDisableModeSLR = true;
     static private boolean bDisableMixEffect = true;
     static private boolean bDisableGridButton = true;
@@ -186,7 +186,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
     private int mModel = MD_ZT;
 
 
-    static final boolean FIH_PLATFORM = true;
+    static final boolean FIH_PLATFORM = false;
 
     final static int SHOW_DURATION = 5000; //ms
     final static int PLAY_DURATION = 3000; //ms

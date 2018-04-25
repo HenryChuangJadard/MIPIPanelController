@@ -260,7 +260,14 @@ public class  UtilsSharedPref {
         ArrayList<String> list = new ArrayList<>();
         int number = settings.getInt(PREF_NUMBER_INITIAL_FILE,0);
         for (int i = 0;i<number; i++ ){
-            list.add(settings.getString(PREF_INITIAL_FILE+i,""));
+            String filepath = settings.getString(PREF_INITIAL_FILE+i,"");
+            File file = new File(filepath);
+            if(file.exists()) {
+                list.add(filepath);
+            }
+        }
+        if(number!=list.size()){
+            setInitilFilelist(list);
         }
 //        for (String filename:list ) {
 //            if(filename.equals("")){

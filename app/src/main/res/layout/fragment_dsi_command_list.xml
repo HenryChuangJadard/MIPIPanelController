@@ -75,14 +75,16 @@
         >
         <Button
             android:id="@+id/BT_DsiCmd_Add"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
             android:background="@drawable/btn_add_selector"
             style="@android:style/ButtonBar"
             />
         <Button
             android:id="@+id/BT_DsiCmd_Apply"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:background="@drawable/btn_filelist_select"
             style="@android:style/ButtonBar"
             android:text="@string/Apply"
@@ -91,7 +93,8 @@
             />
         <Button
             android:id="@+id/BT_DsiCmd_SaveFile"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:background="@drawable/btn_filelist_select"
             style="@android:style/ButtonBar"
             android:text="@string/SaveToFile"
@@ -102,7 +105,8 @@
 
         <Button
             android:id="@+id/BT_DsiCmd_Discard"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:background="@drawable/btn_filelist_select"
             style="@android:style/ButtonBar"
             android:text="@string/Discard"
@@ -111,7 +115,8 @@
             />
         <Button
             android:id="@+id/BT_DsiCmd_Delete"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:background="@drawable/btn_filelist_select"
             style="@android:style/ButtonBar"
             android:text="@string/Delete"

@@ -106,13 +106,18 @@ public class InitialCodeListFragment extends Fragment implements AdapterView.OnI
 
     private void init(){
         ArrayList<String> filelist = getInitilFilelist();
-
-        for(int i =0; i< filelist.size();i++){
-            mInitCodes.add(new InitCode(filelist.get(i)));
-            FLog.d(TAG,"init index="+i);
-            FLog.d(TAG,"init mInitCodes.get(i).mCmds.size()="+mInitCodes.get(i).mCmds.size());
-            FLog.d(TAG,"init mInitCodes.get(i).mCmds.get(0).getAddress()="+mInitCodes.get(i).mCmds.get(0).getAddress());
-            FLog.d(TAG,"init mInitCodes.get(i).mCmds.get(0).getValue()="+mInitCodes.get(i).mCmds.get(0).getValue());
+        FLog.d(TAG,"filelist.size()="+filelist.size());
+        for(int i =0, j=0; i< filelist.size();i++){
+            File file = new File(filelist.get(i));
+            if(file.exists()) {
+                mInitCodes.add(new InitCode(filelist.get(i)));
+                FLog.d(TAG, "init i index=" + i);
+                FLog.d(TAG, "init j index=" + j);
+                FLog.d(TAG, "init mInitCodes.get(j).mCmds.size()=" + mInitCodes.get(j).mCmds.size());
+                FLog.d(TAG, "init mInitCodes.get(j).mCmds.get(0).getAddress()=" + mInitCodes.get(j).mCmds.get(0).getAddress());
+                FLog.d(TAG, "init mInitCodes.get(j).mCmds.get(0).getValue()=" + mInitCodes.get(j).mCmds.get(0).getValue());
+                j++;
+            }
         }
         FLog.d(TAG,"init mInitCodes size="+mInitCodes.size());
     }
