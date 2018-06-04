@@ -81,7 +81,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.jadard.henry.jpvr.Utils.FileSelect.FileListFragment;
+
 import com.jadard.henry.jpvr.Utils.KeyData;
 import com.jadard.henry.jpvr.Utils.UtilsSharedPref;
 import com.github.clans.fab.FloatingActionButton;
@@ -126,11 +126,11 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
                                                     , UtilsSharedPref.AsyncResponse, OnDirectoryChooserFragmentInteraction, View.OnClickListener {
 
     private ImageView imageView, IV_Pic;
-    private LinearLayout LL_Top, LL_Bottom,LL_FileInfo,LL_ALL,LL_ALS,LL_CABC,LL_CE,LL_MixEff,LL_MipiCmdBar,LL_PWM_MODE,LL_CABC_MODE;
+    private LinearLayout LL_Top, LL_Bottom,LL_FileInfo,LL_ALL,LL_ALS,LL_CABC,LL_CE,LL_MixEff,LL_MipiCmdBar,LL_PWM_MODE,LL_CABC_MODE,LL_OtherFunc,LL_CABC_STRENGTH;
     private TextView TV_WriteAddress, TV_WriteValue, TV_ReadAddress, TV_ReadValue,TV_Filename,TV_ImgInfo,TV_PanelSize;
     private EditText ET_CmdAddress,ET_CmdValue,ET_CmdLength;
     private Button BT_CmdWrite, BT_CmdRead,BT_fnc,BT_CE_parameter1,BT_CE_parameter2,BT_CE_parameter3, BT_PanelSelect;
-    private Button BT_SLR_ModeHigh,BT_SLR_ModeMedium,BT_SLR_ModeLow,BT_SLR_ModeOff;
+    private Button BT_SLR_ModeHigh,BT_SLR_ModeMedium,BT_SLR_ModeLow,BT_SLR_ModeOff,BT_OtherFunc1,BT_OtherFunc2,BT_CABC_Strength1,BT_CABC_Strength2;
     private SeekBar SB_SLR = null, SB_LUMEN;
     private Switch SW_ALS,SW_CABC,SW_Mix_Eff,SW_CE;
     private RelativeLayout RL_BTS;
@@ -140,6 +140,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
     static public UtilsSharedPref.PanelName JD_PanelName;
     private Display	mDisplay2nd = null;
     private DualPresentation mDualPresentation = null;
+    private boolean bR6Eh_10H = false;
 
 
     private FloatingActionButton FAB_Right,FAB_Left,FAB_Setting, FAB_Display, FAB_Add,/*FAB_OBR,*/FAB_Play;
@@ -174,7 +175,8 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
     static public int DP_HEIGHT= 0;
     static private boolean bDisableCABC = true;
     static private boolean bDisableModeCABC = true;
-    static private boolean bDisableCE = false;
+    static private boolean bDisableCABC_Strength = false;
+    static private boolean bDisableCE = true;
     static private boolean bDisableSLR = true;
     static private boolean bDisableModeSLR = true;
     static private boolean bDisableMixEffect = true;
@@ -183,6 +185,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
     static private boolean bDisableBacklightControl = true;
     static private boolean bDisableCmdInfoDetail = true;
     static private boolean bXiaomiCEParameters = true;
+    static private boolean bDisableOtherFunc = true;
     private int mModel = MD_ZT;
 
 
@@ -222,6 +225,9 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
 //                IV_Pic.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN);
 //            requestWindowFeature(Window.FEATURE_NO_TITLE);
 //            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            if(LL_OtherFunc!=null ){
+                LL_OtherFunc.setVisibility(View.INVISIBLE);
+            }
 
             toggleHideyBar();
         }
@@ -336,6 +342,10 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
 //            LL_ALS.setVisibility(View.VISIBLE);
         if(LL_MixEff!=null && !bDisableMixEffect)
             LL_MixEff.setVisibility(View.VISIBLE);
+
+        if(LL_OtherFunc!=null && !bDisableOtherFunc){
+            LL_OtherFunc.setVisibility(View.VISIBLE);
+        }
 
 
 //        IV_Pic.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
@@ -593,21 +603,22 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         }
 
         if(JD_PanelName == UtilsSharedPref.PanelName.JD9365D){
-             bDisableCABC = false;
+             bDisableCABC = true;
              bDisableCE = false;
-             bDisableSLR = false;
+             bDisableSLR = true;
              bDisableMixEffect = true;
              bDisableGridButton = true;
              bDisablePWMControl = true;
-            bDisableModeCABC = false;
+            bDisableModeCABC = true;
         }else if(JD_PanelName == UtilsSharedPref.PanelName.JD9365Z){
             bDisableCABC = false;
-            bDisableCE = false;
-            bDisableSLR = false;
+            bDisableCE = true;
+            bDisableSLR = true;
             bDisableMixEffect = true;
             bDisableGridButton = true;
             bDisablePWMControl = false;
-            bDisableModeCABC = false;
+            bDisableModeCABC = true;
+            bDisableCABC_Strength = true;
         }
 
 
@@ -621,6 +632,8 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         LL_CABC = (LinearLayout) findViewById(R.id.LL_CABC);
         LL_CABC_MODE = (LinearLayout) findViewById(R.id.LL_CABC_MODE);
         LL_PWM_MODE = (LinearLayout) findViewById(R.id.LL_PWM_MODE);
+        LL_OtherFunc = (LinearLayout)findViewById(R.id.LL_OtherFunc);
+        LL_CABC_STRENGTH = (LinearLayout)findViewById(R.id.LL_CABC_STRENGTH);
 
         LL_CE = (LinearLayout) findViewById(R.id.LL_CE);
         LL_MixEff = (LinearLayout) findViewById(R.id.LL_MIX_EFF);
@@ -650,6 +663,17 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         BT_CE_parameter1.setOnClickListener(this);
         BT_CE_parameter2.setOnClickListener(this);
         BT_CE_parameter3.setOnClickListener(this);
+        BT_CABC_Strength1 = (Button)findViewById(R.id.BT_CABC_Strength1);
+        BT_CABC_Strength2 = (Button)findViewById(R.id.BT_CABC_Strength2);
+        BT_CABC_Strength1.setOnClickListener(this);
+        BT_CABC_Strength2.setOnClickListener(this);
+
+
+        BT_OtherFunc1 = (Button)findViewById(R.id.BT_OtherFunc1);
+        BT_OtherFunc2 = (Button)findViewById(R.id.BT_OtherFunc2);
+        BT_OtherFunc1.setOnClickListener(this);
+        BT_OtherFunc2.setOnClickListener(this);
+
 
         RG_CABC_Mode = (RadioGroup)findViewById(R.id.RG_CABC_Mode);
         RG_PWM_Mode = (RadioGroup)findViewById(R.id.RG_PWM_Mode);
@@ -820,6 +844,10 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
                 BT_SLR_ModeMedium.setVisibility(View.INVISIBLE);
         }
 
+        if(bDisableOtherFunc){
+            LL_OtherFunc.setVisibility(View.INVISIBLE);
+        }
+
         if(SW_CABC!=null && !bDisableCABC){
             //SW_CABC.setOnCheckedChangeListener(KeySwitchListener);
             //SW_CABC.setChecked(UtilsSharedPref.isCABCEnabled());
@@ -973,6 +1001,14 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
                 LL_ALS.setVisibility(View.INVISIBLE);
             else
                 LL_ALS.setVisibility(View.VISIBLE);
+        }
+
+        if(LL_CABC_STRENGTH!=null){
+            if(bDisableCABC_Strength){
+                LL_CABC_STRENGTH.setVisibility(View.INVISIBLE);
+            }else{
+                LL_CABC_STRENGTH.setVisibility(View.VISIBLE);
+            }
         }
 
         resetUI();
@@ -1336,15 +1372,22 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
                         LL_ALS.setVisibility(View.INVISIBLE);
                     if(LL_CABC!=null)
                         LL_CABC.setVisibility(View.INVISIBLE);
+                    if(LL_CABC_STRENGTH!=null){
+                        LL_CABC_STRENGTH.setVisibility(View.INVISIBLE);
+                    }
                 }else if(bDisableSLR && !bDisableCABC){
                     if(LL_ALS!=null)
                         LL_ALS.setVisibility(View.INVISIBLE);
                     if(LL_CABC!=null) {
                         if (LL_CABC.getVisibility() == View.VISIBLE) {
                             LL_CABC.setVisibility(View.INVISIBLE);
+                            LL_CABC_STRENGTH.setVisibility(View.INVISIBLE);
                             UtilsSharedPref.setDisplayCABCCtrl(false);
                         } else {
                             LL_CABC.setVisibility(View.VISIBLE);
+                            if(!bDisableCABC_Strength){
+                                LL_CABC_STRENGTH.setVisibility(View.VISIBLE);
+                            }
                             UtilsSharedPref.setDisplayCABCCtrl(true);
                         }
                     }
@@ -1377,6 +1420,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
                         }
                     }
                 }
+
                 return;
             }
             if(v.getId() == R.id.FAB_Display){
@@ -1823,18 +1867,29 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
     }
 
     private void jd9365z_CABC_Ctrl1(){
-        echoShellCommand("DF 01",GenWrite);//page 0
-        echoShellCommand("B7 00 80 99 B2 CB E4 ED F3 F9 FF 66 C0 80 34 00 17 15", GenWrite);
+        echoShellCommand("DE 01",GenWrite);//page 0
+        echoShellCommand("B7 00 80 99 B2 CB E4 ED F3 F9 FF 66 C0 80 34 00 08 08", GenWrite);
     }
 
     private void jd9365z_CABC_Ctrl2(){
-        echoShellCommand("DF 01",GenWrite);//page 0
-        echoShellCommand("B7 00 80 99 B2 CB E4 ED F3 F9 FF 66 C0 80 34 00 08 08", GenWrite);
+        echoShellCommand("DE 01",GenWrite);//page 0
+        echoShellCommand("B7 00 80 99 B2 CB E4 ED F3 F9 FF 66 C0 80 34 00 10 0F ", GenWrite);
     }
     private void jd9365z_CABC_Ctrl3(){
-        echoShellCommand("DF 01",GenWrite);//page 0
-        echoShellCommand("B7 00 80 99 B2 CB E4 ED F3 F9 FF 66 C0 80 34 01 0F 0E", GenWrite);
+        echoShellCommand("DE 01",GenWrite);//page 0
+        echoShellCommand("B7 00 80 99 B2 CB E4 ED F3 F9 FF 66 C0 80 34 01 08 0E", GenWrite);
     }
+
+    private void jd9365z_CE_Para1(){
+        echoShellCommand("DE 01",GenWrite);//page 1
+        echoShellCommand("B3 0B 45 30 20 30 05 50 07 00 00 00 1E 1F 21 21", GenWrite);
+    }
+
+    private void jd9365z_CE_Para2(){
+        echoShellCommand("DE 01",GenWrite);//page 1
+        echoShellCommand("B3 0B 45 30 20 30 05 50 07 00 00 00 1D 1B 1D 1F", GenWrite);
+    }
+
 
 
     private void setColorEnhance(boolean enable){
@@ -2389,6 +2444,28 @@ final int REQUEST_DIRECTORY = 1001;
                 echoShellCommand("55 50",GenWrite);
                 resetUI();
                 break;
+            case R.id.BT_OtherFunc1:
+                if(JD_PanelName == UtilsSharedPref.PanelName.JD9365D){
+                    echoShellCommand("E0 02",GenWrite);//page 2
+                    echoShellCommand("6E 10",GenWrite);
+                    echoShellCommand("E0 00",GenWrite);//page 0
+                    resetUI();
+                }
+                break;
+            case R.id.BT_OtherFunc2:
+                if(JD_PanelName == UtilsSharedPref.PanelName.JD9365D){
+                    echoShellCommand("E0 02",GenWrite);//page 2
+                    echoShellCommand("6E 04",GenWrite);
+                    echoShellCommand("E0 00",GenWrite);//page 0
+                    resetUI();
+                }
+                break;
+            case R.id.BT_CABC_Strength1:
+                jd9365z_CABC_Ctrl1();
+                break;
+            case R.id.BT_CABC_Strength2:
+                jd9365z_CABC_Ctrl2();
+                break;
         }
     }
     boolean mCE_loading =false;
@@ -2419,7 +2496,8 @@ final int REQUEST_DIRECTORY = 1001;
                         ret = true;
                     }
                     else if(JD_PanelName.equals(UtilsSharedPref.PanelName.JD9365Z)) {
-                        jd9365z_CABC_Ctrl1();
+//                        jd9365z_CABC_Ctrl1();
+                        jd9365z_CE_Para1();
                         ret = true;
                     }
                     break;
@@ -2428,7 +2506,8 @@ final int REQUEST_DIRECTORY = 1001;
                         enableXiaomiCEParameters2();
                         ret = true;
                     }else if(JD_PanelName.equals(UtilsSharedPref.PanelName.JD9365Z)) {
-                        jd9365z_CABC_Ctrl2();
+                        //jd9365z_CABC_Ctrl2();
+                        jd9365z_CE_Para2();
                         ret = true;
                     }
                     break;
@@ -2438,8 +2517,8 @@ final int REQUEST_DIRECTORY = 1001;
                         ret = true;
                     }
                     else if(JD_PanelName.equals(UtilsSharedPref.PanelName.JD9365Z)) {
-                        jd9365z_CABC_Ctrl3();
-                        ret = true;
+                        //jd9365z_CABC_Ctrl3();
+//                        ret = true;
                     }
                     break;
             }
@@ -2699,95 +2778,12 @@ final int REQUEST_DIRECTORY = 1001;
         FLog.d("JPVR", "getId: " + view.getId());
     }
 
-    // Create a BroadcastReceiver for ACTION_FOUND.
-//    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
-//        public void onReceive(Context context, Intent intent) {
-//            String action = intent.getAction();
-//            FLog.e(TAG,"BroadcastReceiver action="+action);
-//            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-//                // Discovery has found a device. Get the BluetoothDevice
-//                // object and its info from the Intent.
-//                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-//                String deviceName = device.getName();
-//                String deviceHardwareAddress = device.getAddress(); // MAC address
-//                FLog.e(TAG,"BroadcastReceiver deviceName"+deviceName);
-//                FLog.e(TAG,"BroadcastReceiver deviceHardwareAddress"+deviceHardwareAddress);
-//            }
-//        }
-//    };
 
-//    private BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
-//        @Override
-//        public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
-//            super.onConnectionStateChange(gatt, status, newState);
-//            FLog.v(TAG, "Connection State Changed: " + (newState == BluetoothProfile.STATE_CONNECTED ? "Connected" : "Disconnected"));
-////            if(newState == BluetoothProfile.STATE_CONNECTED) {
-////
-////            } else {
-////
-////            }
-//        }
-//    };
-
-//    private Boolean connect(BluetoothDevice bdDevice) {
-//        Boolean bool = false;
-//        try {
-//            FLog.i("Log", "service method is called ");
-//            Class cl = Class.forName("android.bluetooth.BluetoothDevice");
-//            Class[] par = {};
-//            Method method = cl.getMethod("createBond", par);
-//            Object[] args = {};
-//            bool = (Boolean) method.invoke(bdDevice);//, args);// this invoke creates the detected devices paired.
-//            //Log.i("Log", "This is: "+bool.booleanValue());
-//            //Log.i("Log", "devicesss: "+bdDevice.getName());
-//        } catch (Exception e) {
-//            FLog.i("Log", "Inside catch of serviceFromDevice Method");
-//            e.printStackTrace();
-//        }
-//        return bool;
-//    };
-
-//    private void connectBT(BluetoothDevice device) throws IOException {
-//        // 固定的UUID
-//        final String SPP_UUID = "00001101-0000-1000-8000-00805F9B34FB";
-//        UUID uuid = UUID.fromString(SPP_UUID);
-//        BluetoothSocket socket = device.createRfcommSocketToServiceRecord(uuid);
-//        socket.connect();
-//    }
-
-//    private void intentBT(){
-////        final Intent intent = new Intent(Intent.ACTION_MAIN, null);
-////        intent.addCategory(Intent.CATEGORY_LAUNCHER);
-////        ComponentName cn = new ComponentName("com.android.settings","com.android.settings.bluetooth.BluetoothSettings");
-////        intent.setComponent(cn);
-////        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-////        startActivity( intent);
-//
-//        Intent intentOpenBluetoothSettings = new Intent();
-//        intentOpenBluetoothSettings.setAction(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS);
-//        startActivity(intentOpenBluetoothSettings);
-//    }
 
     int mCount_keydown = 0;
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if ((keyCode == KeyEvent.KEYCODE_VOLUME_DOWN)){
-            //Do something
-            if(SB_LUMEN!=null && progressLUMEN>0) {
-                if(mCount_keydown>3){
-                    int scale = SB_LUMEN.getMax()/10;
-                    if((progressLUMEN-scale)>=0){
-                        SB_LUMEN.setProgress((progressLUMEN-scale));
-                    }else if(progressLUMEN<scale){
-                        SB_LUMEN.setProgress(0);
-                    }
-                }else {
-                    SB_LUMEN.setProgress(progressLUMEN - 1);
-                }
-            }
-            FLog.e(TAG,"KeyEvent.KEYCODE_VOLUME_DOWN");
-            mCount_keydown++;
-        }
+
         if ((keyCode == KeyEvent.KEYCODE_VOLUME_UP)){
             //Do something
             if(SB_LUMEN!=null && progressLUMEN<SB_LUMEN.getMax()) {
@@ -2803,28 +2799,7 @@ final int REQUEST_DIRECTORY = 1001;
                 }
             }
             mCount_keydown++;
-//            FLog.e(TAG,"KeyEvent.KEYCODE_VOLUME_UP");
-//            BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-//            if(mBluetoothAdapter!=null){
-//                FLog.e(TAG,"mBluetoothAdapter."+mBluetoothAdapter.isEnabled());
-//                if(mBluetoothAdapter.isEnabled()){
-//                    Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
-//                    FLog.e(TAG,"pairedDevices.size()"+pairedDevices.size());
-//                    if (pairedDevices.size() > 0) {
-//                        // There are paired devices. Get the name and address of each paired device.
-//                        for (BluetoothDevice device : pairedDevices) {
-//                            String deviceName = device.getName();
-//                            String deviceHardwareAddress = device.getAddress(); // MAC address
-//
-//                            FLog.e(TAG,"getBondState:"+device.getBondState());
-//                            FLog.e(TAG,"deviceName:"+deviceName);
-//                            FLog.e(TAG,"deviceHardwareAddress:"+deviceHardwareAddress);
-////                            device.connectGatt(this,true,mGattCallback);
-//                            intentBT();
-//                        }
-//                    }
-//                }
-//            }
+
         }
         return true;
     }
@@ -2911,7 +2886,20 @@ final int REQUEST_DIRECTORY = 1001;
                 return true;
             case KeyEvent.KEYCODE_VOLUME_DOWN:
                 FLog.e(TAG,"KeyEvent.KEYCODE_VOLUME_DOWN");
-                mCount_keydown = 0;
+                if(JD_PanelName==UtilsSharedPref.PanelName.JD9366D) {
+                    mCount_keydown = 0;
+                    if (bR6Eh_10H) {
+                        echoShellCommand("E0 02", GenWrite);//page 2
+                        echoShellCommand("6E 04", GenWrite);
+                        echoShellCommand("E0 00", GenWrite);//page 0
+                        bR6Eh_10H = false;
+                    } else {
+                        echoShellCommand("E0 02", GenWrite);//page 2
+                        echoShellCommand("6E 10", GenWrite);
+                        echoShellCommand("E0 00", GenWrite);//page 0
+                        bR6Eh_10H = true;
+                    }
+                }
                 return true;
             default:
                 if(isMipiEditTextInUse){
@@ -2924,6 +2912,11 @@ final int REQUEST_DIRECTORY = 1001;
 //                return super.onKeyUp(keyCode, event);
                 return true;
         }
+    }
+
+    @Override
+    public boolean onKeyMultiple(int i, int i1, KeyEvent keyEvent) {
+        return false;
     }
 
     void toSettingActivity(){

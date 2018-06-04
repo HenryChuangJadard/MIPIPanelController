@@ -53,6 +53,7 @@
     <string name="Brightness">Backlight</string>
     <string name="MIX_EFF">Mix Effect</string>
     <string name="CE">CE</string>
+    <string name="CABC_Strength">CABC Strength</string>
 
     <string name="ErrorRead">Failed to read.</string>
     <string name="ErrorWrite">Failed to write.</string>

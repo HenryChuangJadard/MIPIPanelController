@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 23
-    buildToolsVersion '26'
+    buildToolsVersion '27.0.3'
     useLibrary 'org.apache.http.legacy'
     defaultConfig {
         applicationId 'com.jadard.henry.jpvr'
@@ -19,21 +19,26 @@ android {
     }
     productFlavors {
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.android.support:multidex:1.0.1'
-    compile 'com.android.support:appcompat-v7:23.4.0'
-    compile 'com.android.support:support-v4:23.4.0'
-    compile 'com.github.clans:fab:1.6.4'
-    compile 'com.github.markushi:circlebutton:1.1'
-    compile 'com.github.turhanoz:reactivedirectorychooser:1.0.1'
-    compile 'net.rdrei.android.dirchooser:library:3.2@aar'
-    compile 'com.android.support.constraint:constraint-layout:+'
-    testCompile 'junit:junit:4.12'
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'com.android.support:multidex:1.0.3'
+    implementation 'com.android.support:appcompat-v7:23.4.0'
+    implementation 'com.android.support:support-v4:23.4.0'
+    implementation 'com.github.markushi:circlebutton:1.1'
+    implementation 'com.github.turhanoz:reactivedirectorychooser:1.0.1'
+    implementation 'net.rdrei.android.dirchooser:library:3.2@aar'
+//    implementation 'com.android.support.constraint:constraint-layout:+'
+    testImplementation 'junit:junit:4.12'
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
+    implementation 'com.github.clans:FloatingActionButton:v1.6.4'
+
 }

@@ -185,20 +185,14 @@
         android:layout_height="match_parent"
         android:descendantFocusability="blocksDescendants"
         xmlns:fab="http://schemas.android.com/apk/res-auto"
-        android:gravity="center"
+        android:layout_marginTop="20dp"
+        android:gravity="top"
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true">
-        <com.github.clans.fab.FloatingActionButton
-            android:id="@+id/FAB_Play"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            fab:fab_colorNormal="@color/colorPrimary"
-            fab:fab_colorPressed="@color/colorPrimaryDark"
-            fab:fab_colorRipple="@color/colorAccent"
-            android:src="@android:drawable/ic_media_play"
-            android:layout_centerVertical="true"
-            android:layout_alignParentLeft="true"
-            android:layout_above="@+id/FAB_Add" />
+
+            <!--android:layout_centerVertical="true"-->
+            <!--android:layout_alignParentLeft="true"-->
+            <!--android:layout_above="@+id/FAB_Add" />-->
         <com.github.clans.fab.FloatingActionButton
             android:id="@+id/FAB_Display"
             android:layout_width="wrap_content"
@@ -207,9 +201,8 @@
             fab:fab_colorPressed="@color/colorPrimaryDark"
             fab:fab_colorRipple="@color/colorAccent"
             android:src="@android:drawable/ic_menu_info_details"
-            android:layout_centerVertical="true"
-            android:layout_alignParentRight="true"
-            android:layout_above="@+id/FAB_Setting" />
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true" />
         <com.github.clans.fab.FloatingActionButton
             android:id="@+id/FAB_Setting"
             android:layout_width="wrap_content"
@@ -218,9 +211,8 @@
             fab:fab_colorPressed="@color/colorPrimaryDark"
             fab:fab_colorRipple="@color/colorAccent"
             android:src="@android:drawable/ic_menu_view"
-            android:layout_centerVertical="true"
-            android:layout_alignParentRight="true"
-            android:layout_above="@+id/FAB_Right" />
+            android:layout_alignParentEnd="true"
+            android:layout_below="@+id/FAB_Display" />
         <com.github.clans.fab.FloatingActionButton
             android:id="@+id/FAB_Right"
             android:layout_width="wrap_content"
@@ -229,20 +221,20 @@
             fab:fab_colorPressed="@color/colorPrimaryDark"
             fab:fab_colorRipple="@color/colorAccent"
             android:src="@android:drawable/ic_media_next"
-            android:layout_centerVertical="true"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true" />
+            android:layout_alignParentEnd="true"
+            android:layout_below="@+id/FAB_Setting"/>
+
         <com.github.clans.fab.FloatingActionButton
-            android:id="@+id/FAB_Left"
+            android:id="@+id/FAB_Play"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             fab:fab_colorNormal="@color/colorPrimary"
             fab:fab_colorPressed="@color/colorPrimaryDark"
             fab:fab_colorRipple="@color/colorAccent"
-            android:src="@android:drawable/ic_media_previous"
-            android:layout_centerVertical="true"
+            android:src="@android:drawable/ic_media_play"
+            android:layout_alignParentTop="true"
             android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true" />
+            />
         <com.github.clans.fab.FloatingActionButton
             android:id="@+id/FAB_Add"
             android:layout_width="wrap_content"
@@ -251,22 +243,26 @@
             fab:fab_colorPressed="@color/colorPrimaryDark"
             fab:fab_colorRipple="@color/colorAccent"
             android:src="@android:drawable/ic_menu_gallery"
-            android:layout_above="@id/FAB_Left"
             android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true" />
-        <!--<com.github.clans.fab.FloatingActionButton-->
-            <!--android:id="@+id/FAB_OBR"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--fab:fab_colorNormal="@color/colorPrimary"-->
-            <!--fab:fab_colorPressed="@color/colorPrimaryDark"-->
-            <!--fab:fab_colorRipple="@color/colorAccent"-->
-            <!--android:src="@android:drawable/ic_menu_compass"-->
-            <!--android:layout_centerVertical="true"-->
-            <!--android:layout_alignParentStart="true"-->
+            android:layout_below="@+id/FAB_Play"
+            />
+            <!--android:layout_above="@id/FAB_Left"-->
             <!--android:layout_alignParentLeft="true"-->
-            <!--android:layout_above="@+id/FAB_Setting"-->
-             <!--android:visibility="gone"/>-->
+            <!--android:layout_alignParentStart="true" />-->
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/FAB_Left"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            fab:fab_colorNormal="@color/colorPrimary"
+            fab:fab_colorPressed="@color/colorPrimaryDark"
+            fab:fab_colorRipple="@color/colorAccent"
+            android:src="@android:drawable/ic_media_previous"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@+id/FAB_Add"
+            />
+            <!--android:layout_centerVertical="true"-->
+            <!--android:layout_alignParentLeft="true"-->
+            <!--android:layout_alignParentStart="true" />-->
         <GridView
             android:id="@+id/GV_Fab"
             android:descendantFocusability="blocksDescendants"
@@ -479,9 +475,41 @@
         android:layout_height="wrap_content"
         style="@style/Feature_Control_Style"
         android:orientation="horizontal"
-        android:id="@+id/LL_CE"
+        android:id="@+id/LL_CABC_STRENGTH"
         android:layout_marginBottom="5dp"
         android:layout_above="@+id/LL_CABC">
+        <TextView
+            android:layout_width="80dp"
+            android:gravity="center_horizontal"
+            android:layout_height="wrap_content"
+            android:background="@color/black_overlay"
+            android:text="@string/CABC_Strength"
+            android:textSize="16sp"
+            android:maxLines="1"/>
+        <Button
+            android:id="@+id/BT_CABC_Strength1"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:text="1"
+            android:visibility="visible"
+            android:layout_height="wrap_content" />
+        <Button
+            android:id="@+id/BT_CABC_Strength2"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:text="2"
+            android:visibility="visible"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/Feature_Control_Style"
+        android:orientation="horizontal"
+        android:id="@+id/LL_CE"
+        android:layout_marginBottom="5dp"
+        android:layout_above="@+id/LL_CABC_STRENGTH">
         <TextView
             android:layout_width="80dp"
             android:gravity="center_horizontal"
@@ -500,14 +528,14 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:text="1"
-            android:visibility="gone"
+            android:visibility="visible"
             android:layout_height="wrap_content" />
         <Button
             android:id="@+id/BT_CE_parameter2"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:text="2"
-            android:visibility="gone"
+            android:visibility="visible"
             android:layout_height="wrap_content" />
         <Button
             android:id="@+id/BT_CE_parameter3"
@@ -540,6 +568,27 @@
             android:paddingLeft="10dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/Feature_Control_Style"
+        android:orientation="horizontal"
+        android:id="@+id/LL_OtherFunc"
+        android:layout_marginBottom="5dp"
+        android:layout_above="@+id/LL_MIX_EFF">
+        <Button
+        android:id="@+id/BT_OtherFunc1"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:text="6E:10"
+        android:layout_height="wrap_content" />
+        <Button
+            android:id="@+id/BT_OtherFunc2"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:text="6E:04"
+            android:layout_height="wrap_content" />
     </LinearLayout>
 
     <ImageView
