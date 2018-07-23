@@ -527,22 +527,22 @@
             android:id="@+id/BT_CE_parameter1"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:text="1"
+            android:text="Low"
             android:visibility="visible"
             android:layout_height="wrap_content" />
         <Button
             android:id="@+id/BT_CE_parameter2"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:text="2"
+            android:text="Med"
             android:visibility="visible"
             android:layout_height="wrap_content" />
         <Button
             android:id="@+id/BT_CE_parameter3"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:text="3"
-            android:visibility="gone"
+            android:text="High"
+            android:visibility="visible"
             android:layout_height="wrap_content" />
     </LinearLayout>
 

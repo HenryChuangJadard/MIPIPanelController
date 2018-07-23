@@ -173,16 +173,16 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
     static public String RegRead = "";
     static public String DsiPanelName = "";
     static public int DP_HEIGHT= 0;
-    static private boolean bDisableCABC = true;
+    static private boolean bDisableCABC = false;
     static private boolean bDisableModeCABC = true;
-    static private boolean bDisableCABC_Strength = false;
+    static private boolean bDisableCABC_Strength = true;
     static private boolean bDisableCE = true;
     static private boolean bDisableSLR = true;
     static private boolean bDisableModeSLR = true;
     static private boolean bDisableMixEffect = true;
     static private boolean bDisableGridButton = true;
-    static private boolean bDisablePWMControl = true;
-    static private boolean bDisableBacklightControl = true;
+    static private boolean bDisablePWMControl = false;
+//    static private boolean bDisableBacklightControl = true;
     static private boolean bDisableCmdInfoDetail = true;
     static private boolean bXiaomiCEParameters = true;
     static private boolean bDisableOtherFunc = true;
@@ -528,6 +528,9 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
                 bDisableCE = true;
                 bDisableSLR = true;
                 PanelSize = "Unknown";
+
+                bDisableModeCABC = true;
+                bDisableCABC_Strength = true;
             }
         }
 
@@ -582,6 +585,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         }
 
         mModel = UtilsSharedPref.getModel();
+        FLog.d("Main","mModel="+mModel);
         if(mModel==MD_XiaoMi){
             bDisableCABC = false;
             bDisableCE = false;
@@ -601,7 +605,9 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
 //            bDisableMixEffect = false;
 //            bDisableGridButton = true;
         }
-
+        FLog.d("Main","JD_PanelName="+JD_PanelName);
+        FLog.d("Main","bDisableCABC="+bDisableCABC);
+        FLog.d("Main"," bDisableCE="+bDisableCE);
         if(JD_PanelName == UtilsSharedPref.PanelName.JD9365D){
              bDisableCABC = true;
              bDisableCE = false;
@@ -619,6 +625,9 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
             bDisablePWMControl = false;
             bDisableModeCABC = true;
             bDisableCABC_Strength = true;
+            mDisplay2nd = null;
+            mDualPresentation=null;
+
         }
 
 
@@ -708,6 +717,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
 
 
         FLog.d("LL_CABC_MODE","2 bDisableCABC="+bDisableCABC);
+        FLog.d("LL_CE_MODE"," bDisableCE="+bDisableCE);
         if(bDisableCABC){
             if(LL_PWM_MODE!=null)
                 LL_PWM_MODE.setVisibility(View.INVISIBLE);
@@ -757,7 +767,9 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         }
 
         File file = new File(RegRead2_Lollipop);
-        if(file.exists()){
+
+
+        if(file.exists() && JD_PanelName != UtilsSharedPref.PanelName.JD9365Z){
             BT_PanelSelect.setVisibility(View.VISIBLE);
             BT_PanelSelect.setOnClickListener(this);
         }else{
@@ -1699,7 +1711,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
             }
             value = "00";
             IEC = 0x0;
-            if(SW_Mix_Eff.isChecked()){
+            if(!bDisableMixEffect && SW_Mix_Eff.isChecked()){
                 if(SW_ALS.isChecked() && SW_CE.isChecked()){
                     IEC=0xE;
                 }else if(!SW_ALS.isChecked() && SW_CE.isChecked()){
@@ -1714,7 +1726,10 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
                 if(SW_ALS.isChecked()){
                     IEC=0x6;
                 }else if(SW_CE.isChecked()){
-                    IEC=0xB;
+                    IEC=0x8;
+                    // 0x80 // low
+                    // 0x90 // med
+                    // 0xb0 // high
                 }else{
                     IEC=0;
                 }
@@ -1880,12 +1895,14 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         echoShellCommand("B7 00 80 99 B2 CB E4 ED F3 F9 FF 66 C0 80 34 01 08 0E", GenWrite);
     }
 
+    //default 0xb3: 0x0f 0x45 0x30 0x20 0x30 0x05 0x50 0x0c 0x00 0x00 0x00 0x20 0x21 0x23 0x24
     private void jd9365z_CE_Para1(){
         echoShellCommand("DE 01",GenWrite);//page 1
         echoShellCommand("B3 0B 45 30 20 30 05 50 07 00 00 00 1E 1F 21 21", GenWrite);
     }
 
-    private void jd9365z_CE_Para2(){
+    private void
+    jd9365z_CE_Para2(){
         echoShellCommand("DE 01",GenWrite);//page 1
         echoShellCommand("B3 0B 45 30 20 30 05 50 07 00 00 00 1D 1B 1D 1F", GenWrite);
     }
@@ -1905,6 +1922,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
                 value = get_9365_55h_Config();
                 echoShellCommand("DE 00",GenWrite);//page 0
                 echoShellCommand("55 "+value,GenWrite);
+//                new setCEloadingAsyncTask().execute(1);
             }else {
                 echoShellCommand("DE 01", GenWrite);
                 echoShellCommand("B2 0A",GenWrite);
@@ -2403,16 +2421,39 @@ final int REQUEST_DIRECTORY = 1001;
                 toCmdActivity();
                 break;
             case R.id.BT_CE_parameter1:
-                new setCEloadingAsyncTask().execute(1);
-                resetUI();
+                if(SW_CE.isChecked()) {
+
+                    if(JD_PanelName.equals(UtilsSharedPref.PanelName.JD9365Z)) {
+                        echoShellCommand("DE 00", GenWrite);//page 0
+                        echoShellCommand("55 80", GenWrite);//ce low
+                    }else{
+                        new setCEloadingAsyncTask().execute(1);
+                        resetUI();
+                    }
+                }
                 break;
             case R.id.BT_CE_parameter2:
-                new setCEloadingAsyncTask().execute(2);
-                resetUI();
+                if(SW_CE.isChecked()) {
+                    if(JD_PanelName.equals(UtilsSharedPref.PanelName.JD9365Z)) {
+                        echoShellCommand("DE 00", GenWrite);//page 0
+                        echoShellCommand("55 90", GenWrite);//ce med
+                        new setCEloadingAsyncTask().execute(1);
+                    }else {
+                        new setCEloadingAsyncTask().execute(2);
+                        resetUI();
+                    }
+                }
                 break;
             case R.id.BT_CE_parameter3:
-                new setCEloadingAsyncTask().execute(3);
-                resetUI();
+                if(SW_CE.isChecked()) {
+                    if(JD_PanelName.equals(UtilsSharedPref.PanelName.JD9365Z)) {
+                        echoShellCommand("DE 00", GenWrite);//page 0
+                        echoShellCommand("55 B0", GenWrite);//ce high
+                    }else {
+                        new setCEloadingAsyncTask().execute(3);
+                        resetUI();
+                    }
+                }
                 break;
             case R.id.BT_PanelSelect:
                 int i = Integer.valueOf(BT_PanelSelect.getText().toString().trim());
@@ -2478,7 +2519,9 @@ final int REQUEST_DIRECTORY = 1001;
             BT_CE_parameter1.setClickable(false);
             BT_CE_parameter2.setClickable(false);
             BT_CE_parameter3.setClickable(false);
-            Toast.makeText(MainActivity.this,"CE loading...",Toast.LENGTH_SHORT).show();
+            if(!JD_PanelName.equals(UtilsSharedPref.PanelName.JD9365Z)) {
+                Toast.makeText(MainActivity.this, "CE loading...", Toast.LENGTH_SHORT).show();
+            }
         }
 
         @Override
@@ -2528,7 +2571,9 @@ final int REQUEST_DIRECTORY = 1001;
         @Override
         protected void onPostExecute(Boolean result){
             if(result){
-                Toast.makeText(MainActivity.this,"CE "+ce_parameter+"  done.",Toast.LENGTH_SHORT).show();
+                if(!JD_PanelName.equals(UtilsSharedPref.PanelName.JD9365Z)) {
+                    Toast.makeText(MainActivity.this, "CE " + ce_parameter + "  done.", Toast.LENGTH_SHORT).show();
+                }
             }
             mCE_loading = false;
             BT_CE_parameter1.setClickable(true);
