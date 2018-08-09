@@ -123,9 +123,9 @@ import static java.security.AccessController.getContext;
 
 public class MainActivity extends AppCompatActivity implements DialogInterface.OnKeyListener
                                                     , KeyEvent.Callback
-                                                    , UtilsSharedPref.AsyncResponse, OnDirectoryChooserFragmentInteraction, View.OnClickListener {
+                                                    , UtilsSharedPref.AsyncResponse, OnDirectoryChooserFragmentInteraction, View.OnClickListener, View.OnTouchListener {
 
-    private ImageView imageView, IV_Pic;
+    private ImageView IV_Pic;
     private LinearLayout LL_Top, LL_Bottom,LL_FileInfo,LL_ALL,LL_ALS,LL_CABC,LL_CE,LL_MixEff,LL_MipiCmdBar,LL_PWM_MODE,LL_CABC_MODE,LL_OtherFunc,LL_CABC_STRENGTH;
     private TextView TV_WriteAddress, TV_WriteValue, TV_ReadAddress, TV_ReadValue,TV_Filename,TV_ImgInfo,TV_PanelSize;
     private EditText ET_CmdAddress,ET_CmdValue,ET_CmdLength;
@@ -187,6 +187,8 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
     static private boolean bXiaomiCEParameters = true;
     static private boolean bDisableOtherFunc = true;
     private int mModel = MD_ZT;
+    private float x1,x2;
+    static final int MIN_DISTANCE = 150;
 
 
     static final boolean FIH_PLATFORM = false;
@@ -198,13 +200,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
     String filePath = Environment.getExternalStorageDirectory().getAbsolutePath() + APP_PATH + "/img/";
 
     Handler mDimdelayHandler=new Handler();
-    Runnable mDImRunnable=new Runnable() {
-
-        @Override
-        public void run() {
-            echoShellCommand("53 24",GenWrite);
-        }
-    };
+    Runnable mDImRunnable= () -> echoShellCommand("53 24",GenWrite);
 
     Handler mHandler=new Handler();
     Runnable mRunnable=new Runnable() {
@@ -274,6 +270,8 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
 
         this.getWindow().getDecorView().setSystemUiVisibility(newUiOptions);
     }
+
+
 
     private class DualPresentation extends Presentation
     {
@@ -556,12 +554,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
 //        if(f!=null && f.exists() && f.listFiles()!=null)
             filelist = f.listFiles();
             if(filelist!=null && filelist.length>1) {
-                Arrays.sort(filelist, new Comparator<File>() {
-                    @Override
-                    public int compare(File object1, File object2) {
-                        return object1.getName().compareTo(object2.getName());
-                    }
-                });
+                Arrays.sort(filelist, (object1, object2) -> object1.getName().compareTo(object2.getName()));
             }
             fileIndex = UtilsSharedPref.getDisplayImgIndex();
             if(fileIndex >= filelist.length)
@@ -699,13 +692,9 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         GV_Fab.setAdapter(mFabAdapter);
         GV_Fab.setNumColumns(4);
         GV_Fab.setFocusableInTouchMode(true);
-        GV_Fab.setOnTouchListener(new View.OnTouchListener(){
-
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                resetUI();
-                return false;
-            }
+        GV_Fab.setOnTouchListener((v, event) -> {
+            resetUI();
+            return false;
         });
 
         if(bDisableCABC && LL_CABC!=null){
@@ -953,13 +942,11 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
             TV_ImgInfo.setText(str);
             IV_Pic.setImageBitmap(bitmap);
         }
-        IV_Pic.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        IV_Pic.setOnClickListener(v -> {
 //                changeFitScreen();
-                resetUI();
-            }
+            resetUI();
         });
+        IV_Pic.setOnTouchListener(this);
 
         if(bDisableGridButton && GV_Fab!=null){
             GV_Fab.setVisibility(View.GONE);
@@ -1047,19 +1034,16 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
 
     }
 
-    private View.OnFocusChangeListener ET_CmdFocusListener =  new View.OnFocusChangeListener() {
-        @Override
-        public void onFocusChange(View v, boolean hasFocus) {
+    private View.OnFocusChangeListener ET_CmdFocusListener = (v, hasFocus) -> {
 
-            FLog.d(TAG, "ET_CmdFocusListener v.getID():" +v.getId());
-            FLog.d(TAG, "ET_CmdFocusListener hasFocus:" +hasFocus);
-            if(hasFocus){
-                hideUI();
-                isMipiEditTextInUse = true;
-            }
-            else{
-                isMipiEditTextInUse= false;
-            }
+        FLog.d(TAG, "ET_CmdFocusListener v.getID():" +v.getId());
+        FLog.d(TAG, "ET_CmdFocusListener hasFocus:" +hasFocus);
+        if(hasFocus){
+            hideUI();
+            isMipiEditTextInUse = true;
+        }
+        else{
+            isMipiEditTextInUse= false;
         }
     };
 
@@ -1132,19 +1116,17 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
                 sb.append("]");
 //                String mesg = getResources().getString(R.string.AddCommand,isRead ? "Read " : "Write ",address,value);
 //                AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
-                new AlertDialog.Builder(MainActivity.this).setCancelable(false).setTitle(R.string.AddingMipiCmdTitle).setMessage(sb).setPositiveButton("OK",new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface arg0, int arg1) {
-                                FLog.v(TAG,"mMipiCmdOnLongClickListener added");
-                                ArrayList<KeyData> keyDatas = UtilsSharedPref.getKeyDatas();
-                                KeyData kd = new KeyData(isRead,k,address,value,true,length);
-                                keyDatas.add(kd);
-                                UtilsSharedPref.setPrefSettings(keyDatas);
-                                mFabAdapter = new FabAdapter(MainActivity.this,keyDatas,mAsyncDoKeyDataResponse);
-                                GV_Fab.setAdapter(mFabAdapter);
-                                mFabAdapter.notifyDataSetChanged();
-                            }
-                        }
-                        ).setNegativeButton(R.string.Cancel,null).show();
+                new AlertDialog.Builder(MainActivity.this).setCancelable(false).setTitle(R.string.AddingMipiCmdTitle).setMessage(sb).setPositiveButton("OK", (arg0, arg1) -> {
+                    FLog.v(TAG,"mMipiCmdOnLongClickListener added");
+                    ArrayList<KeyData> keyDatas = UtilsSharedPref.getKeyDatas();
+                    KeyData kd = new KeyData(isRead,k,address,value,true,length);
+                    keyDatas.add(kd);
+                    UtilsSharedPref.setPrefSettings(keyDatas);
+                    mFabAdapter = new FabAdapter(MainActivity.this,keyDatas,mAsyncDoKeyDataResponse);
+                    GV_Fab.setAdapter(mFabAdapter);
+                    mFabAdapter.notifyDataSetChanged();
+                }
+                ).setNegativeButton(R.string.Cancel,null).show();
 
 //                new AlertDialog.Builder(getBaseContext()).setCancelable(false).setMessage("").setTitle(R.string.AddingMipiCmdTitle).setNegativeButton(R.string.Cancel, new DialogInterface.OnClickListener() {
 //                    // do something when the button is clicked
@@ -1309,48 +1291,44 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
 
             AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
             dialog.setView(view);
-            dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                // do something when the button is clicked
-                public void onClick(DialogInterface arg0, int arg1) {
-                    String key = "";
-                    String address ;
-                    String value ;
-                    Boolean mode ;
-                    Boolean enable ;
-                    FLog.d(TAG, "setPositiveButton:");
-                    int length = UtilsSharedPref.KEY_LENGTH_DEFAULT;
-                    if(SP_Key!=null){
-                        key = keys.get(SP_Key.getSelectedItemPosition());
-                        FLog.d("SP_Key","getSelectedItemPosition("+SP_Key.getSelectedItemPosition()+") :"+keys.get(SP_Key.getSelectedItemPosition()));
-                    }
-                    if (!key.equals("") &&
-                        !ET_Address.getText().toString().equals("") &&
-                        !ET_Value.getText().toString().equals("")) {
-
-                        FLog.d(TAG, "Add key:" + key);
-                        address = ET_Address.getText().toString().trim();
-                        value = ET_Value.getText().toString().trim();
-                        mode = RB_ReadMode.isChecked();
-                        enable = SW_Key.isChecked();
-                        if (!ET_Length.getText().toString().trim().equals("")) {
-                            length = Integer.valueOf(ET_Length.getText().toString().trim());
-                        }
-                        KeyData newkd = new KeyData(mode, key, address, value, enable, length);
-                        newkd.updateToPrefDB();
-
-                        mFabAdapter = new FabAdapter(MainActivity.this,UtilsSharedPref.getKeyDatas(),mAsyncDoKeyDataResponse);
-                        GV_Fab.setAdapter(mFabAdapter);
-                        mFabAdapter.notifyDataSetChanged();
-
-                    }
-                    resetUI();
+            // do something when the button is clicked
+            dialog.setPositiveButton("OK", (arg0, arg1) -> {
+                String key = "";
+                String address ;
+                String value ;
+                Boolean mode ;
+                Boolean enable ;
+                FLog.d(TAG, "setPositiveButton:");
+                int length = UtilsSharedPref.KEY_LENGTH_DEFAULT;
+                if(SP_Key!=null){
+                    key = keys.get(SP_Key.getSelectedItemPosition());
+                    FLog.d("SP_Key","getSelectedItemPosition("+SP_Key.getSelectedItemPosition()+") :"+keys.get(SP_Key.getSelectedItemPosition()));
                 }
+                if (!key.equals("") &&
+                    !ET_Address.getText().toString().equals("") &&
+                    !ET_Value.getText().toString().equals("")) {
+
+                    FLog.d(TAG, "Add key:" + key);
+                    address = ET_Address.getText().toString().trim();
+                    value = ET_Value.getText().toString().trim();
+                    mode = RB_ReadMode.isChecked();
+                    enable = SW_Key.isChecked();
+                    if (!ET_Length.getText().toString().trim().equals("")) {
+                        length = Integer.valueOf(ET_Length.getText().toString().trim());
+                    }
+                    KeyData newkd = new KeyData(mode, key, address, value, enable, length);
+                    newkd.updateToPrefDB();
+
+                    mFabAdapter = new FabAdapter(MainActivity.this,UtilsSharedPref.getKeyDatas(),mAsyncDoKeyDataResponse);
+                    GV_Fab.setAdapter(mFabAdapter);
+                    mFabAdapter.notifyDataSetChanged();
+
+                }
+                resetUI();
             });
-            dialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                // do something when the button is clicked
-                public void onClick(DialogInterface arg0, int arg1) {
-                    //...
-                }
+            // do something when the button is clicked
+            dialog.setNegativeButton("Cancel", (arg0, arg1) -> {
+                //...
             });
             dialog.show();
 
@@ -2234,12 +2212,7 @@ final int REQUEST_DIRECTORY = 1001;
                     File selectFolder = new File(filePath);
                     filelist = selectFolder.listFiles();
                     if(filelist!=null && filelist.length>1) {
-                        Arrays.sort(filelist, new Comparator<File>() {
-                            @Override
-                            public int compare(File object1, File object2) {
-                                return object1.getName().compareTo(object2.getName());
-                            }
-                        });
+                        Arrays.sort(filelist, (object1, object2) -> object1.getName().compareTo(object2.getName()));
                     }
                     fileIndex = 0;
                     UtilsSharedPref.setImagesFolder(filePath);
@@ -2258,12 +2231,7 @@ final int REQUEST_DIRECTORY = 1001;
             filePath = onDirectoryChosenEvent.getFile().getAbsolutePath() + "/";
             filelist = file.listFiles();
             if(filelist!=null && filelist.length>1) {
-                Arrays.sort(filelist, new Comparator<File>() {
-                    @Override
-                    public int compare(File object1, File object2) {
-                        return object1.getName().compareTo(object2.getName());
-                    }
-                });
+                Arrays.sort(filelist, (object1, object2) -> object1.getName().compareTo(object2.getName()));
             }
 //        FLog.d(TAG,"filelist length="+filelist.length);
 //        for(int i=0;i<filelist.length;i++){
@@ -2986,7 +2954,7 @@ final int REQUEST_DIRECTORY = 1001;
         Bitmap bmp = null;
         if(filelist!=null && filelist.length>fileIndex) {
             bmp = BitmapFactory.decodeFile(filePath + filelist[fileIndex].getName(), op);
-            FLog.d("JPVR", "file name: " + filePath + filelist[fileIndex].getName());
+            FLog.d("JPVR", "fileIndex="+fileIndex+", file name: " + filePath + filelist[fileIndex].getName());
         }
 
 //        IV_Pic.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN);
@@ -3281,14 +3249,7 @@ final int REQUEST_DIRECTORY = 1001;
         resetUI();
     }
 
-    RadioGroup.OnCheckedChangeListener CABC_OnCheckedChangeListener = new RadioGroup.OnCheckedChangeListener()
-    {
-        @Override
-        public void onCheckedChanged(RadioGroup group, int select_CABC_Mode) {
-
-            select_CABC_Mode(select_CABC_Mode);
-        }
-    };
+    RadioGroup.OnCheckedChangeListener CABC_OnCheckedChangeListener = (group, select_CABC_Mode) -> select_CABC_Mode(select_CABC_Mode);
 
     private void select_PWM_Mode_9365Z(int checkedId){
         FLog.d(TAG,"select_PWM_Mode checkedId="+checkedId);
@@ -3355,6 +3316,39 @@ final int REQUEST_DIRECTORY = 1001;
             }
         }
     };
+
+
+    @Override
+    public boolean onTouch(View view, MotionEvent event) {
+        switch(event.getAction())
+        {
+            case MotionEvent.ACTION_DOWN:
+                x1 = event.getX();
+                break;
+            case MotionEvent.ACTION_UP:
+                x2 = event.getX();
+                float deltaX = x2 - x1;
+                if (Math.abs(deltaX) > MIN_DISTANCE)
+                {
+                    if(x1>x2) {
+                        fileIndex++;
+                        if (fileIndex >= filelist.length)
+                            fileIndex = 0;
+                        loadImage();
+
+                    }else{
+                        fileIndex--;
+                        if (fileIndex < 0)
+                            fileIndex = filelist.length - 1;
+                        loadImage();
+                    }
+
+                }
+                break;
+        }
+        return false;
+    }
+
 
     private void setPanelDest(int i){
         if (UtilsSharedPref.isLollipop){
