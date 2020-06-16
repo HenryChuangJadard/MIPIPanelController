@@ -4,7 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorWhite"
-    android:gravity="center"
     android:keepScreenOn="true"
     android:descendantFocusability="afterDescendants"
     >
@@ -12,8 +11,8 @@
         android:id="@+id/BT_fnc"
         android:gravity="top"
         android:background="@null"
-        android:layout_width="50dp"
-        android:layout_height="50dp" />
+        android:layout_width="30dp"
+        android:layout_height="30dp" />
 
     <Button
         android:id="@+id/BT_PanelSelect"
@@ -39,13 +38,13 @@
         android:orientation="vertical"
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp">
+
         <TextView
             android:id="@+id/TV_PanelSize"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
             style="@style/TextTitleStyleWrite"
-            />
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_horizontal" />
             <LinearLayout
             android:id="@+id/LL_Top"
             android:layout_width="match_parent"
@@ -97,10 +96,9 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginLeft="5dp"
-        android:layout_marginBottom="10dp"
-        android:layout_marginRight="5dp"
-        android:layout_above="@+id/LL_FileInfo"
+        android:layout_marginLeft="50dp"
+        android:layout_marginRight="50dp"
+        android:layout_below="@+id/LL_ALL"
         android:background="@color/black_overlay"
         android:focusable="true"
         android:focusableInTouchMode="true"
@@ -180,9 +178,31 @@
             android:textSize="12sp" />
     </LinearLayout>
     <RelativeLayout
+        android:id="@+id/RL_BTS_GV"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:layout_marginLeft="50dp"
+        android:layout_marginRight="50dp"
+        android:gravity="top">
+        <GridView
+            android:id="@+id/GV_Fab"
+            android:descendantFocusability="blocksDescendants"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:numColumns="auto_fit"
+            android:verticalSpacing="10dp"
+            android:horizontalSpacing="10dp"
+            android:stretchMode="columnWidth"
+            android:gravity="top"
+            android:layout_marginBottom="50dp">
+            <!--            android:layout_below="@+id/FAB_Right"-->
+        </GridView>
+    </RelativeLayout>>
+    <RelativeLayout
         android:id="@+id/RL_BTS"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:descendantFocusability="blocksDescendants"
         xmlns:fab="http://schemas.android.com/apk/res-auto"
         android:layout_marginTop="20dp"
@@ -263,19 +283,6 @@
             <!--android:layout_centerVertical="true"-->
             <!--android:layout_alignParentLeft="true"-->
             <!--android:layout_alignParentStart="true" />-->
-        <GridView
-            android:id="@+id/GV_Fab"
-            android:descendantFocusability="blocksDescendants"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:numColumns="auto_fit"
-            android:verticalSpacing="10dp"
-            android:horizontalSpacing="10dp"
-            android:stretchMode="columnWidth"
-            android:gravity="center"
-            android:layout_below="@+id/FAB_Right"
-            android:layout_marginBottom="50dp">
-        </GridView>
         <LinearLayout
             android:id="@+id/LL_CABC_MODE"
             android:layout_width="match_parent"
@@ -446,7 +453,7 @@
         style="@style/Feature_Control_Style"
         android:orientation="horizontal"
         android:gravity="center_horizontal|center"
-        android:layout_above="@id/LL_ALS"
+        android:layout_below="@id/RL_BTS"
         android:id="@+id/LL_CABC">
         <TextView
             android:layout_width="80dp"
@@ -528,21 +535,21 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:text="Low"
-            android:visibility="visible"
+            android:visibility="invisible"
             android:layout_height="wrap_content" />
         <Button
             android:id="@+id/BT_CE_parameter2"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:text="Med"
-            android:visibility="visible"
+            android:visibility="invisible"
             android:layout_height="wrap_content" />
         <Button
             android:id="@+id/BT_CE_parameter3"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:text="High"
-            android:visibility="visible"
+            android:visibility="invisible"
             android:layout_height="wrap_content" />
     </LinearLayout>
 
@@ -576,35 +583,61 @@
         android:orientation="horizontal"
         android:id="@+id/LL_OtherFunc"
         android:layout_marginBottom="5dp"
-        android:layout_above="@+id/LL_MIX_EFF">
+        android:layout_below="@+id/LL_CABC">
         <Button
         android:id="@+id/BT_OtherFunc1"
         android:layout_width="0dp"
         android:layout_weight="1"
-        android:text="6E:10"
+        android:text="@string/DEFAULT_Y"
         android:layout_height="wrap_content" />
         <Button
             android:id="@+id/BT_OtherFunc2"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:text="6E:04"
+            android:text="@string/SUGGEST_Y"
+            android:layout_height="wrap_content" />
+        <Button
+            android:id="@+id/BT_OtherFunc3"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:text="@string/SUGGEST_MAX"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/Feature_Control_Style"
+        android:orientation="horizontal"
+        android:id="@+id/LL_LUX_DBV_SLR"
+        android:visibility="invisible"
+        android:layout_marginBottom="5dp"
+        android:layout_above="@+id/LL_OtherFunc">
+        <TextView
+            android:layout_width="80dp"
+            android:gravity="center_horizontal"
+            android:layout_height="wrap_content"
+            android:background="@color/black_overlay"
+            android:text="@string/AdaptiveDBV"
+            android:textSize="16sp"
+            android:maxLines="1"/>
+        <Switch
+            android:id="@+id/SW_Lux_DBV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:layout_width="80dp"
+            android:layout_marginLeft="40dp"
+            android:gravity="center_horizontal"
+            android:layout_height="wrap_content"
+            android:background="@color/black_overlay"
+            android:text="@string/AdaptiveSLR"
+            android:textSize="16sp"
+            android:maxLines="1"/>
+        <Switch
+            android:id="@+id/SW_Lux_SLR"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
     </LinearLayout>
 
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:visibility="gone"
-        app:srcCompat="@drawable/fiti_new" />
-    <ImageView
-        android:id="@+id/imageView3"
-        android:layout_width="wrap_content"
-        android:visibility="gone"
-        android:layout_height="wrap_content"
-        app:srcCompat="@drawable/jadard_logo_medium"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@+id/imageView"/>
 
 </RelativeLayout>

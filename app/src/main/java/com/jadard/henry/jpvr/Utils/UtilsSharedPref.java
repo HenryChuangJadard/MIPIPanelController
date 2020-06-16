@@ -16,9 +16,13 @@
 package com.jadard.henry.jpvr.Utils;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.Rect;
 import android.os.AsyncTask;
+import android.view.View;
 
 import com.jadard.henry.jpvr.FLog;
 import com.jadard.henry.jpvr.R;
@@ -27,6 +31,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -34,7 +39,10 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
@@ -143,6 +151,11 @@ public class  UtilsSharedPref {
         JD9367xHD(6),
         JD9365Z(7),
         JD9366D(8),
+        JD9161Z(9),
+        JD9851(10),
+        JD9365(11),
+        JD9854(12),
+        JD9364(40),
         UNKNOWN(99);
 
         private int value;
@@ -303,7 +316,7 @@ public class  UtilsSharedPref {
     }
 
     static public int getMaxLumen(){
-        if(JD_PanelName==PanelName.JD9365D || JD_PanelName==PanelName.JD9365Z){
+        if(JD_PanelName==PanelName.JD9365D || JD_PanelName==PanelName.JD9365Z|| JD_PanelName==PanelName.JD9851 || JD_PanelName==PanelName.JD9364){
             //12bits
             MAX_LUMEN = 255;
         }else{
@@ -885,8 +898,11 @@ public class  UtilsSharedPref {
             return PanelName.UNKNOWN;
 
         retValue = catExecutor("cat "+filename);
+        if(retValue.contains("_")) {
+            retValue = retValue.split("_")[0];
+        }
         FLog.d(TAG,"getPanelName retValue:"+retValue);
-
+        retValue = retValue.split("_")[0];
         if(retValue.equals("JD9365D"))
             return PanelName.JD9365D;
         if(retValue.equals("JD9541"))
@@ -903,6 +919,18 @@ public class  UtilsSharedPref {
             return PanelName.JD9365Z;
         if(retValue.equals("JD9366D"))
             return PanelName.JD9366D;
+        if(retValue.equals("JD9161Z"))
+            return PanelName.JD9161Z;
+        if(retValue.equals("JD9851"))
+            return PanelName.JD9851;
+        if(retValue.equals("JD9854"))
+            return PanelName.JD9854;
+        if(retValue.equals("JD9365") || retValue.equals("JD9367"))
+            return PanelName.JD9365;
+        if(retValue.trim().equals("JD9364"))
+            return PanelName.JD9364;
+
+
 
         return PanelName.UNKNOWN;
     }
@@ -1142,6 +1170,122 @@ public class  UtilsSharedPref {
         catch (NumberFormatException ex) {
             // Error handling code...
             return false;
+        }
+    }
+
+    public static void copyFile(File src, File dst) throws IOException {
+        InputStream in = new FileInputStream(src);
+        try {
+            OutputStream out = new FileOutputStream(dst);
+            try {
+                // Transfer bytes from in to out
+                byte[] buf = new byte[1024];
+                int len;
+                while ((len = in.read(buf)) > 0) {
+                    out.write(buf, 0, len);
+                }
+            } finally {
+                out.close();
+            }
+        } finally {
+            in.close();
+        }
+    }
+
+    static public final int JD9364_DEFAULT_Y = 1;
+    static public final int JD9364_SUGGEST_Y = 2;
+    static public final int JD9364_SUGGEST_MAX = 3;
+    static public void setCabcModeJD9364(int mode){
+        if(mode==1){
+            echoShellCommand("E0 03",GenWrite);//page 3
+            echoShellCommand("A9 81",GenWrite);
+            echoShellCommand("A0 33",GenWrite);
+            echoShellCommand("AC 40",GenWrite);
+            echoShellCommand("AF 20",GenWrite);
+
+            echoShellCommand("E0 04",GenWrite);//page 4
+            echoShellCommand("3F 01",GenWrite);
+        }else if(mode ==2){
+            echoShellCommand("E0 03",GenWrite);//page 3
+            echoShellCommand("A0 33",GenWrite);
+            echoShellCommand("A9 81",GenWrite);
+            echoShellCommand("AC 66",GenWrite);
+            echoShellCommand("AF 20",GenWrite);
+
+            echoShellCommand("E0 04",GenWrite);//page 4
+            echoShellCommand("3F 01",GenWrite);
+        }else if(mode ==3){
+            echoShellCommand("E0 03",GenWrite);//page 3
+            echoShellCommand("A0 33",GenWrite);
+            echoShellCommand("A9 81",GenWrite);
+            echoShellCommand("AC 56",GenWrite);
+            echoShellCommand("AF 20",GenWrite);
+
+            echoShellCommand("E0 04",GenWrite);//page 4
+            echoShellCommand("3F 00",GenWrite);
+        }
+
+    }
+
+    static byte[] getPixelsBGR(Bitmap image) {
+        // calculate how many bytes our image consists of
+        int bytes = image.getByteCount();
+
+        ByteBuffer buffer = ByteBuffer.allocate(bytes); // Create a new buffer
+        image.copyPixelsToBuffer(buffer); // Move the byte data to the buffer
+
+        byte[] temp = buffer.array(); // Get the underlying array containing the data.
+
+        byte[] pixels = new byte[(temp.length/4) * 3]; // Allocate for BGR
+
+        // Copy pixels into place
+        for (int i = 0; i < temp.length/4; i++) {
+
+            pixels[i * 3] = temp[i * 4 + 2];		//B
+            pixels[i * 3 + 1] = temp[i * 4 + 1]; 	//G
+            pixels[i * 3 + 2] = temp[i * 4 ];		//R
+
+        }
+
+        return pixels;
+    }
+
+    static public boolean WriteRawData2SPI(byte[] raw){
+        boolean result = false;
+        final String filepath = "/sys/class/spidev/spidev0.0/device/raw_frame";
+        try{
+            BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(filepath));
+            bos.write(raw);
+            bos.flush();
+            bos.close();
+            result = true;
+        }catch(IOException e){
+            FLog.e(TAG, "ERROR at WriteRawData data("+ raw.length +") > "+ filepath);
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public static class doFrameUpdateTask extends AsyncTask<Bitmap , Void, Boolean>{
+
+        @Override
+        protected Boolean doInBackground(Bitmap... images)  {
+            Bitmap image = images[0];
+//            FLog.d(TAG,"image byte count = "+image.getByteCount());
+//            FLog.d(TAG,"image row count = "+image.getRowBytes());
+            byte[] raw = getPixelsBGR(image);
+            boolean result = false;
+            FLog.d(TAG,"raw length = "+raw.length);
+            if(raw.length>0){
+                result = WriteRawData2SPI(raw);
+            }
+
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result){
+            FLog.d(TAG,"raw update result = "+result);
         }
     }
 

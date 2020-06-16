@@ -93,6 +93,11 @@ public class SelectfileActivity extends AppCompatActivity implements UtilsShared
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        backToSettingActivity();
+    }
+
     AdapterView.OnItemClickListener itemListener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view,

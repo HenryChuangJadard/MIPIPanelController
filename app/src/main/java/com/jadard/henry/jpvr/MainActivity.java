@@ -1,5 +1,5 @@
 /*
- *  /*************************************************************************
+ *  *************************************************************************
  *  *
  *  * Jadard Technology Inc. CONFIDENTIAL
  *  * __________________
@@ -16,53 +16,58 @@
 package com.jadard.henry.jpvr;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
-//import android.bluetooth.BluetoothAdapter;
-//import android.bluetooth.BluetoothDevice;
-//import android.bluetooth.BluetoothGatt;
-//import android.bluetooth.BluetoothGattCallback;
-//import android.bluetooth.BluetoothProfile;
-//import android.bluetooth.BluetoothSocket;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Presentation;
+import android.content.BroadcastReceiver;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.graphics.Point;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.media.MediaRouter;
 import android.net.Uri;
+import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.StrictMode;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.multidex.MultiDex;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.res.ResourcesCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
+import android.webkit.MimeTypeMap;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -81,10 +86,11 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
+import com.github.clans.fab.FloatingActionButton;
 import com.jadard.henry.jpvr.Utils.KeyData;
 import com.jadard.henry.jpvr.Utils.UtilsSharedPref;
-import com.github.clans.fab.FloatingActionButton;
+import com.jaredrummler.android.shell.CommandResult;
+import com.jaredrummler.android.shell.Shell;
 import com.turhanoz.android.reactivedirectorychooser.event.OnDirectoryCancelEvent;
 import com.turhanoz.android.reactivedirectorychooser.event.OnDirectoryChosenEvent;
 import com.turhanoz.android.reactivedirectorychooser.ui.DirectoryChooserFragment;
@@ -97,19 +103,20 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static com.jadard.henry.jpvr.Utils.UtilsSharedPref.MD_XiaoMi;
 import static com.jadard.henry.jpvr.Utils.UtilsSharedPref.MD_ZT;
@@ -118,7 +125,13 @@ import static com.jadard.henry.jpvr.Utils.UtilsSharedPref.MIPI_DISPLAY2;
 import static com.jadard.henry.jpvr.Utils.UtilsSharedPref.RegRead2_Lollipop;
 import static com.jadard.henry.jpvr.Utils.UtilsSharedPref.getAvaliableAlphetKeys;
 import static com.jadard.henry.jpvr.Utils.UtilsSharedPref.isHexNumber;
-import static java.security.AccessController.getContext;
+
+//import android.bluetooth.BluetoothAdapter;
+//import android.bluetooth.BluetoothDevice;
+//import android.bluetooth.BluetoothGatt;
+//import android.bluetooth.BluetoothGattCallback;
+//import android.bluetooth.BluetoothProfile;
+//import android.bluetooth.BluetoothSocket;
 
 
 public class MainActivity extends AppCompatActivity implements DialogInterface.OnKeyListener
@@ -126,14 +139,14 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
                                                     , UtilsSharedPref.AsyncResponse, OnDirectoryChooserFragmentInteraction, View.OnClickListener, View.OnTouchListener {
 
     private ImageView IV_Pic;
-    private LinearLayout LL_Top, LL_Bottom,LL_FileInfo,LL_ALL,LL_ALS,LL_CABC,LL_CE,LL_MixEff,LL_MipiCmdBar,LL_PWM_MODE,LL_CABC_MODE,LL_OtherFunc,LL_CABC_STRENGTH;
+    private LinearLayout LL_Top, LL_Bottom,LL_FileInfo,LL_ALL,LL_ALS,LL_CABC,LL_CE,LL_MixEff,LL_MipiCmdBar,LL_PWM_MODE,LL_CABC_MODE,LL_OtherFunc,LL_CABC_STRENGTH,LL_LUX_DBV_SLR;
     private TextView TV_WriteAddress, TV_WriteValue, TV_ReadAddress, TV_ReadValue,TV_Filename,TV_ImgInfo,TV_PanelSize;
     private EditText ET_CmdAddress,ET_CmdValue,ET_CmdLength;
     private Button BT_CmdWrite, BT_CmdRead,BT_fnc,BT_CE_parameter1,BT_CE_parameter2,BT_CE_parameter3, BT_PanelSelect;
-    private Button BT_SLR_ModeHigh,BT_SLR_ModeMedium,BT_SLR_ModeLow,BT_SLR_ModeOff,BT_OtherFunc1,BT_OtherFunc2,BT_CABC_Strength1,BT_CABC_Strength2;
+    private Button BT_SLR_ModeHigh,BT_SLR_ModeMedium,BT_SLR_ModeLow,BT_SLR_ModeOff,BT_OtherFunc1,BT_OtherFunc2,BT_OtherFunc3,BT_CABC_Strength1,BT_CABC_Strength2;
     private SeekBar SB_SLR = null, SB_LUMEN;
-    private Switch SW_ALS,SW_CABC,SW_Mix_Eff,SW_CE;
-    private RelativeLayout RL_BTS;
+    private Switch SW_ALS,SW_CABC,SW_Mix_Eff,SW_CE,SW_Lux_SLR,SW_Lux_DBV;
+    private RelativeLayout RL_BTS,RL_BTS_GV;
     private GridView GV_Fab;
     private FabAdapter mFabAdapter;
     private RadioGroup RG_CABC_Mode, RG_PWM_Mode;
@@ -141,6 +154,9 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
     private Display	mDisplay2nd = null;
     private DualPresentation mDualPresentation = null;
     private boolean bR6Eh_10H = false;
+
+    SensorManager sensorManager;
+    Sensor lightSensor;
 
 
     private FloatingActionButton FAB_Right,FAB_Left,FAB_Setting, FAB_Display, FAB_Add,/*FAB_OBR,*/FAB_Play;
@@ -172,8 +188,8 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
     static public String RegLength = "";
     static public String RegRead = "";
     static public String DsiPanelName = "";
-    static public int DP_HEIGHT= 0;
-    static private boolean bDisableCABC = false;
+    static public int DP_HEIGHT= 0, DP_WIDTH= 0;
+    static private boolean bDisableCABC = true;
     static private boolean bDisableModeCABC = true;
     static private boolean bDisableCABC_Strength = true;
     static private boolean bDisableCE = true;
@@ -181,15 +197,27 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
     static private boolean bDisableModeSLR = true;
     static private boolean bDisableMixEffect = true;
     static private boolean bDisableGridButton = true;
-    static private boolean bDisablePWMControl = false;
+    static private boolean bDisablePWMControl = true;
 //    static private boolean bDisableBacklightControl = true;
     static private boolean bDisableCmdInfoDetail = true;
     static private boolean bXiaomiCEParameters = true;
     static private boolean bDisableOtherFunc = true;
+    static private boolean bDisableSocketServer = true;
+    static private boolean bDisableCmdBar = true;
+    static private boolean bDisableLightSensor = true;
+    static private boolean bDisableSPI = true;
+    static private boolean bDisableDBVRead = true;
+    static private boolean bDisableAutoPlay = true;
     private int mModel = MD_ZT;
     private float x1,x2;
     static final int MIN_DISTANCE = 150;
-
+    static public final String ACTION_CABC_ON = "com.jpvr.intent.action.CABC_ON";
+    static public final String ACTION_CABC_SUGGEST = "com.jpvr.intent.action.CABC_SUGGEST";
+    static public final String ACTION_CABC_OFF = "com.jpvr.intent.action.CABC_OFF";
+    public static final int CABC_Mode_Off = 0;
+    public static final int CABC_Mode_Mov = 1;
+    public static final int CABC_Mode_Pic = 2;
+    public static final int CABC_Mode_UI = 3;
 
     static final boolean FIH_PLATFORM = false;
 
@@ -202,6 +230,35 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
     Handler mDimdelayHandler=new Handler();
     Runnable mDImRunnable= () -> echoShellCommand("53 24",GenWrite);
 
+    Handler mDBVReadHandler=new Handler();
+    Runnable mDBVReadRunnable= new Runnable() {
+        @Override
+        public void run() {
+            String dbv = "";
+            echoShellCommand("E0 00",GenWrite);//page 0
+//            dbv = ReadRegShellCommand("52");
+            dbv = UtilsSharedPref.doRead("52",1);
+            if(dbv.contains("0x"))
+                dbv = dbv.replace("0x","");
+            if(dbv.contains("0X"))
+                dbv = dbv.replace("0X","");
+
+//            FLog.d(TAG,"dbv = "+dbv);
+            int idbv ;
+            try {
+                idbv = Integer.parseInt(dbv, 16);
+//                FLog.d(TAG, "idbv = " + idbv);
+                float percent = (100 * idbv) / 255;
+                String per = String.format("%.0f%%", percent);
+//                FLog.d(TAG, "percentage = " + per);
+                TV_PanelSize.setText(per);
+            }catch (Exception ignored){
+
+            }
+            mDBVReadHandler.postDelayed(mDBVReadRunnable,1000);
+        }
+    };
+
     Handler mHandler=new Handler();
     Runnable mRunnable=new Runnable() {
 
@@ -209,6 +266,8 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         public void run() {
             if(RL_BTS!=null)
                 RL_BTS.setVisibility(View.INVISIBLE); //If you want just hide the View. But it will retain space occupied by the View.
+            if(RL_BTS_GV!=null)
+                RL_BTS_GV.setVisibility(View.INVISIBLE);
 //            if(LL_CABC!=null)
 //                LL_CABC.setVisibility(View.INVISIBLE);
             if(LL_CE!=null)
@@ -309,6 +368,9 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         public void run() {
             if(RL_BTS!=null && RL_BTS.getVisibility()!=View.INVISIBLE)
                 RL_BTS.setVisibility(View.INVISIBLE); //If you want just hide the View. But it will retain space occupied by the View.
+
+            if(RL_BTS_GV!=null && RL_BTS_GV.getVisibility()!=View.INVISIBLE)
+                RL_BTS_GV.setVisibility(View.INVISIBLE);
 //            if(LL_CABC!=null)
 //                LL_CABC.setVisibility(View.INVISIBLE);
             if(LL_CE!=null)
@@ -321,7 +383,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
 //                IV_Pic.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN);
 
             fileIndex++;
-            if (fileIndex >= filelist.length)
+            if (filelist!=null && fileIndex >= filelist.length)
                 fileIndex = 0;
             loadImage();
             mPlayHandler.postDelayed(mPlayRunnable, PLAY_DURATION);
@@ -332,6 +394,9 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         FLog.e(TAG,"resetUI");
         if(RL_BTS!=null)
             RL_BTS.setVisibility(View.VISIBLE);
+
+        if(RL_BTS_GV!=null)
+            RL_BTS_GV.setVisibility(View.VISIBLE);
 //        if(LL_CABC!=null && !bDisableCABC)
 //            LL_CABC.setVisibility(View.VISIBLE);
         if(LL_CE!=null && !bDisableCE)
@@ -352,12 +417,14 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
 
         mPlayHandler.removeCallbacks(mPlayRunnable);
         cleanETFocus();
-
+//        mDBVReadHandler.postDelayed(mDBVReadRunnable,800);
     }
 
     private void hideUI(){
         if(RL_BTS!=null)
             RL_BTS.setVisibility(View.INVISIBLE); //If you want just hide the View. But it will retain space occupied by the View.
+        if(RL_BTS_GV!=null)
+            RL_BTS_GV.setVisibility(View.INVISIBLE);
 //        if(LL_CABC!=null)
 //            LL_CABC.setVisibility(View.INVISIBLE);
         if(LL_CE!=null)
@@ -377,13 +444,24 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
     private static String[] PERMISSIONS_STORAGE = {
             Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.ACCESS_WIFI_STATE
     };
-
+    ServerThread SocketServer = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.hide();
+        }
+//        main(null);
+
+        if (android.os.Build.VERSION.SDK_INT > 9) {
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+        }
 
         int currentapiVersion = android.os.Build.VERSION.SDK_INT;
         if (currentapiVersion >= Build.VERSION_CODES.LOLLIPOP){
@@ -441,6 +519,18 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
                 FLog.v("JPVR", "Not existed APPpath=" + APPpath);
                 dir.mkdirs();
                 dir.getParentFile().mkdir();
+            }
+        } finally {
+
+        }
+
+        final String pathSPI = "/sys/class/spidev/spidev0.0/device/raw_frame";
+        try {
+            File dir = new File(pathSPI);
+            if (dir.exists()) {
+                bDisableSPI = false;
+            }else{
+                bDisableSPI = true;
             }
         } finally {
 
@@ -504,10 +594,12 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
             display.getSize(size);
             FLog.v("JPVR", "resolution x =" + size.x);
             FLog.v("JPVR", "resolution y =" + size.y);
+            getRealResolutionDisplay();
             if (size.x == 720) {
                 if(size.y > 1280){
-                    PanelSize = "720x1440";
-                    DP_HEIGHT = 1440;
+//                    PanelSize = "720x1440";
+//                    DP_HEIGHT = 1440;
+                    PanelSize = DP_WIDTH+"x"+DP_HEIGHT;
                     bDisableCABC = true;
                     bDisableMixEffect = true;
                 }else {
@@ -520,17 +612,28 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
             } else if (size.x == 800) {
                 PanelSize = "HD_800";
                 DP_HEIGHT = 800;
+            } else if (size.x == 480) {
+                PanelSize = "WVGA";
+                DP_HEIGHT = 960;
+            }else if (size.x == 240) {
+                PanelSize = "VGA";
+            }else if (size.x == 600) {
+                PanelSize = DP_WIDTH+"x"+DP_HEIGHT;
             }else{
                 bDisableCABC = true;
                 bDisableMixEffect = true;
-                bDisableCE = true;
+                bDisableCE = false;
                 bDisableSLR = true;
-                PanelSize = "Unknown";
+                //PanelSize = "Unknown";
+                PanelSize = DP_WIDTH+"x"+DP_HEIGHT;
 
                 bDisableModeCABC = true;
                 bDisableCABC_Strength = true;
             }
         }
+        FLog.v("JPVR", "PanelSize =" + PanelSize);
+        FLog.v("JPVR", "DP_HEIGHT =" + DP_HEIGHT);
+        FLog.v("JPVR", "DP_WIDTH =" + DP_WIDTH);
 
         UtilsSharedPref.setImagesFolder(filePath);
 
@@ -611,16 +714,43 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
             bDisableModeCABC = true;
         }else if(JD_PanelName == UtilsSharedPref.PanelName.JD9365Z){
             bDisableCABC = false;
-            bDisableCE = true;
-            bDisableSLR = true;
+            bDisableCE = false;
+            bDisableSLR = false;
             bDisableMixEffect = true;
             bDisableGridButton = true;
             bDisablePWMControl = false;
-            bDisableModeCABC = true;
+            bDisableModeCABC = false;
             bDisableCABC_Strength = true;
             mDisplay2nd = null;
             mDualPresentation=null;
 
+        }else if(JD_PanelName == UtilsSharedPref.PanelName.JD9161Z){
+            bDisableCABC = true;
+            bDisableCE = true;
+            bDisableSLR = true;
+            bDisableMixEffect = true;
+            bDisableGridButton = true;
+            bDisablePWMControl = true;
+            bDisableModeCABC = true;
+            bDisableCABC_Strength = true;
+            mDisplay2nd = null;
+            mDualPresentation=null;
+        }else if(JD_PanelName == UtilsSharedPref.PanelName.JD9851){
+            bDisableCABC = true;
+            bDisableCE = true;
+            bDisableSLR = true;
+            bDisableMixEffect = true;
+            bDisableGridButton = true;
+            bDisablePWMControl = true;
+            bDisableModeCABC = true;
+            bDisableCABC_Strength = true;
+            mDisplay2nd = null;
+            mDualPresentation=null;
+        }else if(JD_PanelName == UtilsSharedPref.PanelName.JD9364){
+            bDisableCABC = false;
+            bDisableCABC_Strength = true;
+            bDisableModeCABC = false;
+            bDisableOtherFunc = false;
         }
 
 
@@ -636,6 +766,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         LL_PWM_MODE = (LinearLayout) findViewById(R.id.LL_PWM_MODE);
         LL_OtherFunc = (LinearLayout)findViewById(R.id.LL_OtherFunc);
         LL_CABC_STRENGTH = (LinearLayout)findViewById(R.id.LL_CABC_STRENGTH);
+        LL_LUX_DBV_SLR = (LinearLayout)findViewById(R.id.LL_LUX_DBV_SLR);
 
         LL_CE = (LinearLayout) findViewById(R.id.LL_CE);
         LL_MixEff = (LinearLayout) findViewById(R.id.LL_MIX_EFF);
@@ -643,6 +774,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
             LL_MixEff.setVisibility(View.INVISIBLE);
         }
         RL_BTS = (RelativeLayout) findViewById(R.id.RL_BTS);
+        RL_BTS_GV = (RelativeLayout) findViewById(R.id.RL_BTS_GV);
 //        private FloatingActionButton FAB_Right,FAB_Left;
         FAB_Left = (FloatingActionButton) findViewById(R.id.FAB_Left);
         FAB_Right = (FloatingActionButton) findViewById(R.id.FAB_Right);
@@ -673,8 +805,10 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
 
         BT_OtherFunc1 = (Button)findViewById(R.id.BT_OtherFunc1);
         BT_OtherFunc2 = (Button)findViewById(R.id.BT_OtherFunc2);
+        BT_OtherFunc3 = (Button)findViewById(R.id.BT_OtherFunc3);
         BT_OtherFunc1.setOnClickListener(this);
         BT_OtherFunc2.setOnClickListener(this);
+        BT_OtherFunc3.setOnClickListener(this);
 
 
         RG_CABC_Mode = (RadioGroup)findViewById(R.id.RG_CABC_Mode);
@@ -691,17 +825,19 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         mFabAdapter.setGVBTnClickListener(GVBTOnClickListener);
         GV_Fab.setAdapter(mFabAdapter);
         GV_Fab.setNumColumns(4);
-        GV_Fab.setFocusableInTouchMode(true);
+//        GV_Fab.setFocusableInTouchMode(true);
         GV_Fab.setOnTouchListener((v, event) -> {
             resetUI();
             return false;
         });
 
-        if(bDisableCABC && LL_CABC!=null){
-            LL_CABC.setVisibility(View.INVISIBLE);
-            UtilsSharedPref.setDisplayCABCCtrl(false);
-        }else if(LL_CABC!=null){
-            LL_CABC.setVisibility(UtilsSharedPref.getDisplayCABCCtrl()?View.VISIBLE:View.INVISIBLE);
+        if(LL_CABC!=null){
+            if(bDisableCABC){
+                LL_CABC.setVisibility(View.INVISIBLE);
+                UtilsSharedPref.setDisplayCABCCtrl(false);
+            }else{
+                LL_CABC.setVisibility(UtilsSharedPref.getDisplayCABCCtrl()?View.VISIBLE:View.INVISIBLE);
+            }
         }
 
 
@@ -786,7 +922,8 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         SW_ALS = (Switch) findViewById(R.id.SW_ALS);
         SW_CABC = (Switch) findViewById(R.id.SW_CABC);
         SW_CE = (Switch) findViewById(R.id.SW_CE);
-
+        SW_Lux_SLR= (Switch) findViewById(R.id.SW_Lux_SLR);
+        SW_Lux_DBV =(Switch) findViewById(R.id.SW_Lux_DBV);
 
         BT_SLR_ModeHigh = (Button) findViewById(R.id.BT_SLR_ModeHigh);
         BT_SLR_ModeMedium = (Button) findViewById(R.id.BT_SLR_ModeMedium);
@@ -808,7 +945,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
             SW_ALS.setOnCheckedChangeListener(KeySwitchListener);
             SW_ALS.setChecked(UtilsSharedPref.isALSEnabled());
             // TODO: 2018/3/15  SW_ALS forced to INVISIBLE for JD9366/JD9365 WHD demo, to roll back once done.
-            SW_ALS.setVisibility(View.INVISIBLE);
+            SW_ALS.setVisibility(View.VISIBLE);
         }else{
             if(SW_ALS!=null )
                 SW_ALS.setVisibility(View.INVISIBLE);
@@ -886,51 +1023,10 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         SB_SLR = (SeekBar)findViewById(R.id.SB_SLR);
         if(SB_SLR!=null && !bDisableSLR) {
             SB_SLR.setVisibility(View.GONE);
-//            SB_SLR.setOnSeekBarChangeListener(SB_SLR_ChangeListener);
-//            SB_SLR.setMax(UtilsSharedPref.MAX_SLR);
-//            progressSLR = UtilsSharedPref.getDisplayCurSLR();
-//            set_SLR();
-//            SB_SLR.setProgress(progressSLR);
-//            SB_SLR.setOnKeyListener(new View.OnKeyListener() {
-//                @Override
-//                public boolean onKey(View v, int keyCode, KeyEvent event) {
-//
-//                    if (KeyEvent.KEYCODE_DPAD_RIGHT == keyCode) {
-//                        if(event.getAction()!=KeyEvent.ACTION_UP)
-//                            return true;
-//                        if (progressSLR == 0)
-//                            progressSLR = 1;
-//                        else
-//                            progressSLR = progressSLR * 2;
-//                        if (progressSLR > UtilsSharedPref.MAX_SLR)
-//                            progressSLR = UtilsSharedPref.MAX_SLR;
-//                        set_SLR();
-//                        SB_SLR.setProgress(progressSLR);
-//                        return true;
-//                    } else if (KeyEvent.KEYCODE_DPAD_LEFT == keyCode) {
-//                        if(event.getAction()!=KeyEvent.ACTION_UP)
-//                            return true;
-//                        if (progressSLR > 1) {
-//                            progressSLR = Math.round(progressSLR / 2);
-//                        } else {
-//                            progressSLR = 0;
-//                        }
-//                        set_SLR();
-//                        SB_SLR.setProgress(progressSLR);
-//                        return true;
-//                    }
-//                    return false;
-//
-//                }
-//            });
         }
 
         setDisplayInfo(UtilsSharedPref.getDisplayCtrl());
 
-//        fileIndex++;
-//        if (fileIndex >= filelist.length)
-//            fileIndex = 0;
-//        imageView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN);
         if (bitmap == null) {
             IV_Pic.setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.white_720_1280, null));
         } else {
@@ -948,10 +1044,12 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         });
         IV_Pic.setOnTouchListener(this);
 
-        if(bDisableGridButton && GV_Fab!=null){
-            GV_Fab.setVisibility(View.GONE);
-        }else{
-            GV_Fab.setVisibility(View.VISIBLE);
+        if(GV_Fab!=null) {
+            if (bDisableGridButton) {
+                GV_Fab.setVisibility(View.GONE);
+            } else {
+                GV_Fab.setVisibility(View.VISIBLE);
+            }
         }
         if(LL_CE!=null) {
             if(bDisableCE)
@@ -1029,10 +1127,140 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         }
         //((RadioButton)findViewById(R.id.PWM_Mode_8)).setChecked(true);
 
-        select_CABC_Mode(R.id.CABC_Mode_Off);
-        ((RadioButton)findViewById(R.id.CABC_Mode_Off)).setChecked(true);
+        if(!bDisableModeCABC) {
+            select_CABC_Mode(R.id.CABC_Mode_Off);
+            ((RadioButton) findViewById(R.id.CABC_Mode_Off)).setChecked(true);
+        }
+
+        //Socket Handler
+        if(!bDisableSocketServer) {
+            mSocketConnectHandler.postDelayed(mSocketConnectRunnable, 1000);
+        }
+        LL_LUX_DBV_SLR.setVisibility(View.INVISIBLE);
+        if(!bDisableLightSensor){
+            SensorManager sensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
+            List<Sensor> sensors = sensorManager.getSensorList(Sensor.TYPE_ALL);
+            FLog.e(TAG,"sensors.size():"+sensors.size());
+            Sensor lightSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
+            if (lightSensor == null){
+                Toast.makeText(MainActivity.this,
+                        "No Light Sensor! quit-",
+                        Toast.LENGTH_LONG).show();
+                FLog.e(TAG,"No Light Sensor! quit-");
+            }else {
+                LL_LUX_DBV_SLR.setVisibility(View.VISIBLE);
+                SW_Lux_SLR.setOnCheckedChangeListener(KeySwitchListener);
+                SW_Lux_SLR.setChecked(true);
+                SW_Lux_DBV.setOnCheckedChangeListener(KeySwitchListener);
+                SW_Lux_DBV.setChecked(true);
+                sensorManager.registerListener(lightSensorEventListener,
+                        lightSensor,
+                        SensorManager.SENSOR_DELAY_NORMAL);
+            }
+        }
+
+//        mPlayHandler.post(mPlayRunnable);
 
     }
+
+
+
+
+    SensorEventListener lightSensorEventListener
+            = new SensorEventListener(){
+
+        @Override
+        public void onAccuracyChanged(Sensor sensor, int accuracy) {
+            // TODO Auto-generated method stub
+
+        }
+
+//        ALS                 方案1     方案2
+//         0 ~  63      DVB :   20       10
+//         64 ~ 127    DVB :    50       20
+//         128 ~ 255   DVB :   100       40
+//         256 ~ 511   DVB :   150       80
+//         511 ~1023   DVB :   210      150
+//         1024 ~      DVB :   255      200
+//         2048 ~              255      255
+//
+//        IC 下 DD dimming register
+//
+//
+//        Page 3 A0
+//        方案 1 下     0x64,0x11
+//        方案 2 下     0x64,0x31
+
+
+        final int LUX_LEVEL[] = {0,64,128,256,512,1024,2048};
+        final int LUX_DBV_TABLE1[] = {40,80,130,170,2210,255,255};
+        //final int LUX_DBV_TABLE1[] = {20,50,100,150,210,255,255};
+        final int LUX_DBV_TABLE2[] = {10,20,40,80,150,200,255};
+        final int LUX_DBV_MODE = 1;
+        private int mLastLux = -1;
+
+        private int getDVB(int lux){
+            int lux_value[];
+            if(LUX_DBV_MODE == 2){
+                lux_value = LUX_DBV_TABLE2;
+            }else{
+                lux_value = LUX_DBV_TABLE1;
+            }
+
+            for(int i = 0; i<(LUX_LEVEL.length-1);i++){
+                if(lux>=LUX_LEVEL[i] && lux<LUX_LEVEL[i+1]){
+                    return lux_value[i];
+                }
+            }
+            return lux_value[(lux_value.length-1)];//return max DBV
+        }
+
+        @Override
+        public void onSensorChanged(SensorEvent event) {
+            // TODO Auto-generated method stub
+            if(event.sensor.getType()==Sensor.TYPE_LIGHT){
+                float currentReading = event.values[0];
+                FLog.d(TAG,"light sensor reading :"+currentReading);
+                FLog.d(TAG,"light sensor reading :"+currentReading);
+                if (JD_PanelName == UtilsSharedPref.PanelName.JD9365) {
+                    int lux = Math.round(currentReading);
+                    FLog.d(TAG,"Math.abs("+mLastLux+"-"+lux+") :"+Math.abs(mLastLux-lux));
+                    FLog.d(TAG,"(float)Math.abs("+mLastLux+"-"+lux+")/"+Math.abs(mLastLux) +":"+(float)Math.abs(mLastLux-lux)/Math.abs(mLastLux));
+                    if(((float)Math.abs(mLastLux-lux)/Math.abs(mLastLux)) < 0.1) {
+                        return;
+                    }
+
+                    byte[] bytes = ByteBuffer.allocate(4).putInt(lux).array();
+                    int dbv = getDVB(Math.round(lux));
+
+
+                    echoShellCommand("E0 00", GenWrite);//page 0
+
+                    if(SW_Lux_SLR.isChecked()) {
+                        echoShellCommand("88 " + Integer.toHexString(bytes[0]), GenWrite);//page 0
+                        echoShellCommand("89 " + Integer.toHexString(bytes[1]), GenWrite);//page 0
+                        echoShellCommand("8A " + Integer.toHexString(bytes[2]), GenWrite);//page 0
+                        echoShellCommand("8B " + Integer.toHexString(bytes[3]), GenWrite);//page 0
+                    }
+
+                    if(SW_Lux_DBV.isChecked()) {
+                        echoShellCommand("51 " + Integer.toHexString(dbv), GenWrite);//page 0
+
+                        echoShellCommand("E0 03", GenWrite);//page 3
+                        if(LUX_DBV_MODE == 2){
+                            echoShellCommand("A0 64 31", GenWrite);
+                        }else{
+                            //echoShellCommand("A0 64 11", GenWrite);
+                            echoShellCommand("A0 64 31", GenWrite);
+                        }
+                    }
+                    mLastLux = lux;
+                }
+
+            }
+        }
+
+    };
 
     private View.OnFocusChangeListener ET_CmdFocusListener = (v, hasFocus) -> {
 
@@ -1417,10 +1645,79 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
 //                UtilsSharedPref.testJsonparser();
                 setDisplayInfo(!UtilsSharedPref.getDisplayCtrl());
                 //UtilsSharedPref.setDisplayCtrl(!UtilsSharedPref.getDisplayCtrl());
+                if(false) {
+                    File src = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/fpsdaemon");
+                    File dst = new File("/data/local/tmp/fpsdaemon");
+                    try {
+                        if (src.exists()) {
+                            UtilsSharedPref.copyFile(src, dst);
+                            if (dst.exists()) {
+//                            runShellCommand("su");
+                                FLog.d(TAG, "/data/local/tmp/fpsdaemon saved!");
+//                            String launcher = Environment.getExternalStorageDirectory().getAbsolutePath()+"/launcher.sh";
+                                String launcher = "/data/launcher.sh";
+//                            File launcherFile = new File(launcher);
+                                File launcherFile = dst;
+                                if (launcherFile.exists()) {
+                                    FLog.d(TAG, launcher + " existed!");
+                                    FLog.d(TAG, "source " + launcherFile.getAbsolutePath());
+//                                CommandResult result = Shell.SU.run("ls -il " + launcherFile.getAbsolutePath());
+                                    CommandResult result = Shell.SH.run("su");
+                                    FLog.d(TAG, "su result:" + result.getStdout());
+                                    if (result.isSuccessful()) {
+                                        FLog.d(TAG, "su result:" + result.getStdout());
+                                        // Example output on a rooted device:
+                                        // uid=0(root) gid=0(root) groups=0(root) context=u:r:init:s0
+                                    }
+
+                                    result = Shell.SH.run("source " + launcherFile.getAbsolutePath());
+                                    FLog.d(TAG, "SH result:" + result.getStdout());
+                                    FLog.d(TAG, "SH  result isSuccessful:" + result.isSuccessful());
+                                    FLog.d(TAG, "Shell.SU.available():" + Shell.SU.available());
+
+//                                if (result.isSuccessful()) {
+//                                    FLog.d(TAG,"result:"+result.getStdout());
+//                                    // Example output on a rooted device:
+//                                    // uid=0(root) gid=0(root) groups=0(root) context=u:r:init:s0
+//                                }
+//                                runShellCommand(launcherFile.getAbsolutePath());
+                                }
+//                            echoShellCommand(Environment.getExternalStorageDirectory().getAbsolutePath()+"/launcher.sh","");
+                            } else {
+                                FLog.d(TAG, "/data/local/tmp/fpsdaemon failed to save!");
+                            }
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
             if(v.getId()==R.id.FAB_Add){
 //                addDirectoryChooserAsFloatingFragment();
                 FolderChooserIntent();
+//                try {
+//                    String path = Environment.getExternalStorageDirectory().getAbsolutePath() +"/Movies/";
+//                    String url;
+//                    File filelist[];
+//                    File f = new File(path);
+//                    filelist = f.listFiles();
+//                    if(filelist!=null && filelist.length>0)
+//                    {
+//                        url = filelist[0].getAbsolutePath();
+//                        FLog.d("StartUp","url="+url);
+//
+//                        String extension = MimeTypeMap.getFileExtensionFromUrl(url);
+//                        FLog.d("StartUp","extension="+extension);
+//                        String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+//                        FLog.d("StartUp","mimeType="+mimeType);
+//                        Intent mediaIntent = new Intent(Intent.ACTION_VIEW);
+//                        mediaIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                        mediaIntent.setDataAndType(Uri.parse(url), mimeType);
+//                        startActivity(mediaIntent);
+//                    }
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
             }
 //            if(v.getId() == R.id.FAB_OBR){
 //                char[] cmd ={0xaa,0xbb,0xcc,0xdd,0xee,0xff,0x00,0x11,0x22,0x33};
@@ -1515,10 +1812,11 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
             FLog.e(TAG, "Invalid register address: " + reg);
             return "";
         }
-        echoShellCommand("0 1f7", DsiWrite);
-        echoShellCommand("38 10000000", DsiWrite);
+//        echoShellCommand("0 1f7", DsiWrite);
+//        echoShellCommand("38 10000000", DsiWrite);
 
-        echoShellCommand(Integer.toHexString(reg), RegRead);
+//        echoShellCommand(Integer.toHexString(reg), RegRead);
+        echoShellCommand(Integer.toHexString(reg)+" 1", RegLength);
         retValue = Executer("cat " + RegRead);
 
         try {
@@ -1532,8 +1830,8 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
             value = "failed to parse value.";
         }
         FLog.e(TAG, "value: " + value);
-        echoShellCommand("0 1f3", DsiWrite);
-        echoShellCommand("38 14000000", DsiWrite);
+//        echoShellCommand("0 1f3", DsiWrite);
+//        echoShellCommand("38 14000000", DsiWrite);
         return value;
     }
 
@@ -1586,7 +1884,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
                 //enable only als.
                 value55 = "70";
             }
-            if(JD_PanelName == UtilsSharedPref.PanelName.JD9365D){
+            if(JD_PanelName == UtilsSharedPref.PanelName.JD9365D || JD_PanelName == UtilsSharedPref.PanelName.JD9364){
                 FLog.d("setALSEnable","JD9365D");
                 value55 = get_9365_55h_Config();
                 echoShellCommand("E0 04",GenWrite);//page 4
@@ -1627,7 +1925,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
                 //disable both cabc and als.
                 value55 = "00";
             }
-            if(JD_PanelName == UtilsSharedPref.PanelName.JD9365D){
+            if(JD_PanelName == UtilsSharedPref.PanelName.JD9365D || JD_PanelName == UtilsSharedPref.PanelName.JD9364){
                 value55 = get_9365_55h_Config();
                 //
                 echoShellCommand("E0 03",GenWrite);//page 3
@@ -1679,7 +1977,10 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         String value = "";
         byte IEC = 0;
 
-        if(JD_PanelName.equals(UtilsSharedPref.PanelName.JD9365D) || JD_PanelName.equals(UtilsSharedPref.PanelName.JD9365Z) || JD_PanelName.equals(UtilsSharedPref.PanelName.JD9366D) ){
+        if(JD_PanelName.equals(UtilsSharedPref.PanelName.JD9365D) ||
+                JD_PanelName.equals(UtilsSharedPref.PanelName.JD9365Z) ||
+                JD_PanelName.equals(UtilsSharedPref.PanelName.JD9366D) ||
+                JD_PanelName == UtilsSharedPref.PanelName.JD9364 ){
             String read56 = UtilsSharedPref.doRead("56",1);
             FLog.d(TAG,"read56="+read56);
             int i56 = 0;
@@ -1704,7 +2005,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
                 if(SW_ALS.isChecked()){
                     IEC=0x6;
                 }else if(SW_CE.isChecked()){
-                    IEC=0x8;
+                    IEC=0xB;
                     // 0x80 // low
                     // 0x90 // med
                     // 0xb0 // high
@@ -1891,7 +2192,9 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         String value = "";
         if(enable){
 
-            if(JD_PanelName.equals(UtilsSharedPref.PanelName.JD9365D) || JD_PanelName.equals(UtilsSharedPref.PanelName.JD9366D) ){
+            if(JD_PanelName.equals(UtilsSharedPref.PanelName.JD9365D) ||
+                    JD_PanelName.equals(UtilsSharedPref.PanelName.JD9366D) ||
+                    JD_PanelName == UtilsSharedPref.PanelName.JD9364 ){
                 value = get_9365_55h_Config();
                 echoShellCommand("E0 00",GenWrite);//page 0
                 echoShellCommand("55 "+value,GenWrite);
@@ -1906,7 +2209,9 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
                 echoShellCommand("B2 0A",GenWrite);
             }
         }else{
-            if(JD_PanelName.equals(UtilsSharedPref.PanelName.JD9365D) ||  JD_PanelName.equals(UtilsSharedPref.PanelName.JD9366D) ){
+            if(JD_PanelName.equals(UtilsSharedPref.PanelName.JD9365D) ||
+                    JD_PanelName.equals(UtilsSharedPref.PanelName.JD9366D) ||
+                    JD_PanelName == UtilsSharedPref.PanelName.JD9364 ){
                 value = get_9365_55h_Config();
                 echoShellCommand("E0 00",GenWrite);//page 0
                 echoShellCommand("55 "+value,GenWrite);
@@ -1929,7 +2234,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
             }else{
                 value55 = "02";
             }
-            if(JD_PanelName.equals(UtilsSharedPref.PanelName.JD9365D)){
+            if(JD_PanelName.equals(UtilsSharedPref.PanelName.JD9365D )){
                 echoShellCommand("E0 00",GenWrite);//page 0
                 echoShellCommand("51 FF", GenWrite);
                 echoShellCommand("53 2C",GenWrite);
@@ -1957,7 +2262,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
                 //disable both cabc and als.
                 value55 = "00";
             }
-            if(JD_PanelName.equals(UtilsSharedPref.PanelName.JD9365D)){
+            if(JD_PanelName.equals(UtilsSharedPref.PanelName.JD9365D) || JD_PanelName == UtilsSharedPref.PanelName.JD9364){
                 echoShellCommand("E0 00",GenWrite);//page 0
                 echoShellCommand("55 "+value55,GenWrite);
             }else {
@@ -2060,6 +2365,19 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
                         setColorEnhance(false);
                     }
                 }
+            }else if(buttonView.getId() == R.id.SW_Lux_DBV) {
+                if(!isChecked){
+                    echoShellCommand("E0 00", GenWrite);//page 0
+                    echoShellCommand("51 FF", GenWrite);//page 0
+                }
+            }else if(buttonView.getId() == R.id.SW_Lux_SLR) {
+                if(!isChecked){
+                    echoShellCommand("E0 00", GenWrite);//page 0
+                    echoShellCommand("55 00", GenWrite);//page 0
+                }else{
+                    echoShellCommand("E0 00", GenWrite);//page 0
+                    echoShellCommand("55 70", GenWrite);//page 0
+                }
             }
             resetUI();
 
@@ -2074,11 +2392,29 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
 //            if (LL_Bottom != null)
 //                LL_Bottom.setVisibility(on ? View.VISIBLE : View.INVISIBLE);
         }
+//        echoShellCommand("E0 00", GenWrite);//page 0
+//        echoShellCommand("51 "+ (on?"FF":"00"), GenWrite);
+        //echoShellCommand("51 "+ (on?"0F FF":"00 04"), GenWrite);
 
-        if (LL_FileInfo != null)
-            LL_FileInfo.setVisibility(on ? View.VISIBLE : View.INVISIBLE);
-        if (LL_MipiCmdBar != null)
-            LL_MipiCmdBar.setVisibility(on ? View.VISIBLE : View.INVISIBLE);
+        if(!bDisableCmdBar) {
+            if (LL_FileInfo != null)
+                LL_FileInfo.setVisibility(on ? View.VISIBLE : View.INVISIBLE);
+            if (LL_MipiCmdBar != null)
+                LL_MipiCmdBar.setVisibility(on ? View.VISIBLE : View.INVISIBLE);
+        }else{
+            if (LL_FileInfo != null)
+                LL_FileInfo.setVisibility(View.INVISIBLE);
+            if (LL_MipiCmdBar != null)
+                LL_MipiCmdBar.setVisibility(View.INVISIBLE);
+        }
+        WifiManager wm = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
+//        String ip = Formatter.formatIpAddress(wm.getConnectionInfo().getIpAddress());
+        assert wm != null;
+        int ip = wm.getConnectionInfo().getIpAddress();
+
+        String result = String.format("%d.%d.%d.%d", (ip & 0xff), (ip >> 8 & 0xff), (ip >> 16 & 0xff), (ip >> 24 & 0xff));
+        FLog.d(TAG,"wifi address:"+wm.getConnectionInfo().getIpAddress());
+        FLog.d(TAG,"wifi address:"+result);
 
 //        FLog.d(TAG, "setDisplayInfo LL_CABC on : " + on);
 //        if(LL_CABC!=null)
@@ -2103,12 +2439,44 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
     protected void onResume() {
         super.onResume();
         setDisplayInfo(UtilsSharedPref.getDisplayCtrl());
+
+        if(!bDisableAutoPlay) {
+            mPlayHandler.removeCallbacks(mPlayRunnable);
+            mPlayHandler.post(mPlayRunnable);
+        }
+        if(!bDisableDBVRead) {
+            mDBVReadHandler.removeCallbacks(mDBVReadRunnable);
+            mDBVReadHandler.post(mDBVReadRunnable);
+        }
+        cancelNotification(getApplication(),notificationId);
+
+//        mPlayHandler.post(mPlayRunnable);
     }
 
+    BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        public void onReceive(Context context, Intent intent) {
+            FLog.d("calling me "," !!!"+intent.getAction());
+        }
+    };
     @Override
     protected void onPause(){
         super.onPause();
         UtilsSharedPref.setDisplayImgIndex(fileIndex);
+        if(!bDisableDBVRead) {
+            mDBVReadHandler.removeCallbacks(mDBVReadRunnable);
+        }
+        mPlayHandler.removeCallbacks(mPlayRunnable);
+        notificationBuild();
+
+        IntentFilter intentFilter;
+
+
+        yourActivityRunOnStartup receiver;
+        receiver = new yourActivityRunOnStartup();
+        intentFilter = new IntentFilter(ACTION_CABC_OFF);
+        intentFilter.addAction(ACTION_CABC_ON);
+        intentFilter.addAction(ACTION_CABC_SUGGEST);
+        registerReceiver(receiver, intentFilter);
     }
 
     @Override
@@ -2386,7 +2754,12 @@ final int REQUEST_DIRECTORY = 1001;
         switch (view.getId()){
             case R.id.BT_fnc:
                 //toSettingActivity();
-                toCmdActivity();
+                //toCmdActivity();
+//                toPlayVideoActivity();
+//                registerReceiver(mReceiver, new IntentFilter(Intent.ACTION_MEDIA_BUTTON));
+//                notificationBuild();
+                  bDisableCmdBar=!bDisableCmdBar;
+                  resetUI();
                 break;
             case R.id.BT_CE_parameter1:
                 if(SW_CE.isChecked()) {
@@ -2460,6 +2833,18 @@ final int REQUEST_DIRECTORY = 1001;
                     echoShellCommand("E0 00",GenWrite);//page 0
                     resetUI();
                 }
+                if(JD_PanelName == UtilsSharedPref.PanelName.JD9364) {
+                    UtilsSharedPref.setCabcModeJD9364(UtilsSharedPref.JD9364_DEFAULT_Y);
+//DD ON
+//                    echoShellCommand("E0 00",GenWrite);//page 0
+//                    echoShellCommand("53 2C",GenWrite);
+//                    echoShellCommand("E0 03",GenWrite);//page 3
+//                    echoShellCommand("A9 81",GenWrite);
+//                    echoShellCommand("A0 33",GenWrite);
+//                    echoShellCommand("A1 33",GenWrite);
+//                    echoShellCommand("AF 20",GenWrite);
+//                    mDBVReadHandler.postDelayed(mDBVReadRunnable,2500);
+                }
                 break;
             case R.id.BT_OtherFunc2:
                 if(JD_PanelName == UtilsSharedPref.PanelName.JD9365D){
@@ -2468,6 +2853,15 @@ final int REQUEST_DIRECTORY = 1001;
                     echoShellCommand("E0 00",GenWrite);//page 0
                     resetUI();
                 }
+                if(JD_PanelName == UtilsSharedPref.PanelName.JD9364) {
+                    UtilsSharedPref.setCabcModeJD9364(UtilsSharedPref.JD9364_SUGGEST_Y);
+                }
+                break;
+            case R.id.BT_OtherFunc3:
+                if(JD_PanelName == UtilsSharedPref.PanelName.JD9364) {
+                    UtilsSharedPref.setCabcModeJD9364(UtilsSharedPref.JD9364_SUGGEST_MAX);
+                }
+
                 break;
             case R.id.BT_CABC_Strength1:
                 jd9365z_CABC_Ctrl1();
@@ -2608,7 +3002,7 @@ final int REQUEST_DIRECTORY = 1001;
             FLog.d("OnSeekBarChangeListener","onStartTrackingTouch progressLUMEN = " + progressLUMEN);
 //            int index= UtilsSharedPref.getProject();
 
-            if(JD_PanelName.equals(UtilsSharedPref.PanelName.JD9365D)){
+            if(JD_PanelName.equals(UtilsSharedPref.PanelName.JD9365D)|| JD_PanelName == UtilsSharedPref.PanelName.JD9364){
                 echoShellCommand("E0 00", GenWrite);
             }
 //            set for dimming.
@@ -2654,7 +3048,7 @@ final int REQUEST_DIRECTORY = 1001;
     public void setLUMEN(){
         String str_lumen = "";
         String lumAddr = "";
-        if(JD_PanelName.equals(UtilsSharedPref.PanelName.JD9365D)){
+        if(JD_PanelName.equals(UtilsSharedPref.PanelName.JD9365D) || JD_PanelName == UtilsSharedPref.PanelName.JD9364){
             echoShellCommand("E0 00",GenWrite);//page 0
             lumAddr = "51 ";
         }else{
@@ -2671,12 +3065,14 @@ final int REQUEST_DIRECTORY = 1001;
             UtilsSharedPref.setPrefDisplayCurLUMEN(progressLUMEN);
         else
             progressLUMEN = UtilsSharedPref.getDisplayCurLUMEN();
+
+//        mDBVReadHandler.postDelayed(mDBVReadRunnable,200);
     }
 
     public boolean setLUMEN(int lumen){
         String str_lumen = "";
         String lumAddr = "";
-        if(JD_PanelName.equals(UtilsSharedPref.PanelName.JD9365D)){
+        if(JD_PanelName.equals(UtilsSharedPref.PanelName.JD9365D) || JD_PanelName == UtilsSharedPref.PanelName.JD9364){
             echoShellCommand("E0 00",GenWrite);//page 0
             lumAddr = "51 ";
         }else{
@@ -2704,7 +3100,7 @@ final int REQUEST_DIRECTORY = 1001;
 
         FLog.d("set_SLR()","JD_PanelName="+JD_PanelName);
 //        FLog.d("set_SLR()","UtilsSharedPref.PanelName.JD9365D="+UtilsSharedPref.PanelName.JD9365D);
-        if(JD_PanelName.equals(UtilsSharedPref.PanelName.JD9365D)){
+        if(JD_PanelName.equals(UtilsSharedPref.PanelName.JD9365D) || JD_PanelName == UtilsSharedPref.PanelName.JD9364){
             UtilsSharedPref.echoShellCommand("E0 00",GenWrite);//page 0
             String str_slr1 = "88 " + String.format("%02X ", progressSLR >> 24 & 0xff);
             String str_slr2 = "89 " + String.format("%02X ", progressSLR >> 16 & 0xff);
@@ -2741,7 +3137,7 @@ final int REQUEST_DIRECTORY = 1001;
         FLog.d("set_SLR(slr)","JD_PanelName="+JD_PanelName);
         FLog.d("set_SLR(slr)","UtilsSharedPref.PanelName.JD9365D="+UtilsSharedPref.PanelName.JD9365D);
 
-        if(JD_PanelName.equals(UtilsSharedPref.PanelName.JD9365D)){
+        if(JD_PanelName.equals(UtilsSharedPref.PanelName.JD9365D) || JD_PanelName == UtilsSharedPref.PanelName.JD9364){
             echoShellCommand("E0 00",GenWrite);//page 0
             String str_slr1 = "88 " + String.format("%02X ", slr >> 24 & 0xff);
             String str_slr2 = "89 " + String.format("%02X ", slr >> 16 & 0xff);
@@ -2796,23 +3192,34 @@ final int REQUEST_DIRECTORY = 1001;
     int mCount_keydown = 0;
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-
+        FLog.d(TAG,"onKeyDown keycode="+keyCode);
         if ((keyCode == KeyEvent.KEYCODE_VOLUME_UP)){
             //Do something
-            if(SB_LUMEN!=null && progressLUMEN<SB_LUMEN.getMax()) {
-                if(mCount_keydown>3){
-                    int scale = SB_LUMEN.getMax()/10;
-                    if((scale+progressLUMEN)<=SB_LUMEN.getMax()){
-                        SB_LUMEN.setProgress((scale+progressLUMEN));
-                    }else if((SB_LUMEN.getMax()-progressLUMEN)<scale){
-                        SB_LUMEN.setProgress(SB_LUMEN.getMax());
+            if(JD_PanelName==UtilsSharedPref.PanelName.JD9854) {
+                fileIndex++;
+                if (fileIndex >= filelist.length)
+                    fileIndex = 0;
+                loadImage();
+            } else{
+                if(SB_LUMEN!=null && progressLUMEN<SB_LUMEN.getMax()) {
+                    if(mCount_keydown>3){
+                        int scale = SB_LUMEN.getMax()/10;
+                        if((scale+progressLUMEN)<=SB_LUMEN.getMax()){
+                            SB_LUMEN.setProgress((scale+progressLUMEN));
+                        }else if((SB_LUMEN.getMax()-progressLUMEN)<scale){
+                            SB_LUMEN.setProgress(SB_LUMEN.getMax());
+                        }
+                    }else {
+                        SB_LUMEN.setProgress(progressLUMEN + 1);
                     }
-                }else {
-                    SB_LUMEN.setProgress(progressLUMEN + 1);
                 }
+                mCount_keydown++;
             }
-            mCount_keydown++;
 
+        }
+
+        if ((keyCode == KeyEvent.KEYCODE_VOLUME_DOWN)) {
+            takeScreenshot();
         }
         return true;
     }
@@ -2865,11 +3272,18 @@ final int REQUEST_DIRECTORY = 1001;
                 SB_SLR.setProgress(progressSLR);
                 return true;
             case KeyEvent.KEYCODE_ESCAPE:
-//                setGenWriteJava("4A 0");
-                setGenWriteJava("C2 24 46 00");
-                setGenWriteJava("11");
-                setGenWriteJava("29");
-                FLog.d("JPVR", "KEYCODE_ESCAPE ");
+                echoShellCommand("DE 03",GenWrite);//page 4
+                echoShellCommand("B6 20",GenWrite);
+                loadImage();
+                echoShellCommand("DE 04",GenWrite);//page 4
+                echoShellCommand("E5 03",GenWrite);
+                echoShellCommand("DE 03",GenWrite);//page 4
+                echoShellCommand("B6 08",GenWrite);
+
+                return true;
+            case KeyEvent.KEYCODE_SPACE:
+                echoShellCommand("DE 04",GenWrite);//page 4
+                echoShellCommand("E5 02",GenWrite);
                 return true;
             case KeyEvent.KEYCODE_ALT_LEFT:
                 toSettingActivity();
@@ -2880,6 +3294,16 @@ final int REQUEST_DIRECTORY = 1001;
             case KeyEvent.KEYCODE_F2:
                 setDisplayInfo(!UtilsSharedPref.getDisplayCtrl());
                 //UtilsSharedPref.setDisplayCtrl(!UtilsSharedPref.getDisplayCtrl());
+                return true;
+            case KeyEvent.KEYCODE_F5:
+                echoShellCommand("DE 03",GenWrite);//page 4
+                echoShellCommand("B6 20",GenWrite);
+                return true;
+            case KeyEvent.KEYCODE_F6:
+                echoShellCommand("DE 04",GenWrite);//page 4
+                echoShellCommand("E5 02",GenWrite);
+                echoShellCommand("DE 03",GenWrite);//page 4
+                echoShellCommand("B6 08",GenWrite);
                 return true;
             case KeyEvent.KEYCODE_LEFT_BRACKET:
                 fileIndex--;
@@ -2937,6 +3361,30 @@ final int REQUEST_DIRECTORY = 1001;
         startActivity(it);
     }
 
+    void toPlayVideoActivity(){
+        String path = Environment.getExternalStorageDirectory().getAbsolutePath() +"/Movies/";
+        String url;
+        File filelist[];
+        File f = new File(path);
+        filelist = f.listFiles();
+
+        if(filelist!=null && filelist.length>0)
+        //if(false)
+        {
+            url = filelist[0].getAbsolutePath();
+            FLog.d("StartUp","url="+url);
+
+            String extension = MimeTypeMap.getFileExtensionFromUrl(url);
+            FLog.d("StartUp","extension="+extension);
+            String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+            FLog.d("StartUp","mimeType="+mimeType);
+            Intent mediaIntent = new Intent(Intent.ACTION_VIEW);
+            mediaIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            mediaIntent.setDataAndType(Uri.parse(url), mimeType);
+            startActivity(mediaIntent);
+        }
+    }
+
     void toCmdActivity(){
         Intent it = new Intent(getBaseContext(), CmdActivity.class);
         startActivity(it);
@@ -2959,10 +3407,16 @@ final int REQUEST_DIRECTORY = 1001;
 
 //        IV_Pic.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN);
         if(bmp!=null) {
+//            if(JD_PanelName == UtilsSharedPref.PanelName.JD9854) {
+//                echoShellCommand("DE 00", GenWrite);//page 0
+//                FLog.d(TAG,"skipped image");
+//                return;
+//            }
+//            echoShellCommand("E0 00", GenWrite);//page 0
             int y=0;
-            for(int x=0;x<10;x++){
-                FLog.d("loadImage","("+x+","+y+")="+Integer.toHexString(bmp.getPixel(x,y)));
-            }
+//            for(int x=0;x<10;x++){
+//                FLog.d("loadImage","("+x+","+y+")="+Integer.toHexString(bmp.getPixel(x,y)));
+//            }
             if(mDualPresentation==null) {
                 IV_Pic.setImageBitmap(bmp);
             }else{
@@ -2984,6 +3438,10 @@ final int REQUEST_DIRECTORY = 1001;
             TV_Filename.setText("");
             TV_ImgInfo.setText("");
         }
+//        Handler mDBVReadHandler=new Handler();
+//        Runnable mDBVReadRunnable= new Runnable() {
+//        mDBVReadHandler.postDelayed(mDBVReadRunnable,600);
+        takeScreenshot();
     }
 
     Toast mMipiToast = null;
@@ -3127,6 +3585,311 @@ final int REQUEST_DIRECTORY = 1001;
 //        unregisterReceiver(mReceiver);
     }
 
+//    String sSocketReadData = "";
+    BlockingQueue<String> qSocketWrite= new ArrayBlockingQueue<String>(100);
+    Handler mSocketConnectHandler=new Handler();
+
+    Runnable mSocketConnectRunnable = new Runnable() {
+        @Override
+        public void run() {
+            FLog.d(TAG,"mSocketConnectRunnable running...");
+
+            if(SocketServer!=null){
+                if(SocketServer.isLoop || (!(SocketServer.socketClient == null) && !SocketServer.socketClient.isClosed())){
+                    mSocketConnectHandler.postDelayed(mSocketConnectRunnable, 2000);
+                    return;
+                }
+            }
+
+            SocketServer = new ServerThread();
+
+//            if (SocketServer.isLoop) {
+//                mSocketConnectHandler.postAtTime(mSocketConnectRunnable, 2000);
+//            }
+
+            if (SocketServer.socketClient == null) {
+                SocketServer.setIsLoop(true);
+                FLog.d(TAG,"Start SocketServer thread...");
+                SocketServer.start();
+                FLog.d(TAG,"Ended Start SocketServer thread...");
+            }else {
+
+                //restart again.
+                FLog.d(TAG, "SocketServer.socketClient.isConnected()=" + SocketServer.socketClient.isConnected());
+                FLog.d(TAG, "SocketServer.socketClient.isClosed()=" + SocketServer.socketClient.isClosed());
+                if (SocketServer.socketClient.isClosed()) {
+                    SocketServer.setIsLoop(true);
+                    FLog.d(TAG, "Restart SocketServer thread...");
+                    SocketServer.start();
+                }
+            }
+            mSocketConnectHandler.postDelayed(mSocketConnectRunnable, 11000);
+        }
+    };
+
+
+    public void addToWriteQueue(String in){
+        try {
+            qSocketWrite.offer(in,500,TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    class ServerWriteThread extends Thread{
+
+        PrintWriter os=null;
+        Socket s=null;
+
+        public ServerWriteThread(Socket s){
+            this.s=s;
+        }
+
+        public void run() {
+            try{
+//                is= new BufferedReader(new InputStreamReader(s.getInputStream()));
+                os=new PrintWriter(s.getOutputStream());
+
+            }catch(IOException e){
+                FLog.d(TAG,"IO error in server thread");
+            }
+
+            try {
+                while(!s.isClosed()){
+                        String sToWrite = "";
+//                    FLog.d(TAG,"Waiting for writeQueue arrival...");
+                        try {
+                            sToWrite = qSocketWrite.poll(500,TimeUnit.MILLISECONDS);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        if(sToWrite!=null && !sToWrite.equals("")){
+                            FLog.d(TAG,"writeQueue sToWrite:"+sToWrite);
+                            try{
+                                os.write(sToWrite+"\r\n");
+                                os.flush();
+                            }catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                }
+            }
+            catch(NullPointerException e){
+                FLog.d(TAG,"Client  Closed");
+            }
+
+            finally{
+                try{
+                    FLog.d(TAG,"Connection Closing..");
+
+                    if(os!=null){
+                        os.close();
+                        FLog.d(TAG,"Socket Out Closed");
+                    }
+                    if (s!=null){
+                        s.close();
+                        FLog.d(TAG,"Socket Closed");
+                    }
+
+                }
+                catch(IOException ie){
+                    FLog.d(TAG,"Socket Close Error");
+                }
+            }//end finally
+        }
+    }
+
+    class ServerReadThread extends Thread{
+
+        String line=null;
+        BufferedReader  is = null;
+        PrintWriter os=null;
+        Socket s=null;
+
+        public ServerReadThread(Socket s){
+            this.s=s;
+        }
+
+        public void run() {
+            try{
+                is= new BufferedReader(new InputStreamReader(s.getInputStream()));
+//                os=new PrintWriter(s.getOutputStream());
+
+            }catch(IOException e){
+                FLog.d(TAG,"IO error in server thread");
+            }
+
+            try {
+                line=is.readLine();
+                while(!s.isClosed() && line.compareTo("QUIT")!=0){
+
+//                    os.println(line);
+//                    os.flush();
+                    FLog.d(TAG,"Read from Client  :  "+line);
+//                    sSocketReadData = line;
+//                    mSocketReadHandler.removeCallbacks(mSocketReadRunnable);
+//                    mSocketReadHandler.post(mSocketReadRunnable);
+                    if(line.equals("resolution:")){
+//                        Display display = getWindowManager().getDefaultDisplay();
+//                        Point size = new Point();
+//                        display.getSize(size);
+//                        qSocketWrite.offer("resolution:"+size.x+"x"+size.y,500,TimeUnit.MILLISECONDS);
+//                        addToWriteQueue("resolution:"+size.x+"x"+size.y);
+                        DisplayMetrics metrics = new DisplayMetrics();
+                        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+
+                        int height = metrics.heightPixels;
+                        int width = metrics.widthPixels;
+
+                        // navigation bar height
+                        int navigationBarHeight = 0;
+                        int resId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+                        FLog.d(TAG,"resId="+resId);
+                        if (resId > 0) {
+                            navigationBarHeight = getResources().getDimensionPixelSize(resId);
+                        }
+                        // status bar height
+                        int statusBarHeight = 0;
+                        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+                        if (resourceId > 0) {
+                            statusBarHeight = getResources().getDimensionPixelSize(resourceId);
+                        }
+
+                        // action bar height
+                        int actionBarHeight = 0;
+                        final TypedArray styledAttributes = getTheme().obtainStyledAttributes(
+                                new int[] { android.R.attr.actionBarSize }
+                        );
+                        actionBarHeight = (int) styledAttributes.getDimension(0, 0);
+                        styledAttributes.recycle();
+                        FLog.d(TAG,"statusBarHeight="+statusBarHeight);
+                        FLog.d(TAG,"navigationBarHeight="+navigationBarHeight);
+                        height = height + statusBarHeight + navigationBarHeight;
+
+
+
+
+
+                        addToWriteQueue("resolution:"+width+"x"+height);
+
+                    }
+                    line=is.readLine();
+                }
+            } catch (IOException e) {
+
+                line=this.getName(); //reused String line for getting thread name
+                FLog.d(TAG,"IO Error/ Client "+line+" terminated abruptly");
+            }
+            catch(NullPointerException e){
+                line=this.getName(); //reused String line for getting thread name
+                FLog.d(TAG,"Client "+line+" Closed");
+            }
+
+            finally{
+                try{
+                    FLog.d(TAG,"Connection Closing..");
+                    if (is!=null){
+                        is.close();
+                        FLog.d(TAG," Socket Input Stream Closed");
+                    }
+
+                    if(os!=null){
+                        os.close();
+                        FLog.d(TAG,"Socket Out Closed");
+                    }
+                    if (s!=null){
+                        s.close();
+                        FLog.d(TAG,"Socket Closed");
+                    }
+
+                }
+                catch(IOException ie){
+                    FLog.d(TAG,"Socket Close Error");
+                }
+            }//end finally
+        }
+    }
+
+    class ServerThread extends Thread {
+        boolean isLoop = false;
+        //BufferedWriter bwSocket=null;
+        Socket socketClient = null;
+        ServerReadThread srt;
+        ServerWriteThread swt;
+
+        void setIsLoop(boolean isLoop) { this.isLoop = isLoop; }
+
+        @Override
+        public void run() {
+            FLog.d(TAG, "running");
+            ServerSocket serverSocket = null;
+            try {
+                serverSocket = new ServerSocket(8888);
+                serverSocket.setSoTimeout(10000);
+//                while (isLoop) {
+                    FLog.d(TAG, "waiting for accept");
+                    socketClient = serverSocket.accept();
+                    if(socketClient!=null && socketClient.isConnected())
+                        FLog.d(TAG, "accept");
+                    else
+                        FLog.d(TAG, "Timeout for waiting!");
+
+                    //bwSocket = new BufferedWriter( new OutputStreamWriter(socketClient.getOutputStream()));
+                    srt=new ServerReadThread(socketClient);
+                    srt.start();
+                    swt = new ServerWriteThread(socketClient);
+                    swt.start();
+
+//                    BufferedReader br = new BufferedReader(new InputStreamReader(socketClient.getInputStream()));
+//                    DataInputStream inputStream = new DataInputStream(socket.getInputStream());
+//                    DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
+//                    while (socketClient.isConnected()) {
+//                        FLog.d(TAG, "connected!!");
+//                        String msg = br.readLine();
+//                        FLog.d(TAG, "msg:"+msg);
+////                        Message message = Message.obtain();
+////                        Bundle bundle = new Bundle();
+////                        bundle.putString("MSG", msg);
+////                        message.setData(bundle);
+////                        socket_handler.sendMessage(message);
+////                        bwSocket.write("["+msg+"] received!");
+////                        bwSocket.flush();
+//                        writeSocket("["+msg+"] received!");
+//                    }
+//                     socketClient.close();
+//                FLog.d(TAG, "socket closed!!");
+//                }
+//                while(!socketClient.isClosed()){
+//                    String sToWrite = "";
+////                    FLog.d(TAG,"Waiting for writeQueue arrival...");
+//                    try {
+//                        sToWrite = qSocketWrite.poll(500,TimeUnit.MILLISECONDS);
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+//                    if(sToWrite!=null && !sToWrite.equals("")){
+//                        FLog.d(TAG,"writeQueue sToWrite:"+sToWrite);
+//                        writeSocket(sToWrite);
+//                    }
+//                }
+//                  mSocketReadHandler.removeCallbacks(mSocketReadRunnable);
+//                  mSocketReadHandler.post(mSocketReadRunnable);
+            } catch (Exception e) {
+                //e.printStackTrace();
+            } finally {
+                FLog.d(TAG, "destory");
+                if (serverSocket != null) {
+                    try {
+                        serverSocket.close();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            this.isLoop = false;
+        }
+    }
 
     public class Test {
 
@@ -3141,7 +3904,7 @@ final int REQUEST_DIRECTORY = 1001;
         public void initializeConnection(){
             //Create socket connection
             try{
-                socket = new Socket("localhost", 38300);
+                socket = new Socket("localhost", 8888);
                 out = new PrintWriter(socket.getOutputStream(), true);
                 //in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 sc = new Scanner(socket.getInputStream());
@@ -3168,39 +3931,38 @@ final int REQUEST_DIRECTORY = 1001;
 
     }
 
-    public void main(String[] args) {
+    public void mainSocket(String[] args) {
 
         Test t = new Test();
         t.initializeConnection();
 
         while(t.sc.hasNext()) {
-            System.out.println(System.currentTimeMillis() + " / " + t.sc.nextLine());
+            FLog.d(TAG,System.currentTimeMillis() + " / " + t.sc.nextLine());
         }
     }
-
-    private void select_CABC_Mode(int checkedId){
-        FLog.d(TAG,"CABC_OnCheckedChangeListener checkedId="+checkedId);
+    public static void setCABCMode(int mode){
+        FLog.d(TAG,"CABC_OnCheckedChangeListener mode="+mode);
         String value55 ="", valueA0="44",valueA0_9365z="55";
         int icabc = 0;
         // checkedId is the RadioButton selected
-        switch(checkedId){
-            case R.id.CABC_Mode_Off:
+        switch(mode){
+            case CABC_Mode_Off:
                 value55 = "00";
                 icabc =0;
                 valueA0 = "55";
                 valueA0_9365z = "55";
                 break;
-            case R.id.CABC_Mode_Mov:
+            case CABC_Mode_Mov:
                 value55 = "03";
                 icabc = 3;
                 valueA0_9365z = "55";
                 break;
-            case R.id.CABC_Mode_Pic:
+            case CABC_Mode_Pic:
                 value55 = "02";
                 icabc = 2;
                 valueA0_9365z = "55";
                 break;
-            case R.id.CABC_Mode_UI:
+            case CABC_Mode_UI:
                 value55 = "01";
                 icabc = 1;
                 valueA0_9365z = "55";
@@ -3213,7 +3975,7 @@ final int REQUEST_DIRECTORY = 1001;
                 break;
         }
 
-        if(JD_PanelName == UtilsSharedPref.PanelName.JD9365D) {
+        if(JD_PanelName == UtilsSharedPref.PanelName.JD9365D || JD_PanelName == UtilsSharedPref.PanelName.JD9364) {
             echoShellCommand("E0 00", GenWrite);//page 0
         }else if(JD_PanelName == UtilsSharedPref.PanelName.JD9365Z) {
             echoShellCommand("DE 00", GenWrite);//page 0
@@ -3229,8 +3991,12 @@ final int REQUEST_DIRECTORY = 1001;
             FLog.d(TAG,"value55="+value55);
         }
 //            echoShellCommand("51 FF", GenWrite);
-        echoShellCommand("53 2C",GenWrite);
-        echoShellCommand("55 "+value55,GenWrite);
+        //This is DD.
+        if(JD_PanelName != UtilsSharedPref.PanelName.JD9364) {
+            echoShellCommand("53 2C", GenWrite);
+        }
+        echoShellCommand("55 " + value55, GenWrite);
+
         //Test pattern off
         if(JD_PanelName == UtilsSharedPref.PanelName.JD9365D) {
             echoShellCommand("E0 03", GenWrite);//page 3
@@ -3246,6 +4012,24 @@ final int REQUEST_DIRECTORY = 1001;
             echoShellCommand("DE 01", GenWrite);//page 1
             echoShellCommand("BB " + valueA0_9365z, GenWrite);
         }
+    }
+
+    private void select_CABC_Mode(int checkedId){
+        int mode = CABC_Mode_Off;
+        switch(checkedId){
+            case R.id.CABC_Mode_Off:
+                mode = CABC_Mode_Off;
+                break;
+            case R.id.CABC_Mode_Mov:
+                mode = CABC_Mode_Mov;
+            case R.id.CABC_Mode_Pic:
+                mode = CABC_Mode_Pic;
+                break;
+            case R.id.CABC_Mode_UI:
+                mode = CABC_Mode_UI;
+                break;
+        }
+        setCABCMode(mode);
         resetUI();
     }
 
@@ -3309,7 +4093,7 @@ final int REQUEST_DIRECTORY = 1001;
     {
         @Override
         public void onCheckedChanged(RadioGroup group, int checkedId) {
-            if (JD_PanelName == UtilsSharedPref.PanelName.JD9365D) {
+            if (JD_PanelName == UtilsSharedPref.PanelName.JD9365D || JD_PanelName == UtilsSharedPref.PanelName.JD9364) {
                 select_PWM_Mode_9365D(checkedId);
             }else if (JD_PanelName == UtilsSharedPref.PanelName.JD9365Z) {
                 select_PWM_Mode_9365Z(checkedId);
@@ -3317,17 +4101,26 @@ final int REQUEST_DIRECTORY = 1001;
         }
     };
 
-
+    int seqTouch = 0;
     @Override
     public boolean onTouch(View view, MotionEvent event) {
+        float y1,y2,x3,y3;
+
         switch(event.getAction())
         {
             case MotionEvent.ACTION_DOWN:
                 x1 = event.getX();
+                y1 = event.getY();
+                seqTouch = 0;
+                addToWriteQueue(++seqTouch+"-x:"+x1+", y:"+y1+" pressed.");
                 break;
             case MotionEvent.ACTION_UP:
                 x2 = event.getX();
+                y2 = event.getY();
                 float deltaX = x2 - x1;
+                if(filelist==null || filelist.length==0){
+                    break;
+                }
                 if (Math.abs(deltaX) > MIN_DISTANCE)
                 {
                     if(x1>x2) {
@@ -3335,7 +4128,6 @@ final int REQUEST_DIRECTORY = 1001;
                         if (fileIndex >= filelist.length)
                             fileIndex = 0;
                         loadImage();
-
                     }else{
                         fileIndex--;
                         if (fileIndex < 0)
@@ -3344,6 +4136,13 @@ final int REQUEST_DIRECTORY = 1001;
                     }
 
                 }
+                addToWriteQueue(++seqTouch+"-x:"+x2+", y:"+y2+" released.\n");
+                break;
+
+            case MotionEvent.ACTION_MOVE:
+                x3 = event.getX();
+                y3 = event.getY();
+                addToWriteQueue(++seqTouch+"-x:"+x3+", y:"+y3+" moved.");
                 break;
         }
         return false;
@@ -3379,5 +4178,136 @@ final int REQUEST_DIRECTORY = 1001;
             }
         }
     }
+
+    private void takeScreenshot() {
+//        Date now = new Date();
+//        android.text.format.DateFormat.format("yyyy-MM-dd_hh:mm:ss", now);
+        if(bDisableSPI)
+            return;
+        try {
+            // image naming and path  to include sd card  appending name you choose for file
+            // create bitmap screen capture
+            View v1 = getWindow().getDecorView().getRootView();
+            v1.setDrawingCacheEnabled(true);
+            Bitmap bitmap = Bitmap.createBitmap(v1.getDrawingCache());
+            v1.setDrawingCacheEnabled(false);
+//            FLog.d(TAG,"bitmap.getRowBytes()="+bitmap.getRowBytes());
+//            FLog.d(TAG,"bitmap.getByteCount()="+bitmap.getByteCount());
+            new UtilsSharedPref.doFrameUpdateTask().execute(bitmap);
+
+
+
+        } catch (Throwable e) {
+            // Several error may come out with file handling or DOM
+            e.printStackTrace();
+        }
+    }
+    private void getRealResolutionDisplay(){
+        DisplayMetrics metrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+
+        int height = metrics.heightPixels;
+        int width = metrics.widthPixels;
+
+        // navigation bar height
+        int navigationBarHeight = 0;
+        int resId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+        FLog.d(TAG,"resId="+resId);
+        if (resId > 0) {
+            navigationBarHeight = getResources().getDimensionPixelSize(resId);
+        }
+        // status bar height
+        int statusBarHeight = 0;
+        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            statusBarHeight = getResources().getDimensionPixelSize(resourceId);
+        }
+
+        // action bar height
+        int actionBarHeight = 0;
+        final TypedArray styledAttributes = getTheme().obtainStyledAttributes(
+                new int[] { android.R.attr.actionBarSize }
+        );
+        actionBarHeight = (int) styledAttributes.getDimension(0, 0);
+        styledAttributes.recycle();
+        FLog.d(TAG,"statusBarHeight="+statusBarHeight);
+        FLog.d(TAG,"navigationBarHeight="+navigationBarHeight);
+        height = height + statusBarHeight + navigationBarHeight;
+
+
+        DP_HEIGHT = height;
+        DP_WIDTH = width;
+    }
+
+    int notificationId;
+
+    void cancelNotification(Context ctx, int notifyId) {
+        String ns = Context.NOTIFICATION_SERVICE;
+        NotificationManager nMgr = (NotificationManager) ctx.getSystemService(ns);
+        nMgr.cancel(notifyId);
+    }
+    private void notificationBuild(){
+//        NotificationCompat.Builder builder = new NotificationCompat.Builder(MainActivity.this, CHANNEL_ID)
+//                .setSmallIcon(R.drawable.ic_action_create_light)
+//                .setContentTitle("jpvr notification")
+//                .setContentText("test test test")
+//                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+        notificationId= (int) System.currentTimeMillis();
+
+        FLog.d(TAG,"build notificationBuild");
+//        Intent intent = new Intent(getApplicationContext(), yourActivityRunOnStartup.class);
+//        PendingIntent pendingIntent = PendingIntent.getActivity(this, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        Intent CABC_ON_INTENT = new Intent(this, yourActivityRunOnStartup.class);
+        CABC_ON_INTENT.setAction(ACTION_CABC_ON);
+
+        Intent CABC_OFF_INTENT = new Intent(this, yourActivityRunOnStartup.class);
+        CABC_OFF_INTENT.setAction(ACTION_CABC_OFF);
+
+        Intent CABC_SUGG_INTENT = new Intent(this, yourActivityRunOnStartup.class);
+        CABC_SUGG_INTENT.setAction(ACTION_CABC_SUGGEST);
+        PendingIntent cabcOnPendingIntent = PendingIntent.getBroadcast(this, notificationId, CABC_ON_INTENT, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent cabcSuggPendingIntent = PendingIntent.getBroadcast(this, notificationId, CABC_SUGG_INTENT, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent cabcOffPendingIntent = PendingIntent.getBroadcast(this, notificationId, CABC_OFF_INTENT, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        NotificationCompat.Action cabcOnAction =
+                new NotificationCompat.Action.Builder(
+                        R.drawable.ic_action_create,
+                        "DEF",
+                        cabcOnPendingIntent)
+                        .build();
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(MainActivity.this)
+                .setSmallIcon(R.drawable.ic_action_create_light)
+                .setContentTitle("JPVR CABC")
+                .setContentText(null)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setDefaults(NotificationCompat.DEFAULT_ALL)
+                // Set the intent that will fire when the user taps the notification
+                .addAction(cabcOnAction)
+                .addAction(R.drawable.ic_action_create,"SUG",cabcSuggPendingIntent)
+                .addAction(R.drawable.ic_action_create,"OFF",cabcOffPendingIntent)
+                .setAutoCancel(true);
+
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+
+// notificationId is a unique int for each notification that you must define
+        notificationManager.notify(notificationId, builder.build());
+
+
+    }
+//    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+//
+//        final String SYSTEM_REASON = "reason";
+//        final String SYSTEM_HOME_KEY = "homekey";
+//        final String SYSTEM_HOME_KEY_LONG = "recentapps";
+//
+//        @SuppressLint("CheckResult")
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+//            String action = intent.getAction();
+//
+//            FLog.d(TAG,"action="+action);
+//        }
+//    };
 }
 

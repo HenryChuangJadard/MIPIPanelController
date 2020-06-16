@@ -55,6 +55,13 @@
     <string name="CE">CE</string>
     <string name="CABC_Strength">CABC Strength</string>
 
+    <string name="DD_ON">DD ON</string>
+    <string name="DD_OFF">DD OFF</string>
+
+    <string name="DEFAULT_Y">default y</string>
+    <string name="SUGGEST_Y">suggest y</string>
+    <string name="SUGGEST_MAX">suggest max</string>
+
     <string name="ErrorRead">Failed to read.</string>
     <string name="ErrorWrite">Failed to write.</string>
     <string name="DeleteAlert">Do you want to delete the selected key(s)?</string>
@@ -85,6 +92,8 @@
 
     <string name="FileModification_Date">Date:</string>
     <string name="File_Size">&#160;&#160;Size:</string>
+    <string name="AdaptiveDBV">Ad. DBV</string>
+    <string name="AdaptiveSLR">Ad. SLR</string>
 
     <string-array name="projects">
         <item>9522</item>
